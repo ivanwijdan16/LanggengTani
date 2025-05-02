@@ -260,7 +260,7 @@
                       {{ \Carbon\Carbon::parse($pembelian->date)->format('d-m-Y') }},
                       {{ \Carbon\Carbon::parse($pembelian->created_at)->format('H:i') }}
                     </td>
-                    <td class="currency">
+                    <td class="currency text-start">
                       {{ number_format($pembelian->total, 0, ',', '.') }}</td>
                     <td>
                       <button type="button" class="btn btn-link btn-sm toggle-details"
@@ -316,7 +316,7 @@
         </div>
 
         <div class="chart-info">
-          <div>Bulan: <span>{{ \Carbon\Carbon::create()->month($bulan)->format('F') }}</span></div>
+            <div>Bulan: <span>{{ \Carbon\Carbon::create()->month($bulan)->translatedFormat('F') }}</span></div>
           <div>Tahun: <span>{{ $tahun }}</span></div>
         </div>
       </div>
@@ -338,6 +338,7 @@
           <table class="table">
             <thead class="table-dark">
               <tr>
+                <th>Stock ID</th>
                 <th>Nama Barang</th>
                 <th>Jumlah Stok Kadaluwarsa</th>
                 <th>Harga Beli (Per pcs)</th>
@@ -350,10 +351,11 @@
               @endphp
               @foreach ($kerugian as $item)
                 <tr>
+                  <td>{{ $item['stock_id'] }}</td>
                   <td>{{ $item['name'] }}</td>
                   <td>{{ $item['stok_kadaluarsa'] }}</td>
-                  <td class="currency">{{ number_format($item['harga_beli'], 0, ',', '.') }}</td>
-                  <td class="currency">{{ number_format($item['kerugian'], 0, ',', '.') }}</td>
+                  <td class="currency text-start">{{ number_format($item['harga_beli'], 0, ',', '.') }}</td>
+                  <td class="currency text-start">{{ number_format($item['kerugian'], 0, ',', '.') }}</td>
                 </tr>
                 @php
                   $totalKerugian += $item['kerugian'];
@@ -362,6 +364,7 @@
             </tbody>
           </table>
         </div>
+      </div>
       </div>
 
       <div class="total-box" style="border-color: #fee2e2; background-color: #fef2f2;">

@@ -34,22 +34,23 @@ class PembelianController extends Controller
       $totalPerHari[$tanggal] += $pembelian->total;
     }
 
-    $barangsKadaluarsa = Stock::where('expiration_date', '<', now())
-      ->whereYear('expiration_date', $tahun)
-      ->whereMonth('expiration_date', $bulan)
-      ->get();
+    $barangsKadaluarsa = Stock::with('masterStock')
+    ->where('expiration_date', '<', now())
+    ->whereYear('expiration_date', $tahun)
+    ->whereMonth('expiration_date', $bulan)
+    ->get();
 
-    // Menghitung kerugian berdasarkan jumlah dan harga beli
-    $kerugian = [];
-    foreach ($barangsKadaluarsa as $barang) {
-      $kerugian[] = [
-        'name' => $barang->name,
+// Menghitung kerugian berdasarkan jumlah dan harga beli
+$kerugian = [];
+foreach ($barangsKadaluarsa as $barang) {
+    $kerugian[] = [
+        'name' => $barang->masterStock ? $barang->masterStock->name : 'Barang tidak ditemukan',
+        'stock_id' => $barang->stock_id,
         'stok_kadaluarsa' => $barang->quantity,
         'harga_beli' => $barang->purchase_price,
         'kerugian' => $barang->purchase_price * $barang->quantity,
-      ];
-    }
-
+    ];
+}
     return view('pembelian.index', compact('pembelians', 'totalPerHari', 'bulan', 'tahun', 'kerugian'));
   }
 
@@ -97,25 +98,27 @@ class PembelianController extends Controller
     return $pdf->download("laporan_pembelian_{$bulan}_{$tahun}.pdf");
 }
 
-  public function barangKadaluarsaPerBulan($bulan, $tahun)
-  {
+public function barangKadaluarsaPerBulan($bulan, $tahun)
+{
     // Ambil barang yang kadaluarsa untuk bulan dan tahun tertentu
-    $barangsKadaluarsa = Stock::where('expiration_date', '<', now())
-      ->whereYear('expiration_date', $tahun)
-      ->whereMonth('expiration_date', $bulan)
-      ->get();
+    $barangsKadaluarsa = Stock::with('masterStock')
+        ->where('expiration_date', '<', now())
+        ->whereYear('expiration_date', $tahun)
+        ->whereMonth('expiration_date', $bulan)
+        ->get();
 
     // Menghitung kerugian berdasarkan jumlah dan harga beli
     $kerugian = [];
     foreach ($barangsKadaluarsa as $barang) {
-      $kerugian[] = [
-        'name' => $barang->name,
-        'stok_kadaluarsa' => $barang->quantity,
-        'harga_beli' => $barang->purchase_price,
-        'kerugian' => $barang->purchase_price * $barang->quantity,
-      ];
+        $kerugian[] = [
+            'name' => $barang->masterStock ? $barang->masterStock->name : 'Barang tidak ditemukan',
+            'stock_id' => $barang->stock_id,
+            'stok_kadaluarsa' => $barang->quantity,
+            'harga_beli' => $barang->purchase_price,
+            'kerugian' => $barang->purchase_price * $barang->quantity,
+        ];
     }
 
     return view('pembelian.kadaluarsa', compact('kerugian', 'bulan', 'tahun'));
-  }
+}
 }
