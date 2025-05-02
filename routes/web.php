@@ -30,16 +30,34 @@ Route::middleware('auth')->group(function () {
 
   Route::get('/', [HomeController::class, 'index'])->name('home');
 
-  Route::prefix('stocks')->name('stocks.')->group(function () {
-    Route::get('/', [StockController::class, 'index'])->name('index'); // List stok
-    Route::get('/create', [StockController::class, 'create'])->name('create'); // Form tambah stok
-    Route::get('/detail/{id}', [StockController::class, 'detail'])->name('detail'); // List stok
-    Route::post('/', [StockController::class, 'store'])->name('store'); // Simpan stok baru
-    Route::get('/{id}', [StockController::class, 'show'])->name('show'); // Detail stok
-    Route::get('/{id}/edit', [StockController::class, 'edit'])->name('edit'); // Form edit stok
-    Route::put('/{id}', [StockController::class, 'update'])->name('update'); // Update stok
-    Route::delete('/{id}', [StockController::class, 'destroy'])->name('destroy'); // Hapus stok
-  });
+  // Existing routes
+Route::prefix('stocks')->name('stocks.')->group(function () {
+    Route::get('/', [StockController::class, 'index'])->name('index');
+    Route::get('/create', [StockController::class, 'create'])->name('create');
+    Route::post('/', [StockController::class, 'store'])->name('store');
+
+    // New routes for size-based management
+    Route::get('/sizes/{master_id}', [StockController::class, 'sizes'])->name('sizes');
+    Route::get('/batches/{master_id}/{size}', [StockController::class, 'batches'])->name('batches');
+
+    Route::get('/create-size/{master_id}/{size?}', [StockController::class, 'createSize'])->name('create.size');
+    Route::post('/store-size', [StockController::class, 'storeSize'])->name('store.size');
+
+    Route::get('/edit-master/{id}', [StockController::class, 'editMaster'])->name('edit.master');
+    Route::put('/update-master/{id}', [StockController::class, 'updateMaster'])->name('update.master');
+
+    Route::get('/edit-size/{master_id}/{size}', [StockController::class, 'editSize'])->name('edit.size');
+    Route::put('/update-size', [StockController::class, 'updateSize'])->name('update.size');
+
+    Route::delete('/master/{id}', [StockController::class, 'destroyMaster'])->name('destroy.master');
+    Route::delete('/size/{master_id}/{size}', [StockController::class, 'destroySize'])->name('destroy.size');
+
+    // Existing detail routes
+    Route::get('/{id}', [StockController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [StockController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [StockController::class, 'update'])->name('update');
+    Route::delete('/{id}', [StockController::class, 'destroy'])->name('destroy');
+});
 
   // Route untuk mencari produk
   Route::get('/cart/search', [CartController::class, 'search'])->name('cart.search');

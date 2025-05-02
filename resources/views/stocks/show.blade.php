@@ -680,277 +680,183 @@
 @endsection
 
 @section('content')
-  <div class="container-fluid py-4">
-    <!-- Page Header -->
-    <div class="page-header">
-      <h1 class="header-title">
-        <i class="bx bx-detail"></i> Detail Stok
-      </h1>
-      <a href="{{ route('stocks.index') }}" class="btn btn-secondary">
-        <i class="bx bx-arrow-back"></i> Kembali
-      </a>
+<div class="container-fluid py-4">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="header-title">
+      <i class="bx bx-detail"></i> Detail Stok
+    </h1>
+    <a href="{{ url()->previous() }}" class="btn btn-secondary">
+      <i class="bx bx-arrow-back"></i> Kembali
+    </a>
+  </div>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumbs">
+    <div class="breadcrumb-item">
+      <a href="{{ route('stocks.index') }}">Stok</a>
     </div>
-
-    <!-- Breadcrumbs -->
-    <div class="breadcrumbs">
-      <div class="breadcrumb-item">
-        <a href="{{ route('stocks.index') }}">Stok</a>
-      </div>
-      <div class="breadcrumb-divider">
-        <i class="bx bx-chevron-right"></i>
-      </div>
-      <div class="breadcrumb-item">{{ $stock->masterStock->name }}</div>
+    <div class="breadcrumb-divider">
+      <i class="bx bx-chevron-right"></i>
     </div>
+    <div class="breadcrumb-item">
+      <a href="{{ route('stocks.sizes', $stock->master_stock_id) }}">{{ $stock->masterStock->name }}</a>
+    </div>
+    <div class="breadcrumb-divider">
+      <i class="bx bx-chevron-right"></i>
+    </div>
+    <div class="breadcrumb-item">
+      <a href="{{ route('stocks.batches', ['master_id' => $stock->master_stock_id, 'size' => $stock->size]) }}">{{ $stock->size }}</a>
+    </div>
+    <div class="breadcrumb-divider">
+      <i class="bx bx-chevron-right"></i>
+    </div>
+    <div class="breadcrumb-item">Detail</div>
+  </div>
 
-    <!-- Product Detail Card -->
-    <div class="card detail-card">
-      <div class="detail-container">
-        <!-- Product Image (Left Side) -->
-        <div class="product-img-container">
-          <img
-            src="{{ $stock->masterStock->image ? asset('storage/' . $stock->masterStock->image) : asset('images/default.png') }}"
-            class="product-img" alt="{{ $stock->masterStock->name }}">
+  <!-- Product Detail Card -->
+  <div class="card detail-card">
+    <div class="detail-container">
+      <!-- Product Image (Left Side) -->
+      <div class="product-img-container">
+        <img
+          src="{{ $stock->masterStock->image ? asset('storage/' . $stock->masterStock->image) : asset('images/default.png') }}"
+          class="product-img" alt="{{ $stock->masterStock->name }}">
+      </div>
 
-          @php
-            $expired = \Carbon\Carbon::parse($stock->expiration_date)->isPast();
-            $almostExpired = !$expired && \Carbon\Carbon::parse($stock->expiration_date)->diffInDays(now()) < 30;
-          @endphp
+      <!-- Product Details (Right Side) -->
+      <div class="detail-content">
+        <h1 class="product-title">{{ $stock->masterStock->name }}</h1>
+        <div class="product-type">{{ $stock->masterStock->type }}</div>
+        @if ($stock->masterStock->sub_type)
+          <div class="product-type">{{ $stock->masterStock->sub_type }}</div>
+        @endif
 
+        @if ($stock->masterStock->description)
+          <p class="product-description">{{ $stock->masterStock->description }}</p>
+        @else
+          <p class="product-description text-muted">Tidak ada deskripsi produk</p>
+        @endif
 
-        </div>
-
-        <!-- Product Details (Right Side) -->
-        <div class="detail-content">
-          <h1 class="product-title">{{ $stock->masterStock->name }}</h1>
-          <div class="product-type">{{ $stock->masterStock->type }}</div>
-          @if ($stock->masterStock->sub_type)
-            <div class="product-type">{{ $stock->masterStock->sub_type }}</div>
-          @endif
-
-          @if ($stock->masterStock->description)
-            <p class="product-description">{{ $stock->masterStock->description }}</p>
-          @else
-            <p class="product-description text-muted">Tidak ada deskripsi produk</p>
-          @endif
-
-          <div class="info-grid">
-            <!-- Purchase Price -->
-            <div class="info-item">
-              <span class="info-label">Harga Beli</span>
-              <span class="info-value price-value">
-                <i class="bx bx-purchase-tag"></i>
-                Rp{{ number_format($stock->purchase_price, 0, ',', '.') }}
-              </span>
-            </div>
-
-            <!-- Selling Price -->
-            <div class="info-item">
-              <span class="info-label">Harga Jual</span>
-              <span class="info-value price-value">
-                <i class="bx bx-dollar-circle"></i>
-                Rp{{ number_format($stock->selling_price, 0, ',', '.') }}
-              </span>
-            </div>
-
-            <!-- Quantity -->
-            <div class="info-item">
-              <span class="info-label">Jumlah Stok</span>
-              <span class="info-value">
-                <i class="bx bx-cabinet"></i>
-                {{ $stock->quantity }} pcs
-              </span>
-            </div>
-
-            <!-- Size -->
-            <div class="info-item">
-              <span class="info-label">Ukuran</span>
-              <span class="info-value">
-                <i class="bx bx-ruler"></i>
-                {{ $stock->size ?: 'Tidak Ada' }}
-              </span>
-            </div>
-
-            <!-- Expiration Date -->
-            <div class="info-item">
-              <span class="info-label">Tanggal Kadaluwarsa</span>
-              <span class="info-value {{ $expired ? 'expired-value' : ($almostExpired ? 'warning-value' : '') }}">
-                <i class="bx bx-calendar"></i>
-                {{ \Carbon\Carbon::parse($stock->expiration_date)->format('d M Y') }}
-                @if ($expired)
-                  <span class="badge bg-danger ms-2"
-                    style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 20px;">
-                    Kadaluwarsa
-                  </span>
-                @elseif($almostExpired)
-                  <span class="badge bg-warning text-dark ms-2"
-                    style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 20px;">
-                    Hampir Kadaluwarsa
-                  </span>
-                @endif
-              </span>
-            </div>
+        <div class="info-grid">
+          <!-- Purchase Price -->
+          <div class="info-item">
+            <span class="info-label">Harga Beli</span>
+            <span class="info-value price-value">
+              <i class="bx bx-purchase-tag"></i>
+              Rp{{ number_format($stock->purchase_price, 0, ',', '.') }}
+            </span>
           </div>
 
-          <!-- Action Buttons -->
-          <div class="actions">
-            <a href="{{ route('stocks.edit', $stock->id) }}" class="btn btn-action btn-edit">
-              <i class="bx bx-edit me-2"></i> Edit Produk
-            </a>
-            <button type="button" class="btn btn-action btn-delete" onclick="openDeleteModal()">
-              <i class="bx bx-trash me-2"></i> Hapus
-            </button>
+          <!-- Selling Price -->
+          <div class="info-item">
+            <span class="info-label">Harga Jual</span>
+            <span class="info-value price-value">
+              <i class="bx bx-dollar-circle"></i>
+              Rp{{ number_format($stock->selling_price, 0, ',', '.') }}
+            </span>
           </div>
 
-          <form id="delete-form" action="{{ route('stocks.destroy', $stock->id) }}" method="POST">
-            @csrf
-            @method('DELETE')
-          </form>
+          <!-- Quantity -->
+          <div class="info-item">
+            <span class="info-label">Jumlah Stok</span>
+            <span class="info-value">
+              <i class="bx bx-cabinet"></i>
+              {{ $stock->quantity }} pcs
+            </span>
+          </div>
+
+          <!-- Size -->
+          <div class="info-item">
+            <span class="info-label">Ukuran</span>
+            <span class="info-value">
+              <i class="bx bx-ruler"></i>
+              {{ $stock->size ?: 'Tidak Ada' }}
+            </span>
+          </div>
+
+          <!-- Expiration Date -->
+          <div class="info-item">
+            <span class="info-label">Tanggal Kadaluwarsa</span>
+            <span class="info-value {{ $expired ? 'expired-value' : ($almostExpired ? 'warning-value' : '') }}">
+              <i class="bx bx-calendar"></i>
+              {{ \Carbon\Carbon::parse($stock->expiration_date)->format('d M Y') }}
+              @if ($expired)
+                <span class="badge bg-danger ms-2"
+                  style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 20px;">
+                  Kadaluwarsa
+                </span>
+              @elseif($almostExpired)
+                <span class="badge bg-warning text-dark ms-2"
+                  style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 20px;">
+                  Hampir Kadaluwarsa
+                </span>
+              @endif
+            </span>
+          </div>
         </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+          <button type="button" class="btn btn-action btn-delete" onclick="openDeleteModal()">
+            <i class="bx bx-trash me-2"></i> Hapus
+          </button>
+        </div>
+
+        <form id="delete-form" action="{{ route('stocks.destroy', $stock->id) }}" method="POST">
+          @csrf
+          @method('DELETE')
+        </form>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Delete Confirmation Modal -->
-  <div class="delete-modal-backdrop" id="deleteModal">
-    <div class="delete-modal-dialog">
-      <div class="delete-modal-content">
-        <div class="delete-modal-header">
-          <h5 class="delete-modal-title">
-            <i class="bx bx-error-circle"></i> Konfirmasi Hapus
-          </h5>
-        </div>
-        <div class="delete-modal-body">
-          <p>Apakah Anda yakin ingin menghapus stok ini?</p>
-
-          <div class="delete-modal-product">
-            <div class="delete-modal-product-name">{{ $stock->name }}</div>
-            <span class="delete-modal-product-type">{{ $stock->type }}</span>
-          </div>
-
-          <p>Tindakan ini tidak dapat dibatalkan dan akan menghapus seluruh data produk ini.</p>
-        </div>
-        <div class="delete-modal-footer">
-          <button type="button" class="delete-modal-btn delete-modal-btn-cancel" onclick="closeDeleteModal()">
-            <i class="bx bx-x me-1"></i> Batal
-          </button>
-          <button type="button" class="delete-modal-btn delete-modal-btn-delete" onclick="submitDelete()">
-            <i class="bx bx-trash me-1"></i> Hapus Produk
-          </button>
-        </div>
-      </div>
-    </div>
+<!-- Delete Confirmation Modal -->
+<div class="delete-modal-backdrop" id="deleteModal">
+  <div class="delete-modal-dialog">
+    <!-- Keep existing modal content -->
   </div>
-
-  <!-- Error Modal - Tampil ketika penghapusan gagal -->
-  <div class="error-modal-backdrop" id="errorModal">
-    <div class="error-modal-dialog">
-      <div class="error-modal-content">
-        <div class="error-modal-header">
-          <h5 class="error-modal-title">
-            <i class="bx bx-error-circle"></i> Gagal Menghapus
-          </h5>
-        </div>
-        <div class="error-modal-body">
-          <div class="text-center mb-4">
-            <div class="error-icon-wrapper">
-              <i class="bx bx-x"></i>
-            </div>
-          </div>
-          <h4 class="error-message">Stok Tidak Dapat Dihapus</h4>
-          <p class="error-detail">Stok ini tidak dapat dihapus karena telah memiliki riwayat transaksi dan masih memiliki
-            stok tersisa.</p>
-
-          <div class="error-info-box">
-            <p class="mb-2">Stok hanya dapat dihapus jika memenuhi salah satu kondisi berikut:</p>
-            <ul>
-              <li>Stok telah habis (jumlah 0)</li>
-              <li>Stok telah kadaluwarsa</li>
-              <li>Stok belum pernah memiliki riwayat penjualan</li>
-            </ul>
-          </div>
-        </div>
-        <div class="error-modal-footer">
-          <button type="button" class="error-modal-btn-secondary" onclick="closeErrorModal()">
-            Kembali
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
 @endsection
 
 @section('script')
-  <script>
-    function openDeleteModal() {
-      // Show the modal
-      const modal = document.getElementById('deleteModal');
-      modal.classList.add('show');
+<script>
+  function openDeleteModal() {
+    // Show the modal
+    const modal = document.getElementById('deleteModal');
+    modal.classList.add('show');
 
-      // Prevent background scrolling
-      document.body.style.overflow = 'hidden';
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDeleteModal() {
+    // Hide the modal
+    const modal = document.getElementById('deleteModal');
+    modal.classList.remove('show');
+
+    // Re-enable background scrolling
+    document.body.style.overflow = '';
+  }
+
+  function submitDelete() {
+    // Submit the delete form
+    document.getElementById('delete-form').submit();
+  }
+
+  // Close modal when clicking outside
+  document.getElementById('deleteModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+      closeDeleteModal();
     }
+  });
 
-    function closeDeleteModal() {
-      // Hide the modal
-      const modal = document.getElementById('deleteModal');
-      modal.classList.remove('show');
-
-      // Re-enable background scrolling
-      document.body.style.overflow = '';
+  // Close modal with ESC key
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && document.getElementById('deleteModal').classList.contains('show')) {
+      closeDeleteModal();
     }
-
-    function submitDelete() {
-      // Submit the delete form
-      document.getElementById('delete-form').submit();
-    }
-
-    // Close modal when clicking outside
-    document.getElementById('deleteModal').addEventListener('click', function(event) {
-      if (event.target === this) {
-        closeDeleteModal();
-      }
-    });
-
-    // Close modal with ESC key
-    document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape' && document.getElementById('deleteModal').classList.contains('show')) {
-        closeDeleteModal();
-      }
-    });
-
-    // Fungsi untuk menampilkan error modal
-    function showErrorModal() {
-      const modal = document.getElementById('errorModal');
-      modal.classList.add('show');
-      document.body.style.overflow = 'hidden';
-    }
-
-    // Fungsi untuk menutup error modal
-    function closeErrorModal() {
-      const modal = document.getElementById('errorModal');
-      modal.classList.remove('show');
-      document.body.style.overflow = '';
-    }
-
-    // Menutup modal saat klik di luar modal
-    document.getElementById('errorModal').addEventListener('click', function(event) {
-      if (event.target === this) {
-        closeErrorModal();
-      }
-    });
-
-    // Menutup modal dengan tombol ESC
-    document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape' && document.getElementById('errorModal').classList.contains('show')) {
-        closeErrorModal();
-      }
-    });
-
-    // Cek jika perlu menampilkan error modal (setelah gagal delete)
-    @if (session('showErrorModal'))
-      document.addEventListener('DOMContentLoaded', function() {
-        showErrorModal();
-      });
-    @endif
-  </script>
+  });
+</script>
 @endsection

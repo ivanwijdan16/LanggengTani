@@ -506,102 +506,68 @@
 </style>
 @endsection
 
+@extends('layouts.app')
+
+@section('style')
+<!-- Copy styles from stocks/index.blade.php and adjust as needed -->
+@endsection
+
 @section('content')
 <div class="container-fluid py-4">
   <div class="row mb-4">
     <div class="col-12">
       <div class="d-sm-flex justify-content-between align-items-center">
-        <h1 class="header-title mb-3"><i class="bx bx-box"></i>Stok Barang</h1>
-        <a href="{{ route('stocks.create') }}" class="btn add-btn btn-success d-flex align-items-center">
-          <i class="bx bx-plus me-2"></i> Tambah Stok
+        <h1 class="header-title mb-3">
+          <i class="bx bx-box"></i>{{ $masterStock->name }} - {{ $size }}
+        </h1>
+        <a href="{{ route('stocks.sizes', $masterStock->id) }}" class="btn btn-secondary mr-2">
+          <i class="bx bx-arrow-back"></i> Kembali
         </a>
       </div>
+      <p class="text-muted">{{ $masterStock->sku }} - {{ $masterStock->type }} @if($masterStock->sub_type) - {{ $masterStock->sub_type }} @endif</p>
     </div>
   </div>
 
-  <!-- Search and Filter Section -->
-  <div class="card mb-4 border-0 search-wrapper">
-    <div class="card-body p-0">
-      <form method="GET" action="{{ route('stocks.index') }}" id="searchForm">
-        <div class="input-group">
-          <span class="input-group-text search-addon">
-            <i class="bx bx-search fs-5 text-muted"></i>
-          </span>
-          <input type="text" name="search" class="form-control search-control" placeholder="Cari stok berdasarkan nama..." value="{{ request('search') }}">
-          <input type="hidden" name="sort" id="sort" value="{{ request('sort', 'name') }}">
-          <input type="hidden" name="direction" id="direction" value="{{ request('direction', 'asc') }}">
-          <button type="submit" class="btn search-btn btn-primary">Cari</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Sorting Links -->
-  <div class="sort-links mb-4">
-    <p class="sort-label mb-0">Urutkan:</p>
-    @php
-      $currentSort = request('sort', 'name');
-      $currentDirection = request('direction', 'asc');
-
-      function getSortLink($field, $label, $currentSort, $currentDirection) {
-        $direction = ($currentSort == $field && $currentDirection == 'asc') ? 'desc' : 'asc';
-        $isActive = $currentSort == $field;
-        $icon = '';
-
-        if ($isActive) {
-          $icon = $currentDirection == 'asc' ? '<i class="bx bx-sort-down"></i>' : '<i class="bx bx-sort-up"></i>';
-        }
-
-        return [
-          'url' => route('stocks.index', array_merge(request()->except(['sort', 'direction']), ['sort' => $field, 'direction' => $direction])),
-          'label' => $label . $icon,
-          'isActive' => $isActive
-        ];
-      }
-
-      $nameLink = getSortLink('name', 'Nama', $currentSort, $currentDirection);
-      $typeLink = getSortLink('type', 'Tipe', $currentSort, $currentDirection);
-    @endphp
-
-    <a href="{{ $nameLink['url'] }}" class="sort-link {{ $nameLink['isActive'] ? 'active' : '' }}">{!! $nameLink['label'] !!}</a>
-    <a href="{{ $typeLink['url'] }}" class="sort-link {{ $typeLink['isActive'] ? 'active' : '' }}">{!! $typeLink['label'] !!}</a>
-  </div>
-
-  <!-- Stock Grid with Master Stock Cards -->
+  <!-- Batch-based Stock Grid -->
   <div class="row">
     @forelse ($stocks as $stock)
       @php
-        $image = $stock->image ? asset('storage/' . $stock->image) : asset('images/default.png');
-        $totalQuantity = DB::table('stocks')
-          ->where('master_stock_id', $stock->id)
-          ->sum('quantity');
+        $expired = \Carbon\Carbon::parse($stock->expiration_date)->isPast();
+        $almostExpired = !$expired && \Carbon\Carbon::parse($stock->expiration_date)->diffInDays(now()) < 30;
       @endphp
       <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-        <div class="card stock-card" onclick="viewStockSizes({{ $stock->id }})" style="cursor: pointer;">
-          <div class="card-img-wrapper">
-            <img src="{{ $image }}" class="card-img-top" alt="{{ $stock->name }}">
-          </div>
-
+        <div class="card stock-card" onclick="viewStockDetail({{ $stock->id }})" style="cursor: pointer;">
           <div class="card-body p-3">
-            <h5 class="card-title fw-bold">{{ $stock->name }}</h5>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="card-subtitle mb-0">{{ $stock->sku }}</h6>
-              <span class="stock-quantity-badge">
-                <i class="bx bx-package"></i> {{ $totalQuantity }} pcs
+            <h5 class="card-title fw-bold">{{ $masterStock->name }} - {{ $size }}</h5>
+
+            @if ($expired)
+              <span class="badge bg-danger badge-small">
+                <i class="bx bx-error-circle"></i> Kadaluwarsa
               </span>
-            </div>
-            <p class="card-text text-muted mb-2 small">{{ $stock->type }}</p>
-            @if ($stock->sub_type)
-              <p class="card-text text-muted mb-2 small">{{ $stock->sub_type }}</p>
+            @elseif($almostExpired)
+              <span class="badge bg-warning text-dark badge-small">
+                <i class="bx bx-time"></i> Hampir Kadaluwarsa
+              </span>
             @endif
 
-            <div class="mt-3 pt-2 border-top d-flex justify-content-between">
-              <a href="{{ route('stocks.edit.master', $stock->id) }}" class="btn btn-sm btn-primary" onclick="event.stopPropagation();">
-                <i class="bx bx-edit"></i> Edit
-              </a>
-              <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); openDeleteMasterModal({{ $stock->id }})">
-                <i class="bx bx-trash"></i> Hapus
-              </button>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="card-subtitle mb-0">{{ $stock->stock_id }}</h6>
+              <span class="stock-quantity-badge">
+                <i class="bx bx-package"></i> {{ $stock->quantity }} pcs
+              </span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <span class="price-tag fs-5">Rp {{ number_format($stock->selling_price, 0, ',', '.') }}</span>
+            </div>
+
+            <div class="mt-3 pt-2 border-top">
+              <div class="d-flex align-items-center small date-badge">
+                <i class="bx bx-calendar me-2 text-muted"></i>
+                <span class="{{ $expired ? 'text-danger' : ($almostExpired ? 'text-warning' : 'text-muted') }}">
+                  {{ \Carbon\Carbon::parse($stock->expiration_date)->format('d M Y') }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -611,8 +577,8 @@
         <div class="card empty-state border-0 shadow-sm">
           <div class="card-body text-center py-5">
             <i class="bx bx-package" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
-            <h3 class="mb-3">Tidak ada stok</h3>
-            <a href="{{ route('stocks.create') }}" class="btn add-btn btn-success">
+            <h3 class="mb-3">Tidak ada batch untuk ukuran ini</h3>
+            <a href="{{ route('stocks.create.size', ['master_id' => $masterStock->id, 'size' => $size]) }}" class="btn add-btn btn-success">
               <i class="bx bx-plus me-2"></i> Tambah Stok Baru
             </a>
           </div>
@@ -620,86 +586,13 @@
       </div>
     @endforelse
   </div>
-
-  <!-- Pagination -->
-  <div class="d-flex justify-content-center mt-4">
-    {{ $stocks->appends(request()->all())->links('pagination::bootstrap-5') }}
-  </div>
 </div>
-
-<!-- Delete Master Stock Modal -->
-<div class="delete-modal-backdrop" id="deleteMasterModal">
-  <div class="delete-modal-dialog">
-    <div class="delete-modal-content">
-      <div class="delete-modal-header">
-        <h5 class="delete-modal-title">
-          <i class="bx bx-error-circle"></i> Konfirmasi Hapus
-        </h5>
-      </div>
-      <div class="delete-modal-body">
-        <p>Apakah Anda yakin ingin menghapus seluruh stok untuk produk ini?</p>
-        <div class="delete-modal-product" id="deleteMasterProduct">
-          <!-- Product info will be inserted here -->
-        </div>
-        <p>Tindakan ini tidak dapat dibatalkan dan akan menghapus seluruh data stok untuk SKU ini.</p>
-      </div>
-      <div class="delete-modal-footer">
-        <button type="button" class="delete-modal-btn delete-modal-btn-cancel" onclick="closeDeleteMasterModal()">
-          <i class="bx bx-x me-1"></i> Batal
-        </button>
-        <button type="button" class="delete-modal-btn delete-modal-btn-delete" onclick="deleteMasterStock()">
-          <i class="bx bx-trash me-1"></i> Hapus Produk
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<form id="delete-master-form" method="POST" style="display: none;">
-  @csrf
-  @method('DELETE')
-</form>
 @endsection
 
 @section('script')
 <script>
-  function viewStockSizes(masterStockId) {
-    window.location.href = "{{ url('stocks/sizes') }}/" + masterStockId;
+  function viewStockDetail(stockId) {
+    window.location.href = "{{ url('stocks') }}/" + stockId;
   }
-
-  function openDeleteMasterModal(stockId) {
-    event.stopPropagation();
-    // Set form action URL
-    document.getElementById('delete-master-form').action = "{{ url('stocks/master') }}/" + stockId;
-
-    // Show the modal
-    const modal = document.getElementById('deleteMasterModal');
-    modal.classList.add('show');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeDeleteMasterModal() {
-    const modal = document.getElementById('deleteMasterModal');
-    modal.classList.remove('show');
-    document.body.style.overflow = '';
-  }
-
-  function deleteMasterStock() {
-    document.getElementById('delete-master-form').submit();
-  }
-
-  // Close modal when clicking outside
-  document.getElementById('deleteMasterModal').addEventListener('click', function(event) {
-    if (event.target === this) {
-      closeDeleteMasterModal();
-    }
-  });
-
-  // Close modal with ESC key
-  document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape' && document.getElementById('deleteMasterModal').classList.contains('show')) {
-      closeDeleteMasterModal();
-    }
-  });
 </script>
 @endsection
