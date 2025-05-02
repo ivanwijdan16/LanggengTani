@@ -398,7 +398,7 @@
 
   <div class="receipt-card" id="receipt-container">
     <div class="receipt-header">
-      <h2 class="receipt-title mb-4 mt-3">Toko Pertanian</h2>
+      <h2 class="receipt-title mb-4 mt-3">Toko Pertanian Joyo Langgeng Sejahtera</h2>
       <div class="receipt-details">
         <span>ID: {{ $transaction->id_penjualan }}</span>
         <span>Tanggal: {{ \Carbon\Carbon::parse($transaction->created_at)->format('d M Y, H:i') }}</span>
@@ -450,8 +450,8 @@
       </div>
 
       <div class="store-info">
-        <p>Terima kasih telah berbelanja di Toko Pertanian</p>
-        <p></p>
+        <p>Terima kasih telah berbelanja di Toko Pertanian Joyo Langgeng Sejahtera</p>
+        <p>Mojorejo, Jetis, Mojokerto</p>
       </div>
     </div>
   </div>
@@ -570,9 +570,9 @@
     // Create receipt content
     printWindow.document.write(`
       <div class="receipt-header">
-        <div class="receipt-title">Toko Pertanian</div>
-        <div class="receipt-details"></div>
-        <div class="receipt-details">Telp: </div>
+        <div class="receipt-title">Toko Pertanian Joyo Langgeng Sejahtera</div>
+        <div class="receipt-details">Mojorejo, Jetis, Mojokerto</div>
+        <div class="receipt-details">Telp: 085645185577</div>
       </div>
 
       <div class="receipt-details">

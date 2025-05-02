@@ -193,7 +193,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1 class="company-name">Toko Pertanian</h1>
+      <h1 class="company-name">Toko Pertanian Joyo Langgeng Sejahtera</h1>
       <h2 class="report-title">Laporan Pembelian</h2>
       <p class="report-subtitle">Bulan {{ Carbon\Carbon::parse($pembelians->first()->purchase_date ?? now())->translatedFormat('F Y') }}</p>
     </div>

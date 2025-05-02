@@ -193,7 +193,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1 class="company-name">Toko Pertanian</h1>
+      <h1 class="company-name">Toko Pertanian Joyo Langgeng Sejahtera</h1>
       <h2 class="report-title">Laporan Penjualan</h2>
       <p class="report-subtitle">Bulan {{ Carbon\Carbon::parse($penjualans->first()->sale_date ?? now())->translatedFormat('F Y') }}</p>
     </div>
