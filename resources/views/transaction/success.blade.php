@@ -4,7 +4,7 @@
 <style>
   :root {
     --primary-color: #149d80;
-    --primary-dark: #005a3f;
+    --primary-dark: #0c8b71;
     --primary-light: rgba(0, 114, 79, 0.1);
     --text-dark: #1e293b;
     --text-medium: #475569;

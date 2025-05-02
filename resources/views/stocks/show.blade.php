@@ -196,7 +196,7 @@
     }
 
     .btn-edit:hover {
-      background-color: #005a3f;
+      background-color: #0c8b71;
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
     }
@@ -567,7 +567,7 @@
     }
 
     .success-modal-btn:hover {
-      background-color: #005a3f;
+      background-color: #0c8b71;
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
     }
@@ -641,7 +641,7 @@
     }
 
     .error-modal-btn-primary:hover {
-      background-color: #005a3f;
+      background-color: #0c8b71;
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
       color: white;

@@ -13,7 +13,7 @@
     :root {
       --primary: #149d80;
       --primary-light: #E8F5F0;
-      --primary-dark: #005a3f;
+      --primary-dark: #0c8b71;
       --text-dark: #1e293b;
       --text-medium: #475569;
       --text-light: #64748b;
@@ -218,7 +218,7 @@
           @foreach ($pembelians as $pembelian)
             <tr>
               <td>{{ $pembelian->purchase_code }}</td>
-              <td>{{ $pembelian->stock->name }}</td>
+              <td>{{ $pembelian->stock->masterStock->name ?? 'Nama Tidak Tersedia' }}</td>
               <td>{{ \Carbon\Carbon::parse($pembelian->purchase_date)->format('d/m/Y') }}, {{ \Carbon\Carbon::parse($pembelian->created_at)->format('H:i') }}</td>
               <td>{{ $pembelian->quantity }}</td>
               <td class="currency">{{ number_format($pembelian->purchase_price, 0, ',', '.') }}</td>

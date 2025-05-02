@@ -106,7 +106,7 @@
 }
 
 .btn-tampilkan:hover {
-  background: #005a3f !important;
+  background: #0c8b71 !important;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 114, 79, 0.4);
 }

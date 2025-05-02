@@ -85,8 +85,8 @@
     }
 
     .search-btn:hover {
-      background-color: #005a3f;
-      border-color: #005a3f;
+      background-color: #0c8b71;
+      border-color: #0c8b71;
     }
 
     .search-addon {
@@ -105,8 +105,8 @@
     }
 
     .add-btn:hover {
-      background-color: #005a3f;
-      border-color: #005a3f;
+      background-color: #0c8b71;
+      border-color: #0c8b71;
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(0, 114, 79, 0.3);
     }
@@ -376,7 +376,7 @@
     }
 
     .success-modal-btn:hover {
-      background-color: #005a3f;
+      background-color: #0c8b71;
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
     }
@@ -450,7 +450,7 @@
     }
 
     .error-modal-btn-primary:hover {
-      background-color: #005a3f;
+      background-color: #0c8b71;
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
       color: white;

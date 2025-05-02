@@ -17,13 +17,13 @@ class PembelianController extends Controller
 
     // Load stok yang sudah dihapus juga
     $pembelians = MasterPembelian::with(['pembelians' => function ($query) {
-      $query->with(['stock' => function ($query) {
-        $query->withTrashed(); // Include soft deleted stocks
-      }]);
-    }])
-      ->whereYear('date', $tahun)   // Filter by year
-      ->whereMonth('date', $bulan)  // Filter by month
-      ->get();
+        $query->with(['stock' => function ($query) {
+          $query->withTrashed()->with('masterStock');
+        }]);
+      }])
+        ->whereYear('date', $tahun)
+        ->whereMonth('date', $bulan)
+        ->get();
 
     $totalPerHari = [];
     foreach ($pembelians as $pembelian) {
@@ -55,13 +55,14 @@ class PembelianController extends Controller
 
   // Menampilkan riwayat pembelian per bulan
   public function riwayatPembelianPerBulan($bulan, $tahun)
-  {
-    $pembelians = Pembelian::whereYear('purchase_date', $tahun)
-      ->whereMonth('purchase_date', $bulan)
-      ->get();
+{
+    $pembelians = Pembelian::with('stock.masterStock')
+        ->whereYear('purchase_date', $tahun)
+        ->whereMonth('purchase_date', $bulan)
+        ->get();
 
     return view('pembelian.riwayat', compact('pembelians'));
-  }
+}
 
   // Menampilkan grafik pembelian per bulan
   // Pada PembelianController.php
@@ -86,17 +87,15 @@ class PembelianController extends Controller
 
   // Cetak laporan per bulan
   public function cetakLaporan($bulan, $tahun)
-  {
-    $pembelians = Pembelian::whereYear('purchase_date', $tahun)
-      ->whereMonth('purchase_date', $bulan)
-      ->get();
+{
+    $pembelians = Pembelian::with('stock.masterStock')
+        ->whereYear('purchase_date', $tahun)
+        ->whereMonth('purchase_date', $bulan)
+        ->get();
 
-    // Membuat instance dari PDF, bukan memanggilnya secara statis
     $pdf = PDF::loadView('pembelian.laporan', compact('pembelians'));
-
-    // Menghasilkan dan mendownload file PDF
     return $pdf->download("laporan_pembelian_{$bulan}_{$tahun}.pdf");
-  }
+}
 
   public function barangKadaluarsaPerBulan($bulan, $tahun)
   {

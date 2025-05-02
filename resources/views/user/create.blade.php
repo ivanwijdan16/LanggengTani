@@ -107,8 +107,8 @@
   }
 
   .btn-primary:hover, .btn-primary:focus {
-    background-color: #005a3f;
-    border-color: #005a3f;
+    background-color: #0c8b71;
+    border-color: #0c8b71;
     box-shadow: 0 4px 10px rgba(0, 114, 79, 0.2);
     transform: translateY(-2px);
   }

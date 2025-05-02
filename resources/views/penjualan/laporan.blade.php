@@ -13,7 +13,7 @@
     :root {
       --primary: #149d80;
       --primary-light: #E8F5F0;
-      --primary-dark: #005a3f;
+      --primary-dark: #0c8b71;
       --text-dark: #1e293b;
       --text-medium: #475569;
       --text-light: #64748b;

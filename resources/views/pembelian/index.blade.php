@@ -62,8 +62,8 @@
 
     .btn-primary:hover,
     .btn-primary:focus {
-      background-color: #005a3f;
-      border-color: #005a3f;
+      background-color: #0c8b71;
+      border-color: #0c8b71;
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 114, 79, 0.15);
     }
@@ -273,21 +273,25 @@
                   <!-- Hidden row for additional details -->
                   <tr class="details-row" id="details-row-{{ $pembelian->id }}" style="display: none;">
                     <td colspan="4">
-                      @foreach ($pembelian->pembelians as $item)
-                      <div class="details-content d-flex gap-3">
-                        <strong>Nama Barang:</strong>
-                        @if ($item->stock)
-                          {{ $item->stock->name }}
-                        @else
-                          Barang Terhapus
-                        @endif
-                        <br>
-                        <strong>Harga:</strong> Rp
-                        {{ number_format($item->purchase_price, 0, ',', '.') }}
-                        <br>
-                        <strong>Qty:</strong> {{ $item->quantity }}
-                      </div>
-                      @endforeach
+                        @foreach ($pembelian->pembelians as $item)
+    <div class="details-content d-flex gap-3">
+      <strong>Nama Barang:</strong>
+      @if ($item->stock && $item->stock->masterStock)
+        {{ $item->stock->masterStock->name }} ({{ $item->stock->size }})
+        <br>
+
+
+        <small class="text-muted">Stock ID: {{ $item->stock->stock_id }}</small>
+      @else
+        Barang Terhapus
+      @endif
+      <br>
+      <strong>Harga:</strong> Rp
+      {{ number_format($item->purchase_price, 0, ',', '.') }}
+      <br>
+      <strong>Qty:</strong> {{ $item->quantity }}
+    </div>
+  @endforeach
                     </td>
                   </tr>
 
