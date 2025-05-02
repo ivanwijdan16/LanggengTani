@@ -39,7 +39,7 @@ class IdGenerator
     }
 
     /**
-     * Generate a SKU in the format [JLS]-[ProdukType]-[NamaProduk]-[KodeUnik]
+     * Generate a SKU in the format [JLS]-[ProdukType]-[FirstSixLettersOfName]
      *
      * @param string $name Product name
      * @param string $type Product type
@@ -47,46 +47,47 @@ class IdGenerator
      * @return string
      */
     public static function generateSku($name, $type, $subType = null)
-{
-    // Company prefix
-    $prefix = 'JLS';
+    {
+        // Company prefix
+        $prefix = 'JLS';
 
-    // Get type code (first 2 letters of type)
-    $typeCode = strtoupper(substr($type, 0, 2));
+        // Get type code (first 2 letters of type)
+        $typeCode = strtoupper(substr($type, 0, 2));
 
-    // Get name code (remove non-alphanumeric characters and convert to uppercase)
-    $nameCode = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $name));
+        // Get name code (first 6 letters of name, remove non-alphanumeric characters and convert to uppercase)
+        $cleanedName = preg_replace('/[^A-Za-z0-9]/', '', $name);
+        $nameCode = strtoupper(substr($cleanedName, 0, 6));
 
-    // Format: PREFIX-TYPE-NAME
-    return "{$prefix}-{$typeCode}-{$nameCode}";
-}
+        // Format: PREFIX-TYPE-NAME
+        return "{$prefix}-{$typeCode}-{$nameCode}";
+    }
 
     /**
      * Generate a stock ID with more structure
      *
-     * @param string $name Product name
-     * @param string $size Product size
+     * @param string $sku Product SKU
+     * @param string $size Product size (will use only first character)
      * @param string $expirationDate Expiration date
-     * @param string $subType Product sub-type (optional)
+     * @param string $batchNumber Batch number
      * @return string
      */
     public static function generateStockId($sku, $size, $expirationDate, $batchNumber = 1)
-{
-    // Format size (uppercase)
-    $sizeCode = strtoupper($size);
+    {
+        // Format size (uppercase, first character only)
+        $sizeCode = strtoupper(substr($size, 0, 1));
 
-    // Format entry date (today in YYMMDD format)
-    $entryDate = date('ymd');
+        // Format entry date (today in YYMMDD format)
+        $entryDate = date('ymd');
 
-    // Format expiration date (YYMMDD format)
-    $expDate = date('ymd', strtotime($expirationDate));
+        // Format expiration date (YYMMDD format)
+        $expDate = date('ymd', strtotime($expirationDate));
 
-    // Format batch number
-    $bn = str_pad($batchNumber, 3, '0', STR_PAD_LEFT);
+        // Format batch number
+        $bn = str_pad($batchNumber, 3, '0', STR_PAD_LEFT);
 
-    // Format: SKU-SIZE-TGLMASUK:YYMMDD-EXP:YYMMDD-BN
-    return "{$sku}-{$sizeCode}-{$entryDate}-{$expDate}-{$bn}";
-}
+        // Format: SKU-SIZE-TGLMASUK:YYMMDD-EXP:YYMMDD-BN
+        return "{$sku}-{$sizeCode}-{$entryDate}-{$expDate}-{$bn}";
+    }
 
     /**
      * Generate a transaction ID for sales
