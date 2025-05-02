@@ -265,7 +265,8 @@
 
   /* Shared Modal Styles */
   .success-modal-backdrop,
-  .error-modal-backdrop {
+  .error-modal-backdrop,
+  .delete-modal-backdrop {
     position: fixed;
     top: 0;
     left: 0;
@@ -273,7 +274,7 @@
     height: 100%;
     background-color: rgba(15, 23, 42, 0.7);
     z-index: 1050;
-    display: flex;
+    display: none; /* Initially hidden */
     align-items: center;
     justify-content: center;
     opacity: 0;
@@ -282,13 +283,16 @@
   }
 
   .success-modal-backdrop.show,
-  .error-modal-backdrop.show {
+  .error-modal-backdrop.show,
+  .delete-modal-backdrop.show {
+    display: flex;
     opacity: 1;
     visibility: visible;
   }
 
   .success-modal-dialog,
-  .error-modal-dialog {
+  .error-modal-dialog,
+  .delete-modal-dialog {
     background-color: white;
     border-radius: 15px;
     max-width: 450px;
@@ -301,12 +305,14 @@
   }
 
   .success-modal-backdrop.show .success-modal-dialog,
-  .error-modal-backdrop.show .error-modal-dialog {
+  .error-modal-backdrop.show .error-modal-dialog,
+  .delete-modal-backdrop.show .delete-modal-dialog {
     transform: translateY(0) scale(1);
   }
 
   .success-modal-header,
-  .error-modal-header {
+  .error-modal-header,
+  .delete-modal-header {
     padding: 1.5rem;
     border-bottom: 1px solid #f1f5f9;
     display: flex;
@@ -314,7 +320,8 @@
   }
 
   .success-modal-title,
-  .error-modal-title {
+  .error-modal-title,
+  .delete-modal-title {
     margin: 0;
     font-size: 1.35rem;
     font-weight: 600;
@@ -326,25 +333,29 @@
     color: #149d80;
   }
 
-  .error-modal-title {
+  .error-modal-title,
+  .delete-modal-title {
     color: #ef4444;
   }
 
   .success-modal-title i,
-  .error-modal-title i {
+  .error-modal-title i,
+  .delete-modal-title i {
     margin-right: 0.75rem;
     font-size: 1.5rem;
   }
 
   .success-modal-body,
-  .error-modal-body {
+  .error-modal-body,
+  .delete-modal-body {
     padding: 1.75rem;
     color: #475569;
     text-align: center;
   }
 
   .success-modal-footer,
-  .error-modal-footer {
+  .error-modal-footer,
+  .delete-modal-footer {
     padding: 1.25rem 1.5rem;
     border-top: 1px solid #f1f5f9;
     display: flex;
@@ -380,7 +391,8 @@
     margin-bottom: 0;
   }
 
-  .success-modal-btn {
+  .success-modal-btn,
+  .delete-modal-btn {
     background-color: #149d80;
     color: white;
     border: none;
@@ -393,10 +405,55 @@
     justify-content: center;
   }
 
-  .success-modal-btn:hover {
+  .success-modal-btn:hover,
+  .delete-modal-btn:hover {
     background-color: #0c8b71;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
+  }
+
+  .delete-modal-btn-cancel {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: none;
+  }
+
+  .delete-modal-btn-cancel:hover {
+    background-color: #e2e8f0;
+    color: #334155;
+  }
+
+  .delete-modal-btn-delete {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+  }
+
+  .delete-modal-btn-delete:hover {
+    background-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2);
+  }
+
+  .delete-modal-product {
+    margin: 0.5rem 0;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .delete-modal-product-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1.15rem;
+  }
+
+  .delete-modal-product-type {
+    display: inline-block;
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
   }
 
   /* Error Modal Specific Styles */
@@ -494,12 +551,14 @@
   }
 
   @media (max-width: 768px) {
-    .error-modal-footer {
+    .error-modal-footer,
+    .delete-modal-footer {
       flex-direction: column;
     }
 
     .error-modal-btn-primary,
-    .error-modal-btn-secondary {
+    .error-modal-btn-secondary,
+    .delete-modal-btn {
       width: 100%;
     }
   }
@@ -577,7 +636,7 @@
           ->sum('quantity');
       @endphp
       <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-        <div class="card stock-card" onclick="viewStockSizes({{ $stock->id }})" style="cursor: pointer;">
+        <div class="card stock-card" data-id="{{ $stock->id }}" onclick="viewStockSizes({{ $stock->id }})" style="cursor: pointer;">
           <div class="card-img-wrapper">
             <img src="{{ $image }}" class="card-img-top" alt="{{ $stock->name }}">
           </div>
@@ -599,7 +658,7 @@
               <a href="{{ route('stocks.edit.master', $stock->id) }}" class="btn btn-sm btn-primary" onclick="event.stopPropagation();">
                 <i class="bx bx-edit"></i> Edit
               </a>
-              <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); openDeleteMasterModal({{ $stock->id }})">
+              <button type="button" class="btn btn-sm btn-danger" data-stock-id="{{ $stock->id }}" data-stock-name="{{ $stock->name }}" data-stock-sku="{{ $stock->sku }}" onclick="event.stopPropagation(); openDeleteMasterModal({{ $stock->id }}, '{{ $stock->name }}', '{{ $stock->sku }}')">
                 <i class="bx bx-trash"></i> Hapus
               </button>
             </div>
@@ -667,39 +726,90 @@
     window.location.href = "{{ url('stocks/sizes') }}/" + masterStockId;
   }
 
-  function openDeleteMasterModal(stockId) {
+  function openDeleteMasterModal(stockId, stockName, stockSku) {
     event.stopPropagation();
+
+    // Set data in the modal
+    document.getElementById('deleteMasterProduct').innerHTML = `
+      <div class="delete-modal-product-name">${stockName}</div>
+      <div class="delete-modal-product-type">${stockSku}</div>
+    `;
+
     // Set form action URL
     document.getElementById('delete-master-form').action = "{{ url('stocks/master') }}/" + stockId;
 
     // Show the modal
     const modal = document.getElementById('deleteMasterModal');
+
+    // Set display to flex first
+    modal.style.display = 'flex';
+
+    // Trigger a reflow
+    void modal.offsetWidth;
+
+    // Then add the show class for the transitions
     modal.classList.add('show');
+    modal.style.opacity = '1';
+    modal.style.visibility = 'visible';
+
+    // Prevent background scrolling
     document.body.style.overflow = 'hidden';
   }
 
   function closeDeleteMasterModal() {
     const modal = document.getElementById('deleteMasterModal');
-    modal.classList.remove('show');
-    document.body.style.overflow = '';
+
+    // Start the transition
+    modal.style.opacity = '0';
+
+    // Wait for transition to finish before hiding
+    setTimeout(function() {
+      modal.classList.remove('show');
+      modal.style.visibility = 'hidden';
+      modal.style.display = 'none';
+
+      // Re-enable background scrolling
+      document.body.style.overflow = '';
+    }, 300); // Match this to your CSS transition duration
   }
 
   function deleteMasterStock() {
     document.getElementById('delete-master-form').submit();
   }
 
-  // Close modal when clicking outside
-  document.getElementById('deleteMasterModal').addEventListener('click', function(event) {
-    if (event.target === this) {
-      closeDeleteMasterModal();
+  // Set up event listeners when the document is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    // Close modal when clicking outside
+    const deleteMasterModal = document.getElementById('deleteMasterModal');
+    if (deleteMasterModal) {
+      deleteMasterModal.addEventListener('click', function(event) {
+        if (event.target === this) {
+          closeDeleteMasterModal();
+        }
+      });
     }
-  });
 
-  // Close modal with ESC key
-  document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape' && document.getElementById('deleteMasterModal').classList.contains('show')) {
-      closeDeleteMasterModal();
-    }
+    // Close modal with ESC key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && deleteMasterModal && deleteMasterModal.classList.contains('show')) {
+        closeDeleteMasterModal();
+      }
+    });
+
+    // Add success modal handler if needed
+    @if (session('showSuccessModal'))
+      // Show success modal if it exists
+      const successModal = document.getElementById('successModal');
+      if (successModal) {
+        successModal.style.display = 'flex';
+        setTimeout(function() {
+          successModal.classList.add('show');
+          successModal.style.opacity = '1';
+          successModal.style.visibility = 'visible';
+          document.body.style.overflow = 'hidden';
+        }, 10);
+      }
+    @endif
   });
 </script>
 @endsection

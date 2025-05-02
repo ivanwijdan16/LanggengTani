@@ -262,7 +262,7 @@
       text-align: right;
     }
 
-    /* Modal styles */
+    /* Delete Modal Styles */
     .delete-modal-backdrop {
       position: fixed;
       top: 0;
@@ -298,6 +298,10 @@
 
     .delete-modal-backdrop.show .delete-modal-dialog {
       transform: translateY(0) scale(1);
+    }
+
+    .delete-modal-content {
+      width: 100%;
     }
 
     .delete-modal-header {
@@ -433,247 +437,6 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 0.75rem;
-      }
-    }
-
-    /* Shared Modal Styles */
-    .success-modal-backdrop,
-    .error-modal-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(15, 23, 42, 0.7);
-      z-index: 1050;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.25s ease, visibility 0.25s ease;
-    }
-
-    .success-modal-backdrop.show,
-    .error-modal-backdrop.show {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .success-modal-dialog,
-    .error-modal-dialog {
-      background-color: white;
-      border-radius: 15px;
-      max-width: 450px;
-      width: 90%;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      transform: translateY(-30px) scale(0.95);
-      transition: transform 0.3s ease;
-      margin: 1.5rem;
-      overflow: hidden;
-    }
-
-    .success-modal-backdrop.show .success-modal-dialog,
-    .error-modal-backdrop.show .error-modal-dialog {
-      transform: translateY(0) scale(1);
-    }
-
-    .success-modal-header,
-    .error-modal-header {
-      padding: 1.5rem;
-      border-bottom: 1px solid #f1f5f9;
-      display: flex;
-      align-items: center;
-    }
-
-    .success-modal-title,
-    .error-modal-title {
-      margin: 0;
-      font-size: 1.35rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-    }
-
-    .success-modal-title {
-      color: #149d80;
-    }
-
-    .error-modal-title {
-      color: #ef4444;
-    }
-
-    .success-modal-title i,
-    .error-modal-title i {
-      margin-right: 0.75rem;
-      font-size: 1.5rem;
-    }
-
-    .success-modal-body,
-    .error-modal-body {
-      padding: 1.75rem;
-      color: #475569;
-      text-align: center;
-    }
-
-    .success-modal-footer,
-    .error-modal-footer {
-      padding: 1.25rem 1.5rem;
-      border-top: 1px solid #f1f5f9;
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-    }
-
-    /* Success Modal Specific Styles */
-    .success-icon-wrapper {
-      width: 80px;
-      height: 80px;
-      background-color: rgba(0, 114, 79, 0.1);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto;
-    }
-
-    .success-icon-wrapper i {
-      color: #149d80;
-      font-size: 2.5rem;
-    }
-
-    .success-message {
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 1rem;
-    }
-
-    .success-detail {
-      color: #64748b;
-      margin-bottom: 0;
-    }
-
-    .success-modal-btn {
-      background-color: #149d80;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 0.75rem 1.5rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .success-modal-btn:hover {
-      background-color: #0c8b71;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
-    }
-
-    /* Error Modal Specific Styles */
-    .error-icon-wrapper {
-      width: 80px;
-      height: 80px;
-      background-color: rgba(239, 68, 68, 0.1);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto;
-    }
-
-    .error-icon-wrapper i {
-      color: #ef4444;
-      font-size: 2.5rem;
-    }
-
-    .error-message {
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 1rem;
-    }
-
-    .error-detail {
-      color: #64748b;
-      margin-bottom: 1.5rem;
-    }
-
-    .error-info-box {
-      background-color: #f1f5f9;
-      border-radius: 10px;
-      padding: 1.25rem;
-      text-align: left;
-      margin-bottom: 1rem;
-      border-left: 4px solid #64748b;
-    }
-
-    .error-info-box ul {
-      padding-left: 1.25rem;
-      margin-bottom: 0;
-    }
-
-    .error-info-box li {
-      margin-bottom: 0.5rem;
-    }
-
-    .error-info-box li:last-child {
-      margin-bottom: 0;
-    }
-
-    .error-modal-footer {
-      justify-content: space-between;
-    }
-
-    .error-modal-btn-primary {
-      background-color: #149d80;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 0.75rem 1.5rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-    }
-
-    .error-modal-btn-primary:hover {
-      background-color: #0c8b71;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
-      color: white;
-      text-decoration: none;
-    }
-
-    .error-modal-btn-secondary {
-      background-color: #f1f5f9;
-      color: #475569;
-      border: none;
-      border-radius: 10px;
-      padding: 0.75rem 1.5rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .error-modal-btn-secondary:hover {
-      background-color: #e2e8f0;
-      color: #334155;
-    }
-
-    @media (max-width: 768px) {
-      .error-modal-footer {
-        flex-direction: column;
-      }
-
-      .error-modal-btn-primary,
-      .error-modal-btn-secondary {
-        width: 100%;
       }
     }
   </style>
@@ -815,7 +578,29 @@
 <!-- Delete Confirmation Modal -->
 <div class="delete-modal-backdrop" id="deleteModal">
   <div class="delete-modal-dialog">
-    <!-- Keep existing modal content -->
+    <div class="delete-modal-content">
+      <div class="delete-modal-header">
+        <h5 class="delete-modal-title">
+          <i class="bx bx-error-circle"></i> Konfirmasi Hapus
+        </h5>
+      </div>
+      <div class="delete-modal-body">
+        <p>Apakah Anda yakin ingin menghapus stok ini?</p>
+        <div class="delete-modal-product">
+          <div class="delete-modal-product-name">{{ $stock->masterStock->name }} - {{ $stock->size }}</div>
+          <div class="delete-modal-product-type">{{ $stock->stock_id }}</div>
+        </div>
+        <p>Tindakan ini tidak dapat dibatalkan.</p>
+      </div>
+      <div class="delete-modal-footer">
+        <button type="button" class="delete-modal-btn delete-modal-btn-cancel" onclick="closeDeleteModal()">
+          <i class="bx bx-x me-1"></i> Batal
+        </button>
+        <button type="button" class="delete-modal-btn delete-modal-btn-delete" onclick="submitDelete()">
+          <i class="bx bx-trash me-1"></i> Hapus
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 @endsection
