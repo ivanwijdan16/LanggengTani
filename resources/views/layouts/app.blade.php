@@ -92,7 +92,7 @@
         <div class="app-brand demo d-flex justify-content-center">
             <a href="{{ route('home') }}" class="app-brand-link">
                 <span class="app-brand-logo demo d-flex align-items-center justify-content-center">
-                    <img src="{{ asset('images/JoyoTani Logo.png') }}" alt="JoyoTani Logo" class="img-fluid" style="max-height: 50px;">
+                    <img src="{{ asset('images/LanggengTani.png') }}" alt="LanggengTani" class="img-fluid" style="max-height: 55px;">
                   </span>
             </a>
 

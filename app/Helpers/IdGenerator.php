@@ -67,7 +67,7 @@ class IdGenerator
      *
      * @param string $sku Product SKU
      * @param string $size Product size (will use only first character)
-     * @param string $expirationDate Expiration date
+     * @param string $expirationDate Expiration date (not used in the ID)
      * @param string $batchNumber Batch number
      * @return string
      */
@@ -79,14 +79,11 @@ class IdGenerator
         // Format entry date (today in YYMMDD format)
         $entryDate = date('ymd');
 
-        // Format expiration date (YYMMDD format)
-        $expDate = date('ymd', strtotime($expirationDate));
-
         // Format batch number
         $bn = str_pad($batchNumber, 3, '0', STR_PAD_LEFT);
 
-        // Format: SKU-SIZE-TGLMASUK:YYMMDD-EXP:YYMMDD-BN
-        return "{$sku}-{$sizeCode}-{$entryDate}-{$expDate}-{$bn}";
+        // Format: SKU-SIZE-TGLMASUK:YYMMDD-BN (removed EXP part)
+        return "{$sku}-{$sizeCode}-{$entryDate}-{$bn}";
     }
 
     /**

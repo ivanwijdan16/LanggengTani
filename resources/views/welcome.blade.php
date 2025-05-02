@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>JoyoTani</title>
+        <title>LanggengTani</title>
 
         <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon/Logo Tab.png') }}" />
         <link rel="shortcut icon" type="image/png" href="{{ asset('assets/img/favicon/Logo Tab.png') }}" />
@@ -36,7 +36,7 @@
 
             <div class="max-w-7xl mx-auto p-6 lg:p-8">
                 <div class="flex justify-center">
-                    <img src="{{ asset('images/JoyoTani Logo.png') }}" alt="Logo" class="h-10">
+                    <img src="{{ asset('images/LanggengTani.png') }}" alt="Logo" class="h-10">
                 </div>
 
                 <div class="mt-16">
