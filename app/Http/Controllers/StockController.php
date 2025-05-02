@@ -112,6 +112,13 @@ class StockController extends Controller
     // Initialize total variable
     $total = 0;
 
+    // Initialize arrays to store all product information for the session
+    $productNames = [];
+    $productTypes = [];
+    $productSizes = [];
+    $productQuantities = [];
+    $productPrices = [];
+
     // Loop through the validated data to calculate total purchase_price * quantity
     for ($i = 0; $i < count($validated['purchase_price']); $i++) {
         $purchasePrice = $validated['purchase_price'][$i];
@@ -140,6 +147,13 @@ class StockController extends Controller
         $expiration_date = $validated['expiration_date'][$i];
         $retail_price = $validated['retail_price'][$i] ?? null;
         $retail_quantity = $validated['retail_quantity'][$i] ?? null;
+
+        // Add product info to arrays for session
+        $productNames[] = $name;
+        $productTypes[] = $type;
+        $productSizes[] = $size;
+        $productQuantities[] = $quantity;
+        $productPrices[] = $selling_price;
 
         if ($request->hasFile("image.$i")) {  // Check for each individual file
             $imagePath = $request->file("image.$i")->store('stocks', 'public');
@@ -228,14 +242,21 @@ class StockController extends Controller
         }
     }
 
-    // Simpan data untuk ditampilkan di modal sukses
+    // Store information for all products in the session
     return redirect()->route('stocks.create')->with([
         'success' => 'Stok berhasil ditambahkan!',
-        'product_name' => $masterStock->name,
-        'product_type' => $masterStock->type,
-        'product_size' => $stock->size,
-        'product_quantity' => $stock->quantity,
-        'product_selling_price' => $stock->selling_price
+        // Store all product info in session
+        'product_names' => $productNames,
+        'product_types' => $productTypes,
+        'product_sizes' => $productSizes,
+        'product_quantities' => $productQuantities,
+        'product_prices' => $productPrices,
+        // Also keep the last item for backward compatibility
+        'product_name' => end($productNames),
+        'product_type' => end($productTypes),
+        'product_size' => end($productSizes),
+        'product_quantity' => end($productQuantities),
+        'product_selling_price' => end($productPrices)
     ]);
 }
 

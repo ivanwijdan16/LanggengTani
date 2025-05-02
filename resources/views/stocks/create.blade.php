@@ -322,6 +322,17 @@
       border-radius: 10px;
       padding: 1rem;
       margin-bottom: 1.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .product-item {
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .product-item:last-child {
+      border-bottom: none;
     }
 
     .modal-product-name {
@@ -335,6 +346,49 @@
       display: flex;
       gap: 1rem;
       justify-content: center;
+    }
+
+    /* Style untuk tombol hapus pada form yang dikloning */
+    .remove-form {
+      z-index: 10;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #ef4444;
+      border-color: #ef4444;
+      box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    .remove-form:hover {
+      background-color: #dc2626;
+      border-color: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 10px rgba(239, 68, 68, 0.3);
+    }
+
+    .remove-form i {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .form-container {
+      position: relative;
+      padding-top: 15px;
+      border-top: 1px dashed #e2e8f0;
+      margin-top: 20px;
+    }
+
+    #form-container {
+      border-top: none;
+      margin-top: 0;
+      padding-top: 0;
     }
 
     @media (max-width: 768px) {
@@ -552,9 +606,8 @@
         <h3 class="modal-title">Stok Berhasil Ditambahkan!</h3>
         <p class="modal-message">Produk baru telah berhasil ditambahkan ke database.</p>
 
-        <div class="modal-product">
-          <div class="modal-product-name" id="productName"></div>
-          <div id="productDetails"></div>
+        <div class="modal-product" id="productListContainer">
+          <!-- Product items will be inserted here -->
         </div>
 
         <div class="modal-buttons">
@@ -572,52 +625,54 @@
 
 @section('script')
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Check if there's a success message in the session
-      @if (session('success'))
-        // Show the success modal with the stored product data
-        showSuccessModal({
-          name: "{{ session('product_name') }}",
-          type: "{{ session('product_type') }}",
-          size: "{{ session('product_size') }}",
-          quantity: "{{ session('product_quantity') }}",
-          sellingPrice: "{{ session('product_selling_price') }}"
-        });
-      @endif
-    });
-
-    function showSuccessModal(product) {
-      // Set product details in the modal
-      document.getElementById('productName').textContent = product.name;
-      document.getElementById('productDetails').innerHTML = `
-      <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-        <span style="color: #64748b;">Tipe:</span>
-        <span style="font-weight: 500; color: #1e293b;">${product.type}</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-        <span style="color: #64748b;">Ukuran:</span>
-        <span style="font-weight: 500; color: #1e293b;">${product.size}</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-        <span style="color: #64748b;">Jumlah:</span>
-        <span style="font-weight: 500; color: #1e293b;">${product.quantity} pcs</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-        <span style="color: #64748b;">Harga Jual:</span>
-        <span style="font-weight: 500; color: #149d80;">Rp ${parseInt(product.sellingPrice).toLocaleString('id-ID')}</span>
-      </div>
-    `;
-
-      // Show the modal
-      const modal = document.getElementById('successModal');
-      modal.classList.add('show');
-
-      // Prevent background scrolling
-      document.body.style.overflow = 'hidden';
-    }
-
     $(document).ready(function() {
-      $('.type').change(function() { // Changed to regular function
+      // Handler untuk form submission
+      $('#stockForm').on('submit', function(e) {
+        // Mencegah pengiriman form secara default
+        e.preventDefault();
+
+        // Variabel untuk menghitung berapa form yang valid
+        let validForms = 0;
+
+        // Seleksi semua form container (asli dan yang dikloning)
+        const formContainers = $('.form-container');
+
+        // Loop melalui setiap form container
+        formContainers.each(function(index) {
+          const container = $(this);
+
+          // Ambil input penting dari form
+          const name = container.find('input[name="name[]"]').val();
+          const type = container.find('select[name="type[]"]').val();
+          const quantity = container.find('input[name="quantity[]"]').val();
+
+          // Cek jika form kosong atau hanya diisi sebagian
+          if (!name && !type && !quantity) {
+            // Form kosong, hapus dari DOM agar tidak ikut terkirim
+            container.remove();
+          } else {
+            // Cek apakah form memiliki semua field yang diperlukan
+            if (name && type && container.find('input[name="purchase_price[]"]').val() &&
+                container.find('input[name="selling_price[]"]').val() &&
+                quantity && container.find('input[name="expiration_date[]"]').val()) {
+              // Form terisi lengkap
+              validForms++;
+            }
+          }
+        });
+
+        // Jika tidak ada form yang valid, tampilkan pesan error
+        if (validForms === 0) {
+          alert('Mohon isi minimal satu form produk dengan lengkap');
+          return false;
+        }
+
+        // Jika sudah valid, kirim form
+        this.submit();
+      });
+
+      // Handler untuk tipe produk
+      $('.type').change(function() {
         const type = $(this).val();
         const container = $(this).closest('.form-container');
         let hidden_size = container.find('.hidden_size');
@@ -674,7 +729,8 @@
         }
       });
 
-      $('.sub_type').change(function() { // Changed to regular function
+      // Handler untuk sub tipe
+      $('.sub_type').change(function() {
         const sub_type = $(this).val();
         const container = $(this).closest('.form-container');
         let hidden_size = container.find('.hidden_size');
@@ -720,10 +776,146 @@
         }
       });
 
+      // Handler untuk tombol tambah item baru
       $('#clone-element').click(() => {
         const cloned = $('#form-container').clone(true);
+
+        // Reset nilai input pada form yang dikloning
+        cloned.find('input[type="text"], input[type="number"], textarea').val('');
+        cloned.find('select').each(function() {
+          $(this).val($(this).find('option:first').val());
+        });
+        cloned.find('input[type="date"]').val('');
+        cloned.find('input[type="file"]').val('');
+
+        // Tambahkan tombol hapus pada form yang dikloning
+        const deleteButton = $('<button type="button" class="btn btn-danger remove-form"><i class="bx bx-trash"></i></button>');
+
+        // Handler untuk tombol hapus
+        deleteButton.on('click', function() {
+          cloned.remove();
+        });
+
+        cloned.prepend(deleteButton);
         $('#cloned-container').append(cloned);
-      })
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if there's a success message in the session
+      @if (session('success'))
+        // Show the success modal with the stored product data
+        @if (session('product_names'))
+          // If we have multiple products
+          const productNames = @json(session('product_names') ?? []);
+          const productTypes = @json(session('product_types') ?? []);
+          const productSizes = @json(session('product_sizes') ?? []);
+          const productQuantities = @json(session('product_quantities') ?? []);
+          const productPrices = @json(session('product_prices') ?? []);
+
+          showSuccessModalMultiple(productNames, productTypes, productSizes, productQuantities, productPrices);
+        @else
+          // Fallback to single product display for backward compatibility
+          showSuccessModal({
+            name: "{{ session('product_name') }}",
+            type: "{{ session('product_type') }}",
+            size: "{{ session('product_size') }}",
+            quantity: "{{ session('product_quantity') }}",
+            sellingPrice: "{{ session('product_selling_price') }}"
+          });
+        @endif
+      @endif
+    });
+
+    function showSuccessModalMultiple(names, types, sizes, quantities, prices) {
+      // Get the container for the product list
+      const productListContainer = document.getElementById('productListContainer');
+      productListContainer.innerHTML = ''; // Clear any existing content
+      // Add each product to the list
+      for (let i = 0; i < names.length; i++) {
+        const productItem = document.createElement('div');
+        productItem.className = 'product-item';
+
+        productItem.innerHTML = `
+          <div class="modal-product-name">${names[i]}</div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+            <span style="color: #64748b;">Tipe:</span>
+            <span style="font-weight: 500; color: #1e293b;">${types[i]}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+            <span style="color: #64748b;">Ukuran:</span>
+            <span style="font-weight: 500; color: #1e293b;">${sizes[i]}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+            <span style="color: #64748b;">Jumlah:</span>
+            <span style="font-weight: 500; color: #1e293b;">${quantities[i]} pcs</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+            <span style="color: #64748b;">Harga Jual:</span>
+            <span style="font-weight: 500; color: #149d80;">Rp ${parseInt(prices[i]).toLocaleString('id-ID')}</span>
+          </div>
+        `;
+
+        productListContainer.appendChild(productItem);
+      }
+
+      // Show the modal
+      const modal = document.getElementById('successModal');
+      modal.classList.add('show');
+
+      // Prevent background scrolling
+      document.body.style.overflow = 'hidden';
+    }
+
+    function showSuccessModal(product) {
+      // Set product details in the modal for backward compatibility
+      const productListContainer = document.getElementById('productListContainer');
+      productListContainer.innerHTML = `
+        <div class="product-item">
+          <div class="modal-product-name">${product.name}</div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+            <span style="color: #64748b;">Tipe:</span>
+            <span style="font-weight: 500; color: #1e293b;">${product.type}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+            <span style="color: #64748b;">Ukuran:</span>
+            <span style="font-weight: 500; color: #1e293b;">${product.size}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+            <span style="color: #64748b;">Jumlah:</span>
+            <span style="font-weight: 500; color: #1e293b;">${product.quantity} pcs</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+            <span style="color: #64748b;">Harga Jual:</span>
+            <span style="font-weight: 500; color: #149d80;">Rp ${parseInt(product.sellingPrice).toLocaleString('id-ID')}</span>
+          </div>
+        </div>
+      `;
+
+      // Show the modal
+      const modal = document.getElementById('successModal');
+      modal.classList.add('show');
+
+      // Prevent background scrolling
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Menutup modal dengan tombol ESC atau klik di luar modal
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('successModal');
+        if (modal.classList.contains('show')) {
+          modal.classList.remove('show');
+          document.body.style.overflow = '';
+        }
+      }
+    });
+
+    document.getElementById('successModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('show');
+        document.body.style.overflow = '';
+      }
     });
   </script>
 @endsection

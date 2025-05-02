@@ -245,6 +245,24 @@
     font-size: 0.9rem;
   }
 
+  /* Total Stock Badge Style */
+  .stock-quantity-badge {
+    background-color: #e2e8f0;
+    color: #334155;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .stock-quantity-badge i {
+    margin-right: 5px;
+    font-size: 0.8rem;
+    color: #149d80;
+  }
+
   /* Shared Modal Styles */
   .success-modal-backdrop,
   .error-modal-backdrop {
@@ -493,7 +511,7 @@
   <div class="row mb-4">
     <div class="col-12">
       <div class="d-sm-flex justify-content-between align-items-center">
-        <h1 class="header-title mb-3"><i class="bx bx-box"></i>Daftar Stok</h1>
+        <h1 class="header-title mb-3"><i class="bx bx-box"></i>Stok Barang</h1>
         <a href="{{ route('stocks.create') }}" class="btn add-btn btn-success d-flex align-items-center">
           <i class="bx bx-plus me-2"></i> Tambah Stok
         </a>
@@ -562,6 +580,11 @@
         // $almostExpired = !$expired && \Carbon\Carbon::parse($stock->expiration_date)->diffInDays(now()) < 30;
         // $lowStock = $stock->quantity < 10;
         $image = $stock->image ? asset('storage/' . $stock->image) : asset('images/default.png');
+
+        // Get total stock count for this master stock
+        $totalStock = DB::table('stocks')
+            ->where('master_stock_id', $stock->id)
+            ->sum('quantity');
       @endphp
       <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
         <a href="{{ route('stocks.detail', $stock->id) }}">
@@ -572,7 +595,12 @@
 
             <div class="card-body p-3">
               <h5 class="card-title fw-bold">{{ $stock->name }}</h5>
-              <h5 class="card-title fw-bold">{{ $stock->sku }}</h5>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="card-subtitle mb-0">{{ $stock->sku }}</h6>
+                <span class="stock-quantity-badge">
+                  <i class="bx bx-package"></i> {{ $totalStock }}
+                </span>
+              </div>
               <p class="card-text text-muted mb-2 small">{{ $stock->type }}</p>
               @if ($stock->sub_type)
               <p class="card-text text-muted mb-2 small">{{ $stock->sub_type }}</p>

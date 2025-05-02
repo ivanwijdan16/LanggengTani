@@ -555,14 +555,12 @@
             ];
         }
 
-        $nameLink = getSortLink('name', 'Nama', $currentSort, $currentDirection);
+
         $priceLink = getSortLink('selling_price', 'Harga', $currentSort, $currentDirection);
         $expLink = getSortLink('expiration_date', 'Kadaluwarsa', $currentSort, $currentDirection);
         $dateLink = getSortLink('created_at', 'Terbaru', $currentSort, $currentDirection);
       @endphp
 
-      <a href="{{ $nameLink['url'] }}"
-        class="sort-link {{ $nameLink['isActive'] ? 'active' : '' }}">{!! $nameLink['label'] !!}</a>
       <a href="{{ $priceLink['url'] }}"
         class="sort-link {{ $priceLink['isActive'] ? 'active' : '' }}">{!! $priceLink['label'] !!}</a>
       <a href="{{ $expLink['url'] }}"
