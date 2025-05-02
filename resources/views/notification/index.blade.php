@@ -25,7 +25,7 @@
   }
 
   .page-title i {
-    color: #00724F;
+    color: #149d80;
     margin-right: 0.75rem;
     font-size: 1.5rem;
   }
@@ -71,7 +71,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #00724F;
+    color: #149d80;
     font-size: 1.25rem;
   }
 

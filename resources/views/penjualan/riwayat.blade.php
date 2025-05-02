@@ -32,12 +32,12 @@
   }
 
   .btn-outline-primary {
-    color: #00724F;
-    border-color: #00724F;
+    color: #149d80;
+    border-color: #149d80;
   }
 
   .btn-outline-primary:hover {
-    background-color: #00724F;
+    background-color: #149d80;
     color: white;
   }
 
@@ -61,7 +61,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: #00724F;
+    background-color: #149d80;
     color: white;
     border-radius: 30px;
     padding: 0.15rem 0.5rem;
@@ -87,7 +87,7 @@
   }
 
   .page-title i {
-    color: #00724F;
+    color: #149d80;
     margin-right: 10px;
     font-size: 1.5rem;
   }

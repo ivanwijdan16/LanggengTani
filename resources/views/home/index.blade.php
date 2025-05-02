@@ -37,22 +37,22 @@
 
     .box-icon-bg {
   background-color: #e8f5f0;
-  color: #00724F;
+  color: #149d80;
 }
 
 .store-icon-bg {
   background-color: #e8f5f0;
-  color: #00724F;
+  color: #149d80;
 }
 
 .cart-icon-bg {
   background-color: #e8f5f0;
-  color: #00724F;
+  color: #149d80;
 }
 
 .profit-icon-bg {
   background-color: #e8f5f0;
-  color: #00724F;
+  color: #149d80;
 }
 
     .stat-details {
@@ -97,7 +97,7 @@
     }
 
     .btn-tampilkan {
-  background: #00724F !important;
+  background: #149d80 !important;
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -129,7 +129,7 @@
   }
 
   .card-header i {
-    color: #00724F;
+    color: #149d80;
     margin-right: 10px;
     font-size: 1.5rem;
   }
@@ -267,8 +267,8 @@
         datasets: [{
           label: 'Omset Penjualan Harian',
           data: data,
-          backgroundColor: '#00724F',
-          borderColor: '#00724F',
+          backgroundColor: '#149d80',
+          borderColor: '#149d80',
           borderWidth: 0,
           borderRadius: 5,
           barThickness: 40,

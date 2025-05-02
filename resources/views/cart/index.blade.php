@@ -3,7 +3,7 @@
 @section('style')
   <style>
     :root {
-      --primary-color: #00724F;
+      --primary-color: #149d80;
       --primary-dark: #005a3f;
       --primary-light: rgba(0, 114, 79, 0.1);
       --text-dark: #1e293b;
@@ -491,7 +491,7 @@
     }
 
     .sort-link.active {
-      background-color: #00724F;
+      background-color: #149d80;
       color: white;
     }
 

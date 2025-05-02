@@ -80,8 +80,8 @@
       border-radius: 0 15px 15px 0 !important;
       padding-left: 25px;
       padding-right: 25px;
-      background-color: #00724F;
-      border-color: #00724F;
+      background-color: #149d80;
+      border-color: #149d80;
     }
 
     .search-btn:hover {
@@ -95,8 +95,8 @@
     }
 
     .add-btn {
-      background-color: #00724F;
-      border-color: #00724F;
+      background-color: #149d80;
+      border-color: #149d80;
       border-radius: 12px;
       padding: 10px 20px;
       font-weight: 600;
@@ -112,7 +112,7 @@
     }
 
     .price-tag {
-      color: #00724F;
+      color: #149d80;
       font-weight: 700;
     }
 
@@ -148,7 +148,7 @@
     }
 
     .page-item.active .page-link {
-      background-color: #00724F;
+      background-color: #149d80;
       color: white;
     }
 
@@ -171,7 +171,7 @@
     }
 
     .header-title i {
-      color: #00724F;
+      color: #149d80;
       margin-right: 10px;
       font-size: 1.5rem;
     }
@@ -227,7 +227,7 @@
     }
 
     .sort-link.active {
-      background-color: #00724F;
+      background-color: #149d80;
       color: white;
     }
 
@@ -305,7 +305,7 @@
     }
 
     .success-modal-title {
-      color: #00724F;
+      color: #149d80;
     }
 
     .error-modal-title {
@@ -347,7 +347,7 @@
     }
 
     .success-icon-wrapper i {
-      color: #00724F;
+      color: #149d80;
       font-size: 2.5rem;
     }
 
@@ -363,7 +363,7 @@
     }
 
     .success-modal-btn {
-      background-color: #00724F;
+      background-color: #149d80;
       color: white;
       border: none;
       border-radius: 10px;
@@ -436,7 +436,7 @@
     }
 
     .error-modal-btn-primary {
-      background-color: #00724F;
+      background-color: #149d80;
       color: white;
       border: none;
       border-radius: 10px;

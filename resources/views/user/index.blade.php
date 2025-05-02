@@ -21,7 +21,7 @@
   }
 
   .page-title i {
-    color: #00724F;
+    color: #149d80;
     margin-right: 0.75rem;
     font-size: 1.5rem;
   }
@@ -71,8 +71,8 @@
   }
 
   .btn-primary {
-    background-color: #00724F;
-    border-color: #00724F;
+    background-color: #149d80;
+    border-color: #149d80;
     padding: 0.5rem 1rem;
   }
 
@@ -299,7 +299,7 @@
               <tr>
                 <td><strong>
                   <div class="d-flex align-items-center">
-                    <div class="avatar-circle me-2" style="background-color: #00724F; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                    <div class="avatar-circle me-2" style="background-color: #149d80; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">
                       {{ strtoupper(substr($user->name, 0, 1)) }}
                     </div>
                     <div>{{ $user->name }}</div>

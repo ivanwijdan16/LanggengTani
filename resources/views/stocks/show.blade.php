@@ -41,7 +41,7 @@
     }
 
     .badge-active {
-      background-color: #00724F;
+      background-color: #149d80;
       color: white;
     }
 
@@ -66,7 +66,7 @@
     .product-type {
       display: inline-block;
       background-color: #e7f0fa;
-      color: #00724F;
+      color: #149d80;
       border-radius: 20px;
       padding: 0.3rem 0.8rem;
       font-size: 0.8rem;
@@ -124,7 +124,7 @@
     }
 
     .price-value {
-      color: #00724F;
+      color: #149d80;
     }
 
     .expired-value {
@@ -189,7 +189,7 @@
     }
 
     .btn-edit {
-      background-color: #00724F;
+      background-color: #149d80;
       color: white;
       border: none;
       flex: 1;
@@ -229,7 +229,7 @@
     }
 
     .header-title i {
-      color: #00724F;
+      color: #149d80;
       margin-right: 0.75rem;
       font-size: 1.5rem;
     }
@@ -496,7 +496,7 @@
     }
 
     .success-modal-title {
-      color: #00724F;
+      color: #149d80;
     }
 
     .error-modal-title {
@@ -538,7 +538,7 @@
     }
 
     .success-icon-wrapper i {
-      color: #00724F;
+      color: #149d80;
       font-size: 2.5rem;
     }
 
@@ -554,7 +554,7 @@
     }
 
     .success-modal-btn {
-      background-color: #00724F;
+      background-color: #149d80;
       color: white;
       border: none;
       border-radius: 10px;
@@ -627,7 +627,7 @@
     }
 
     .error-modal-btn-primary {
-      background-color: #00724F;
+      background-color: #149d80;
       color: white;
       border: none;
       border-radius: 10px;

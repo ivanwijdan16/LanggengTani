@@ -19,7 +19,7 @@
   }
 
   .page-title i {
-    color: #00724F;
+    color: #149d80;
     margin-right: 0.75rem;
     font-size: 1.5rem;
   }
@@ -58,7 +58,7 @@
   }
 
   .form-control:focus {
-    border-color: #00724F;
+    border-color: #149d80;
     box-shadow: 0 0 0 0.25rem rgba(0, 114, 79, 0.15);
   }
 
@@ -79,7 +79,7 @@
   }
 
   .password-toggle:hover {
-    color: #00724F;
+    color: #149d80;
   }
 
   .btn {
@@ -102,8 +102,8 @@
 
   .btn-primary {
     color: #fff;
-    background-color: #00724F;
-    border-color: #00724F;
+    background-color: #149d80;
+    border-color: #149d80;
   }
 
   .btn-primary:hover, .btn-primary:focus {
@@ -155,7 +155,7 @@
   }
 
   .breadcrumb a:hover {
-    color: #00724F;
+    color: #149d80;
   }
 
   .breadcrumb-divider {
@@ -187,7 +187,7 @@
   }
 
   .breadcrumb-item a:hover {
-    color: #00724F;
+    color: #149d80;
   }
 
   .breadcrumb-divider {

@@ -23,7 +23,7 @@
 }
 
 .profile-title i {
-    color: #00724f;
+    color: #149d80;
     margin-right: 10px;
     font-size: 1.25rem;
 }
@@ -47,7 +47,7 @@
 }
 
 .form-control:focus {
-    border-color: #00724f;
+    border-color: #149d80;
     background-color: white;
     box-shadow: 0 0 0 0.25rem rgba(0, 114, 79, 0.15);
 }
@@ -69,7 +69,7 @@
 }
 
 .password-toggle:hover {
-    color: #00724f;
+    color: #149d80;
 }
 
 .form-section {
@@ -90,7 +90,7 @@
 
 .form-section-title i {
     margin-right: 8px;
-    color: #00724f;
+    color: #149d80;
 }
 
 .text-danger {
@@ -101,7 +101,7 @@
 }
 
 .btn-primary {
-    background-color: #00724f;
+    background-color: #149d80;
     border: none;
     border-radius: 10px;
     padding: 0.75rem 2rem;

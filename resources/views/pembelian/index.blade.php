@@ -30,7 +30,7 @@
     }
 
     .section-title i {
-      color: #00724F;
+      color: #149d80;
       margin-right: 10px;
       font-size: 1.5rem;
     }
@@ -44,7 +44,7 @@
 
     .form-control:focus,
     .form-select:focus {
-      border-color: #00724F;
+      border-color: #149d80;
       box-shadow: 0 0 0 0.25rem rgba(0, 114, 79, 0.25);
     }
 
@@ -56,8 +56,8 @@
     }
 
     .btn-primary {
-      background-color: #00724F;
-      border-color: #00724F;
+      background-color: #149d80;
+      border-color: #149d80;
     }
 
     .btn-primary:hover,
@@ -153,7 +153,7 @@
 
     .total-box h3 {
       margin: 0;
-      color: #00724F;
+      color: #149d80;
       font-weight: 700;
     }
 
@@ -420,9 +420,9 @@
               label: 'Total Pembelian',
               data: data,
               backgroundColor: 'rgba(0, 114, 79, 0.1)', // Area di bawah line
-              borderColor: '#00724F', // Warna garis
+              borderColor: '#149d80', // Warna garis
               borderWidth: 3,
-              pointBackgroundColor: '#00724F',
+              pointBackgroundColor: '#149d80',
               pointBorderColor: '#ffffff',
               pointBorderWidth: 2,
               pointRadius: 5,

@@ -18,7 +18,7 @@
   }
 
   .header-title i {
-    color: #00724F;
+    color: #149d80;
     margin-right: 0.75rem;
     font-size: 1.5rem;
   }
@@ -41,7 +41,7 @@
   }
 
   .breadcrumb-item a:hover {
-    color: #00724F;
+    color: #149d80;
   }
 
   .breadcrumb-divider {
@@ -71,7 +71,7 @@
   .form-section-title {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #00724F;
+    color: #149d80;
     margin-bottom: 1.25rem;
     display: flex;
     align-items: center;
@@ -114,7 +114,7 @@
   }
 
   .form-control:focus {
-    border-color: #00724F;
+    border-color: #149d80;
     outline: 0;
     box-shadow: 0 0 0 3px rgba(0, 114, 79, 0.1);
   }
@@ -148,8 +148,8 @@
 
   .btn-primary {
     color: #fff;
-    background-color: #00724F;
-    border-color: #00724F;
+    background-color: #149d80;
+    border-color: #149d80;
   }
 
   .btn-primary:hover, .btn-primary:focus {

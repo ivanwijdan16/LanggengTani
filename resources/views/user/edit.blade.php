@@ -19,7 +19,7 @@
   }
 
   .page-title i {
-    color: #00724F;
+    color: #149d80;
     margin-right: 0.75rem;
     font-size: 1.5rem;
   }
@@ -82,7 +82,7 @@
   }
 
   .form-control:focus {
-    border-color: #00724F;
+    border-color: #149d80;
     box-shadow: 0 0 0 0.25rem rgba(0, 114, 79, 0.15);
   }
 
@@ -103,7 +103,7 @@
   }
 
   .password-toggle:hover {
-    color: #00724F;
+    color: #149d80;
   }
 
   .helper-text {
@@ -132,8 +132,8 @@
 
   .btn-primary {
     color: #fff;
-    background-color: #00724F;
-    border-color: #00724F;
+    background-color: #149d80;
+    border-color: #149d80;
   }
 
   .btn-primary:hover, .btn-primary:focus {
@@ -188,7 +188,7 @@
   }
 
   .breadcrumb-item a:hover {
-    color: #00724F;
+    color: #149d80;
   }
 
   .breadcrumb-divider {
@@ -206,7 +206,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #00724F;
+    background-color: #149d80;
     color: white;
     display: flex;
     align-items: center;
