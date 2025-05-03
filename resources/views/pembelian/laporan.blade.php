@@ -303,22 +303,14 @@
     @endforeach
 
     @php
-      // Calculate total loss from expired products
-      $totalLoss = 0;
+  // Total loss sudah dikirm langsung dari controller
+  $totalLoss = $totalKerugian ?? 0;
+@endphp
 
-      // This would normally come from your controller
-      // For demonstration, we'll check if $kerugian exists
-      if (isset($kerugian) && is_array($kerugian)) {
-        foreach ($kerugian as $item) {
-          $totalLoss += $item['kerugian'];
-        }
-      }
-    @endphp
-
-    <div class="summary-box warning">
-      <div class="summary-title">Kerugian Karena Barang Kadaluarsa</div>
-      <div class="summary-value">Rp {{ number_format($totalLoss, 0, ',', '.') }}</div>
-    </div>
+<div class="summary-box warning">
+  <div class="summary-title">Kerugian Karena Barang Kadaluwarsa</div>
+  <div class="summary-value">Rp {{ number_format($totalLoss, 0, ',', '.') }}</div>
+</div>
 
     <div class="print-footer">
       <p>Laporan dicetak pada: {{ Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y, H:i') }}</p>

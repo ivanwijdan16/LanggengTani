@@ -88,16 +88,28 @@ foreach ($barangsKadaluarsa as $barang) {
 
   // Cetak laporan per bulan
   public function cetakLaporan($bulan, $tahun)
-{
-    $pembelians = Pembelian::with('stock.masterStock')
-        ->whereYear('purchase_date', $tahun)
-        ->whereMonth('purchase_date', $bulan)
-        ->get();
+  {
+      $pembelians = Pembelian::with('stock.masterStock')
+          ->whereYear('purchase_date', $tahun)
+          ->whereMonth('purchase_date', $bulan)
+          ->get();
 
-    $pdf = PDF::loadView('pembelian.laporan', compact('pembelians'));
-    return $pdf->download("laporan_pembelian_{$bulan}_{$tahun}.pdf");
-}
+      // Hitung total kerugian dari barang kadaluwarsa
+      $barangsKadaluarsa = Stock::with('masterStock')
+          ->where('expiration_date', '<', now())
+          ->whereYear('expiration_date', $tahun)
+          ->whereMonth('expiration_date', $bulan)
+          ->get();
 
+      // Menghitung total kerugian
+      $totalKerugian = 0;
+      foreach ($barangsKadaluarsa as $barang) {
+          $totalKerugian += $barang->purchase_price * $barang->quantity;
+      }
+
+      $pdf = PDF::loadView('pembelian.laporan', compact('pembelians', 'totalKerugian'));
+      return $pdf->download("laporan_pembelian_{$bulan}_{$tahun}.pdf");
+  }
 public function barangKadaluarsaPerBulan($bulan, $tahun)
 {
     // Ambil barang yang kadaluarsa untuk bulan dan tahun tertentu
