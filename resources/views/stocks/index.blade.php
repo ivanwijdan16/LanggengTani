@@ -60,6 +60,110 @@
     border-radius: 50%;
   }
 
+  .stock-card .card-actions {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.stock-card .action-btn {
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.stock-card .action-btn:first-child {
+  margin-right: 0.5rem;
+}
+
+.stock-card .action-btn i {
+  margin-right: 0.35rem;
+  font-size: 1rem;
+}
+
+/* Edit button styling */
+.stock-card .btn-edit {
+  background-color: #e0f2f1;
+  color: #0c8b71;
+  border: none;
+}
+
+.stock-card .btn-edit:hover {
+  background-color: #0c8b71;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(12, 139, 113, 0.2);
+}
+
+/* Delete button styling */
+.stock-card .btn-delete {
+  background-color: #fee2e2;
+  color: #ef4444;
+  border: none;
+}
+
+.stock-card .btn-delete:hover {
+  background-color: #ef4444;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.2);
+}
+
+/* Stock Card Hover Animation Improvement */
+.stock-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stock-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(to right, #149d80, #0c8b71);
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+.stock-card:hover::after {
+  transform: translateY(0);
+}
+
+/* Improve card content spacing */
+.stock-card .card-body {
+  padding: 1.25rem;
+}
+
+.stock-card .card-title {
+  margin-bottom: 0.75rem;
+  color: #1e293b;
+}
+
+/* Enhanced quantity badge */
+.stock-quantity-badge {
+  background-color: #ecfdf5;
+  color: #0f766e;
+  border: 1px solid #d1fae5;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.stock-quantity-badge i {
+  color: #10b981;
+}
+
   .search-wrapper {
     border-radius: 15px;
     overflow: hidden;
@@ -627,7 +731,8 @@
   </div>
 
   <!-- Stock Grid with Master Stock Cards -->
-  <div class="row">
+  <!-- Stock Grid with Improved Master Stock Cards -->
+<div class="row">
     @forelse ($stocks as $stock)
       @php
         $image = $stock->image ? asset('storage/' . $stock->image) : asset('images/default.png');
@@ -641,24 +746,28 @@
             <img src="{{ $image }}" class="card-img-top" alt="{{ $stock->name }}">
           </div>
 
-          <div class="card-body p-3">
+          <div class="card-body">
             <h5 class="card-title fw-bold">{{ $stock->name }}</h5>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="card-subtitle mb-0">{{ $stock->sku }}</h6>
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="card-subtitle mb-0 text-muted">{{ $stock->sku }}</h6>
               <span class="stock-quantity-badge">
                 <i class="bx bx-package"></i> {{ $totalQuantity }} pcs
               </span>
             </div>
-            <p class="card-text text-muted mb-2 small">{{ $stock->type }}</p>
+            <p class="card-text text-muted mb-1 small">{{ $stock->type }}</p>
             @if ($stock->sub_type)
-              <p class="card-text text-muted mb-2 small">{{ $stock->sub_type }}</p>
+              <p class="card-text text-muted mb-0 small">{{ $stock->sub_type }}</p>
             @endif
 
-            <div class="mt-3 pt-2 border-top d-flex justify-content-between">
-              <a href="{{ route('stocks.edit.master', $stock->id) }}" class="btn btn-sm btn-primary" onclick="event.stopPropagation();">
+            <div class="card-actions">
+              <a href="{{ route('stocks.edit.master', $stock->id) }}" class="btn action-btn btn-edit" onclick="event.stopPropagation();">
                 <i class="bx bx-edit"></i> Edit
               </a>
-              <button type="button" class="btn btn-sm btn-danger" data-stock-id="{{ $stock->id }}" data-stock-name="{{ $stock->name }}" data-stock-sku="{{ $stock->sku }}" onclick="event.stopPropagation(); openDeleteMasterModal({{ $stock->id }}, '{{ $stock->name }}', '{{ $stock->sku }}')">
+              <button type="button" class="btn action-btn btn-delete"
+                data-stock-id="{{ $stock->id }}"
+                data-stock-name="{{ $stock->name }}"
+                data-stock-sku="{{ $stock->sku }}"
+                onclick="event.stopPropagation(); openDeleteMasterModal({{ $stock->id }}, '{{ $stock->name }}', '{{ $stock->sku }}')">
                 <i class="bx bx-trash"></i> Hapus
               </button>
             </div>
