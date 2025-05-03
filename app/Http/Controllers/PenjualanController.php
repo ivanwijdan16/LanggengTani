@@ -17,7 +17,7 @@ class PenjualanController extends Controller
     $tahun = $request->query('tahun', now()->year);
 
     $penjualans = Transaction::with(['items.product' => function($query) {
-        $query->withTrashed();
+        $query->withTrashed()->with('masterStock');
     }])
     ->whereYear('created_at', $tahun)
     ->whereMonth('created_at', $bulan)
@@ -75,43 +75,76 @@ class PenjualanController extends Controller
 
   // Cetak laporan penjualan per bulan
   public function cetakLaporan($bulan, $tahun)
-{
-    // Get the base query for transaction items first
-    $penjualans = TransactionItem::join('transactions', 'transaction_items.transaction_id', '=', 'transactions.id')
-        ->whereYear('transactions.created_at', $tahun)
-        ->whereMonth('transactions.created_at', $bulan);
+  {
+    // Get transactions with their items and products
+    $transactions = Transaction::with(['items.product' => function($query) {
+        $query->withTrashed()->with('masterStock');
+    }])
+    ->whereYear('created_at', $tahun)
+    ->whereMonth('created_at', $bulan)
+    ->get();
 
-    // Then do a separate subquery to get stocks including trashed ones
-    $stocksWithTrashed = DB::table('stocks')
-        ->select('id', 'name', 'purchase_price', 'size')
-        ->whereNull('deleted_at')
-        ->union(
-            DB::table('stocks')
-                ->select('id', 'name', 'purchase_price', 'size')
-                ->whereNotNull('deleted_at')
-        );
+    // Calculate total sales
+    $totalPenjualan = $transactions->sum('total_price');
 
-    // Now join with our combined result
-    $penjualans = $penjualans
-        ->leftJoinSub($stocksWithTrashed, 'stocks', function($join) {
-            $join->on('transaction_items.product_id', '=', 'stocks.id');
-        })
-        ->select(
-            'transactions.id_penjualan as id_penjualan',
-            'transaction_items.quantity',
-            'transaction_items.price as unit_price',
-            'stocks.name as product_name',
-            'stocks.purchase_price',
-            'transaction_items.subtotal as total_price',
-            'transactions.created_at as sale_date'
-        )
-        ->get();
+    // Calculate total profit
+    $totalProfit = 0;
 
-    // Membuat PDF menggunakan data yang sudah didapat
-    $pdf = PDF::loadView('penjualan.laporan', compact('penjualans'));
-    $pdf->setOption('orientation', 'landscape');
+    // Group by category to find sales per category
+    $penjualanPerKategori = [];
 
-    // Mengunduh PDF
+    // Find the best selling product
+    $produkTerlaris = null;
+    $maxQuantity = 0;
+
+    // Process items for detailed reporting
+    $items = [];
+
+    foreach ($transactions as $transaction) {
+        foreach ($transaction->items as $item) {
+            if ($item->product) {
+                // Calculate profit for each item
+                $profit = $item->price - $item->product->purchase_price;
+
+                // Add to items for table display
+                $items[] = [
+                    'id_penjualan' => $transaction->id_penjualan,
+                    'tanggal' => $transaction->created_at,
+                    'nama_barang' => $item->product->masterStock ? $item->product->masterStock->name : 'Produk tidak tersedia',
+                    'sku' => $item->product->masterStock ? $item->product->masterStock->sku : '-',
+                    'ukuran' => $item->product->size,
+                    'jumlah' => $item->quantity,
+                    'total_harga' => $item->subtotal,
+                    'laba' => $profit,
+                    'laba_total' => $profit * $item->quantity
+                ];
+
+                // Add to total profit
+                $totalProfit += $profit * $item->quantity;
+
+                // Group by category
+                if ($item->product->masterStock) {
+                    $kategori = $item->product->masterStock->type;
+                    if (!isset($penjualanPerKategori[$kategori])) {
+                        $penjualanPerKategori[$kategori] = [
+                            'total' => 0,
+                            'jumlah' => 0
+                        ];
+                    }
+                    $penjualanPerKategori[$kategori]['total'] += $item->subtotal;
+                    $penjualanPerKategori[$kategori]['jumlah'] += $item->quantity;
+                }
+
+                // Check if this is the best selling product
+                if ($item->quantity > $maxQuantity) {
+                    $maxQuantity = $item->quantity;
+                    $produkTerlaris = $item->product->masterStock ? $item->product->masterStock->name : 'Produk tidak tersedia';
+                }
+            }
+        }
+    }
+
+    $pdf = PDF::loadView('penjualan.laporan', compact('items', 'totalPenjualan', 'totalProfit', 'produkTerlaris', 'penjualanPerKategori', 'bulan', 'tahun'));
     return $pdf->download("laporan_penjualan_{$bulan}_{$tahun}.pdf");
-}
+  }
 }
