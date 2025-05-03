@@ -309,7 +309,7 @@
 
         <div class="row">
             <!-- Riwayat Penjualan -->
-            <div class="col-lg-6">
+            <div class="col-lg-6 mb-5">
                 <h2 class="section-title">
                     <i class="bx bx-history"></i> Riwayat Penjualan
                 </h2>

@@ -346,7 +346,7 @@
 
         <div class="row">
             <!-- Riwayat Pembelian -->
-            <div class="col-lg-6">
+            <div class="col-lg-6 mb-5">
                 <h2 class="section-title">
                     <i class="bx bx-history"></i> Riwayat Pembelian
                 </h2>
