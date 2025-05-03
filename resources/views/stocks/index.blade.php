@@ -770,7 +770,7 @@
       <div class="d-sm-flex justify-content-between align-items-center">
         <h1 class="header-title mb-3"><i class="bx bx-box"></i>Stok Barang</h1>
         <a href="{{ route('stocks.create') }}" class="btn add-btn btn-success d-flex align-items-center">
-          <i class="bx bx-plus me-2"></i> Tambah Stok
+          <i class="bx bx-plus me-2"></i> Tambah Stok Baru
         </a>
       </div>
     </div>

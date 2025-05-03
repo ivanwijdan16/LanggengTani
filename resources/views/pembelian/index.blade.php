@@ -110,6 +110,19 @@
       border-color: #f1f5f9;
     }
 
+    .table-row {
+      transition: all 0.2s ease;
+    }
+
+    .table-row:hover {
+      background-color: #f1f5f9;
+      cursor: pointer;
+    }
+
+    .table-row.active {
+      background-color: #e6f7f3;
+    }
+
     .currency {
       text-align: right;
       font-weight: 500;
@@ -167,6 +180,99 @@
       padding-top: 30px;
     }
 
+    /* Improved styles for purchase details */
+    .details-content {
+      padding: 15px;
+      border-radius: 10px;
+      background-color: #f8fafc;
+      margin-bottom: 10px;
+      border-left: 4px solid #149d80;
+      transition: all 0.3s ease;
+    }
+
+    .details-content:hover {
+      background-color: #e6f7f3;
+      transform: translateX(5px);
+    }
+
+    .detail-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 8px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+      font-weight: 500;
+      color: #334155;
+    }
+
+    .stock-id {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 5px;
+      display: inline-block;
+      background-color: #e2e8f0;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .category-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .category-item {
+      flex: 1 1 200px;
+      background-color: white;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .category-title {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 5px;
+    }
+
+    .category-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #149d80;
+    }
+
+    /* Fade animation for details */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     @media (max-width: 768px) {
       .btn-group {
         flex-direction: column;
@@ -175,6 +281,11 @@
       .btn-group .btn {
         width: 100%;
         margin-bottom: 10px;
+      }
+
+      .detail-row {
+        flex-direction: column;
+        gap: 10px;
       }
     }
   </style>
@@ -246,7 +357,7 @@
                   <th>ID Pembelian</th>
                   <th>Tanggal</th>
                   <th>Total</th>
-                  <th></th> <!-- Column for the plus icon -->
+                  <th width="50"></th>
                 </tr>
               </thead>
               <tbody>
@@ -254,44 +365,71 @@
                   $total = 0;
                 @endphp
                 @foreach ($pembelians as $pembelian)
-                  <tr>
-                    <td><strong>{{ $pembelian->id }}</strong></td>
+                  <tr class="table-row" data-pembelian-id="{{ $pembelian->id }}">
+                    <td><span class="badge bg-light text-dark">{{ $pembelian->id }}</span></td>
                     <td>
-                      {{ \Carbon\Carbon::parse($pembelian->date)->format('d-m-Y') }},
-                      {{ \Carbon\Carbon::parse($pembelian->created_at)->format('H:i') }}
+                      {{ \Carbon\Carbon::parse($pembelian->date)->format('d-m-Y') }}
+                      <small class="text-muted d-block">{{ \Carbon\Carbon::parse($pembelian->created_at)->format('H:i') }}</small>
                     </td>
                     <td class="currency text-start">
                       {{ number_format($pembelian->total, 0, ',', '.') }}</td>
                     <td>
-                      <button type="button" class="btn btn-link btn-sm toggle-details"
-                        data-pembelian-id="{{ $pembelian->id }}">
-                        <i class="bx bx-plus-circle"></i> <!-- Plus icon -->
+                      <button type="button" class="btn btn-sm p-0 toggle-details" data-pembelian-id="{{ $pembelian->id }}">
+                        <i class="bx bx-chevron-down fs-5"></i>
                       </button>
                     </td>
                   </tr>
 
-                  <!-- Hidden row for additional details -->
+                  <!-- Hidden details container -->
                   <tr class="details-row" id="details-row-{{ $pembelian->id }}" style="display: none;">
-                    <td colspan="4">
+                    <td colspan="4" class="p-0">
+                      <div class="p-3 fade-in">
                         @foreach ($pembelian->pembelians as $item)
-    <div class="details-content d-flex gap-3">
-      <strong>Nama Barang:</strong>
-      @if ($item->stock && $item->stock->masterStock)
-        {{ $item->stock->masterStock->name }} ({{ $item->stock->size }})
-        <br>
+                          <div class="details-content">
+                            <div class="detail-row">
+                              <div class="detail-item">
+                                <span class="detail-label">Nama Barang</span>
+                                <span class="detail-value">
+                                  @if ($item->stock && $item->stock->masterStock)
+                                    {{ $item->stock->masterStock->name }}
+                                  @else
+                                    Barang Terhapus
+                                  @endif
+                                </span>
+                                @if ($item->stock)
+                                  <span class="stock-id">{{ $item->stock->stock_id }}</span>
+                                @endif
+                              </div>
 
+                              <div class="detail-item">
+                                <span class="detail-label">Ukuran</span>
+                                <span class="detail-value">
+                                  @if ($item->stock)
+                                    {{ $item->stock->size }}
+                                  @else
+                                    -
+                                  @endif
+                                </span>
+                              </div>
 
-        <small class="text-muted">Stock ID: {{ $item->stock->stock_id }}</small>
-      @else
-        Barang Terhapus
-      @endif
-      <br>
-      <strong>Harga:</strong> Rp
-      {{ number_format($item->purchase_price, 0, ',', '.') }}
-      <br>
-      <strong>Qty:</strong> {{ $item->quantity }}
-    </div>
-  @endforeach
+                              <div class="detail-item">
+                                <span class="detail-label">Harga Beli</span>
+                                <span class="detail-value">Rp {{ number_format($item->purchase_price, 0, ',', '.') }}</span>
+                              </div>
+
+                              <div class="detail-item">
+                                <span class="detail-label">Jumlah</span>
+                                <span class="detail-value">{{ $item->quantity }} pcs</span>
+                              </div>
+
+                              <div class="detail-item">
+                                <span class="detail-label">Total</span>
+                                <span class="detail-value fw-bold">Rp {{ number_format($item->purchase_price * $item->quantity, 0, ',', '.') }}</span>
+                              </div>
+                            </div>
+                          </div>
+                        @endforeach
+                      </div>
                     </td>
                   </tr>
 
@@ -316,7 +454,7 @@
         </div>
 
         <div class="chart-info">
-            <div>Bulan: <span>{{ \Carbon\Carbon::create()->month($bulan)->translatedFormat('F') }}</span></div>
+          <div>Bulan: <span>{{ \Carbon\Carbon::create()->month($bulan)->translatedFormat('F') }}</span></div>
           <div>Tahun: <span>{{ $tahun }}</span></div>
         </div>
       </div>
@@ -351,9 +489,9 @@
               @endphp
               @foreach ($kerugian as $item)
                 <tr>
-                  <td>{{ $item['stock_id'] }}</td>
+                  <td><span class="badge bg-light text-dark">{{ $item['stock_id'] }}</span></td>
                   <td>{{ $item['name'] }}</td>
-                  <td>{{ $item['stok_kadaluarsa'] }}</td>
+                  <td>{{ $item['stok_kadaluarsa'] }} pcs</td>
                   <td class="currency text-start">{{ number_format($item['harga_beli'], 0, ',', '.') }}</td>
                   <td class="currency text-start">{{ number_format($item['kerugian'], 0, ',', '.') }}</td>
                 </tr>
@@ -365,11 +503,10 @@
           </table>
         </div>
       </div>
-      </div>
+    </div>
 
-      <div class="total-box" style="border-color: #fee2e2; background-color: #fef2f2;">
-        <h3 style="color: #ef4444;">Total Kerugian: Rp {{ number_format($totalKerugian, 0, ',', '.') }}</h3>
-      </div>
+    <div class="total-box" style="border-color: #fee2e2; background-color: #fef2f2;">
+      <h3 style="color: #ef4444;">Total Kerugian: Rp {{ number_format($totalKerugian, 0, ',', '.') }}</h3>
     </div>
   </div>
 @endsection
@@ -413,6 +550,31 @@
 
       // Memanggil updateLinks pada awal halaman dimuat
       updateLinks();
+
+      // Toggle detail rows and highlight active row
+      $('.toggle-details, .table-row').on('click', function(e) {
+        e.stopPropagation();
+        const pembelianId = $(this).hasClass('table-row')
+          ? $(this).data('pembelian-id')
+          : $(this).data('pembelian-id');
+
+        const detailsRow = $('#details-row-' + pembelianId);
+        const tableRow = $(`.table-row[data-pembelian-id="${pembelianId}"]`);
+        const chevron = tableRow.find('.toggle-details i');
+
+        // Toggle visibility of the details row
+        detailsRow.toggle();
+
+        // Toggle active class on the table row
+        tableRow.toggleClass('active');
+
+        // Change chevron direction
+        if (detailsRow.is(':visible')) {
+          chevron.removeClass('bx-chevron-down').addClass('bx-chevron-up');
+        } else {
+          chevron.removeClass('bx-chevron-up').addClass('bx-chevron-down');
+        }
+      });
 
       // Membuat chart
       var ctx = document.getElementById('grafikPembelian').getContext('2d');
@@ -496,27 +658,6 @@
           '<p class="text-muted">Tidak ada data pembelian untuk ditampilkan</p>' +
           '</div>';
       }
-    });
-  </script>
-
-  <script>
-    $(document).ready(function() {
-      // Toggle details row visibility when the plus button is clicked
-      $('.toggle-details').on('click', function() {
-        var pembelianId = $(this).data('pembelian-id'); // Get the pembelian ID
-        var detailsRow = $('#details-row-' + pembelianId); // Find the corresponding details row
-
-        // Toggle visibility of the details row
-        detailsRow.toggle(); // Toggle visibility between none and block
-
-        // Change the icon from plus to minus (expand/collapse)
-        var icon = $(this).find('i');
-        if (detailsRow.is(':visible')) {
-          icon.removeClass('bx-plus-circle').addClass('bx-minus-circle'); // Change to minus
-        } else {
-          icon.removeClass('bx-minus-circle').addClass('bx-plus-circle'); // Change to plus
-        }
-      });
     });
   </script>
 @endsection
