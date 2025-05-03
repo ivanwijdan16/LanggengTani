@@ -212,6 +212,61 @@
     color: #cbd5e1;
   }
 
+  /* Sorting styles */
+  .sort-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+    align-items: center;
+  }
+
+  .sort-label {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin: 0;
+    padding: 6px 0;
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+  }
+
+  .sort-link {
+    font-size: 0.9rem;
+    color: #64748b;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background-color: #f1f5f9;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+  }
+
+  .sort-link:hover {
+    background-color: #e2e8f0;
+    color: #334155;
+  }
+
+  .sort-link.active {
+    background-color: #149d80;
+    color: white;
+  }
+
+  .sort-link i {
+    margin-left: 5px;
+    font-size: 0.75rem;
+  }
+
+  .sort-dropdown {
+    border-radius: 8px;
+    background-color: #f1f5f9;
+    border: none;
+    color: #64748b;
+    padding: 6px 15px;
+    font-size: 0.9rem;
+  }
+
   /* Total Stock Badge Style */
   .stock-quantity-badge {
     background-color: #e2e8f0;
@@ -409,36 +464,33 @@
   </div>
 
   <!-- Add this after the breadcrumbs section -->
-  <div class="row mb-3">
-    <div class="col-12">
-      <div class="sort-links">
-        <p class="sort-label mb-0">Urutkan:</p>
-        @php
-          $currentSort = $sort ?? 'expiration_date';
-          $currentDirection = $direction ?? 'asc';
+  <!-- Sorting Links -->
+<div class="sort-links mb-4">
+    <p class="sort-label mb-0">Urutkan:</p>
+    @php
+      $currentSort = $sort ?? 'expiration_date';
+      $currentDirection = $direction ?? 'asc';
 
-          function getSortLink($field, $label, $currentSort, $currentDirection, $masterId, $size) {
-            $direction = ($currentSort == $field && $currentDirection == 'asc') ? 'desc' : 'asc';
-            $isActive = $currentSort == $field;
-            $icon = '';
+      function getSortLink($field, $label, $currentSort, $currentDirection) {
+        $direction = ($currentSort == $field && $currentDirection == 'asc') ? 'desc' : 'asc';
+        $isActive = $currentSort == $field;
+        $icon = '';
 
-            if ($isActive) {
-              $icon = $currentDirection == 'asc' ? '<i class="bx bx-sort-up"></i>' : '<i class="bx bx-sort-down"></i>';
-            }
+        if ($isActive) {
+          $icon = $currentDirection == 'asc' ? '<i class="bx bx-sort-down"></i>' : '<i class="bx bx-sort-up"></i>';
+        }
 
-            return [
-              'url' => route('stocks.batches', ['master_id' => $masterId, 'size' => $size, 'sort' => $field, 'direction' => $direction]),
-              'label' => $label . ' ' . $icon,
-              'isActive' => $isActive
-            ];
-          }
+        return [
+          'url' => route('stocks.batches', array_merge(request()->except(['sort', 'direction']), ['master_id' => request()->route('master_id'), 'size' => request()->route('size'), 'sort' => $field, 'direction' => $direction])),
+          'label' => $label . $icon,
+          'isActive' => $isActive
+        ];
+      }
 
-          $expirationLink = getSortLink('expiration_date', 'Kadaluwarsa', $currentSort, $currentDirection, $masterStock->id, $size);
-        @endphp
+      $expirationLink = getSortLink('expiration_date', 'Kadaluwarsa', $currentSort, $currentDirection);
+    @endphp
 
-        <a href="{{ $expirationLink['url'] }}" class="sort-link {{ $expirationLink['isActive'] ? 'active' : '' }}">{!! $expirationLink['label'] !!}</a>
-      </div>
-    </div>
+    <a href="{{ $expirationLink['url'] }}" class="sort-link {{ $expirationLink['isActive'] ? 'active' : '' }}">{!! $expirationLink['label'] !!}</a>
   </div>
 
   <!-- Batch-based Stock Grid -->
