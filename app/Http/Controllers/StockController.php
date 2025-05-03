@@ -628,9 +628,9 @@ public function updateSize(Request $request)
         'quantity' => $quantity,
         'purchase_date' => now(),
         'master_pembelians_id' => $master_pembelian->id,
-        'purchase_code' => IdGenerator::generatePurchaseCode(),
+        'purchase_code' => $master_pembelian->purchase_code, // Gunakan kode pembelian dari master_pembelian
     ];
 
     Pembelian::create($pembelianData);
-    }
+}
 }

@@ -366,7 +366,7 @@
                 @endphp
                 @foreach ($pembelians as $pembelian)
                   <tr class="table-row" data-pembelian-id="{{ $pembelian->id }}">
-                    <td><span class="badge bg-light text-dark">{{ $pembelian->id }}</span></td>
+                    <td><span class="badge bg-light text-dark">{{ $pembelian->purchase_code }}</span></td>
                     <td>
                       {{ \Carbon\Carbon::parse($pembelian->date)->format('d-m-Y') }}
                       <small class="text-muted d-block">{{ \Carbon\Carbon::parse($pembelian->created_at)->format('H:i') }}</small>

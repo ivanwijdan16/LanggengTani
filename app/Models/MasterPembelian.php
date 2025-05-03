@@ -20,15 +20,15 @@ class MasterPembelian extends Model
 
     // Menambahkan event untuk otomatis mengisi purchase_code saat pembuatan model baru
     protected static function boot()
-    {
-        parent::boot();
+{
+    parent::boot();
 
-        static::creating(function ($masterPembelian) {
-            if (!$masterPembelian->purchase_code) {
-                $masterPembelian->purchase_code = IdGenerator::generatePurchaseCode();
-            }
-        });
-    }
+    static::creating(function ($masterPembelian) {
+        if (!$masterPembelian->purchase_code) {
+            $masterPembelian->purchase_code = IdGenerator::generatePurchaseCode();
+        }
+    });
+}
 
     public function pembelians()
     {
