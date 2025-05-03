@@ -28,29 +28,29 @@ class Stock extends Model
 
     // Boot method to set up model event listeners
     protected static function boot()
-{
-    parent::boot();
+    {
+        parent::boot();
 
-    // Generate stock_id before creating a new stock
-    static::creating(function ($stock) {
-        if (!$stock->stock_id) {
-            $masterStock = MasterStock::find($stock->master_stock_id);
-            if ($masterStock) {
-                // Get batch number (count of stock items with same master_stock_id and size)
-                $batchNumber = Stock::where('master_stock_id', $stock->master_stock_id)
-                    ->where('size', $stock->size)
-                    ->count() + 1;
+        // Generate stock_id before creating a new stock
+        static::creating(function ($stock) {
+            if (!$stock->stock_id) {
+                $masterStock = MasterStock::find($stock->master_stock_id);
+                if ($masterStock) {
+                    // Get batch number (count of stock items with same master_stock_id and size)
+                    $batchNumber = Stock::where('master_stock_id', $stock->master_stock_id)
+                        ->where('size', $stock->size)
+                        ->count() + 1;
 
-                $stock->stock_id = IdGenerator::generateStockId(
-                    $masterStock->sku,
-                    $stock->size,
-                    $stock->expiration_date,
-                    $batchNumber
-                );
+                    $stock->stock_id = IdGenerator::generateStockId(
+                        $masterStock->sku,
+                        $stock->size,
+                        $stock->expiration_date,
+                        $batchNumber
+                    );
+                }
             }
-        }
-    });
-}
+        });
+    }
 
     public function masterStock()
     {
@@ -100,19 +100,19 @@ class Stock extends Model
     public function checkAndCreateNotifications()
     {
         if ($this->isLowStock()) {
-            $this->createNotification("Stok barang '{$this->masterStock->name}' hampir habis! Sisa {$this->quantity} unit. Segera restock!");
+            $this->createNotification("Stok barang '{$this->stock_id}' hampir habis! Sisa {$this->quantity} unit. Segera restock!");
         }
 
         if ($this->isOutOfStock()) {
-            $this->createNotification("Stok barang '{$this->masterStock->name}' Habis. Segera restock!");
+            $this->createNotification("Stok barang '{$this->stock_id}' Habis. Segera restock!");
         }
 
         if ($this->isExpiringSoon()) {
-            $this->createNotification("{$this->masterStock->name} akan kadaluwarsa dalam " . Carbon::parse($this->expiration_date)->diffInDays(Carbon::now()) . " hari! (Exp: {$this->expiration_date})");
+            $this->createNotification("{$this->stock_id} akan kadaluwarsa dalam " . Carbon::parse($this->expiration_date)->diffInDays(Carbon::now()) . " hari! (Exp: {$this->expiration_date})");
         }
 
         if ($this->isExpired()) {
-            $this->createNotification("{$this->masterStock->name} sudah kadaluwarsa (Exp: {$this->expiration_date})");
+            $this->createNotification("{$this->stock_id} sudah kadaluwarsa (Exp: {$this->expiration_date})");
         }
     }
 }
