@@ -10,141 +10,141 @@ use Illuminate\Support\Facades\DB;
 
 class PenjualanController extends Controller
 {
-  // Menampilkan halaman utama menu penjualan
-  public function index(Request $request)
-  {
-    $bulan = $request->query('bulan', now()->month);
-    $tahun = $request->query('tahun', now()->year);
+    // Menampilkan halaman utama menu penjualan
+    public function index(Request $request)
+    {
+        $bulan = $request->query('bulan', now()->month);
+        $tahun = $request->query('tahun', now()->year);
 
-    $penjualans = Transaction::with(['items.product' => function($query) {
-        $query->withTrashed()->with('masterStock');
-    }])
-    ->whereYear('created_at', $tahun)
-    ->whereMonth('created_at', $bulan)
-    ->get();
+        $penjualans = Transaction::with(['items.product' => function ($query) {
+            $query->withTrashed()->with('masterStock');
+        }])
+            ->whereYear('created_at', $tahun)
+            ->whereMonth('created_at', $bulan)
+            ->get();
 
-    // Initialize an array to store total sales per day
-    $totalPerHari = [];
+        // Initialize an array to store total sales per day
+        $totalPerHari = [];
 
-    // Loop through each transaction and calculate the total sales per day
-    foreach ($penjualans as $penjualan) {
-      // Format the date (using Carbon for consistency)
-      $tanggal = $penjualan->created_at->format('d-m-Y');
+        // Loop through each transaction and calculate the total sales per day
+        foreach ($penjualans as $penjualan) {
+            // Format the date (using Carbon for consistency)
+            $tanggal = $penjualan->created_at->format('d-m-Y');
 
-      // If the date is not already in the array, initialize it to 0
-      if (!isset($totalPerHari[$tanggal])) {
-        $totalPerHari[$tanggal] = 0;
-      }
+            // If the date is not already in the array, initialize it to 0
+            if (!isset($totalPerHari[$tanggal])) {
+                $totalPerHari[$tanggal] = 0;
+            }
 
-      // Add the total price of the transaction to that date
-      $totalPerHari[$tanggal] += $penjualan->total_price;
+            // Add the total price of the transaction to that date
+            $totalPerHari[$tanggal] += $penjualan->total_price;
+        }
+
+        // Pass the necessary data to the view
+        return view('penjualan.index', compact('penjualans', 'totalPerHari', 'bulan', 'tahun'));
     }
 
-    // Pass the necessary data to the view
-    return view('penjualan.index', compact('penjualans', 'totalPerHari', 'bulan', 'tahun'));
-  }
+    // Menampilkan riwayat penjualan per bulan
+    public function riwayatPenjualanPerBulan($bulan, $tahun)
+    {
+        $penjualans = Transaction::whereYear('created_at', $tahun)
+            ->whereMonth('created_at', $bulan)
+            ->get();
 
-  // Menampilkan riwayat penjualan per bulan
-  public function riwayatPenjualanPerBulan($bulan, $tahun)
-  {
-    $penjualans = Transaction::whereYear('created_at', $tahun)
-      ->whereMonth('created_at', $bulan)
-      ->get();
-
-    return view('penjualan.riwayat', compact('penjualans'));
-  }
-
-  // Menampilkan grafik penjualan per bulan
-  public function grafikPenjualanPerBulan($bulan, $tahun)
-  {
-    $penjualans = Transaction::whereYear('created_at', $tahun)
-      ->whereMonth('created_at', $bulan)
-      ->get();
-
-    $totalPerHari = [];
-    foreach ($penjualans as $penjualan) {
-      $tanggal = date('d-m-Y', strtotime($penjualan->created_at));
-      if (!isset($totalPerHari[$tanggal])) {
-        $totalPerHari[$tanggal] = 0;
-      }
-      $totalPerHari[$tanggal] += $penjualan->total_price;
+        return view('penjualan.riwayat', compact('penjualans'));
     }
 
-    return view('penjualan.grafik', compact('totalPerHari', 'bulan', 'tahun'));
-  }
+    // Menampilkan grafik penjualan per bulan
+    public function grafikPenjualanPerBulan($bulan, $tahun)
+    {
+        $penjualans = Transaction::whereYear('created_at', $tahun)
+            ->whereMonth('created_at', $bulan)
+            ->get();
 
-  // Cetak laporan penjualan per bulan
-  public function cetakLaporan($bulan, $tahun)
-  {
-    // Get transactions with their items and products
-    $transactions = Transaction::with(['items.product' => function($query) {
-        $query->withTrashed()->with('masterStock');
-    }])
-    ->whereYear('created_at', $tahun)
-    ->whereMonth('created_at', $bulan)
-    ->get();
+        $totalPerHari = [];
+        foreach ($penjualans as $penjualan) {
+            $tanggal = date('d-m-Y', strtotime($penjualan->created_at));
+            if (!isset($totalPerHari[$tanggal])) {
+                $totalPerHari[$tanggal] = 0;
+            }
+            $totalPerHari[$tanggal] += $penjualan->total_price;
+        }
 
-    // Calculate total sales
-    $totalPenjualan = $transactions->sum('total_price');
+        return view('penjualan.grafik', compact('totalPerHari', 'bulan', 'tahun'));
+    }
 
-    // Calculate total profit
-    $totalProfit = 0;
+    // Cetak laporan penjualan per bulan
+    public function cetakLaporan($bulan, $tahun)
+    {
+        // Get transactions with their items and products
+        $transactions = Transaction::with(['items.product' => function ($query) {
+            $query->withTrashed()->with('masterStock');
+        }])
+            ->whereYear('created_at', $tahun)
+            ->whereMonth('created_at', $bulan)
+            ->get();
 
-    // Group by category to find sales per category
-    $penjualanPerKategori = [];
+        // Calculate total sales
+        $totalPenjualan = $transactions->sum('total_price');
 
-    // Find the best selling product
-    $produkTerlaris = null;
-    $maxQuantity = 0;
+        // Calculate total profit
+        $totalProfit = 0;
 
-    // Process items for detailed reporting
-    $items = [];
+        // Group by category to find sales per category
+        $penjualanPerKategori = [];
 
-    foreach ($transactions as $transaction) {
-        foreach ($transaction->items as $item) {
-            if ($item->product) {
-                // Calculate profit for each item
-                $profit = $item->price - $item->product->purchase_price;
+        // Find the best selling product
+        $produkTerlaris = null;
+        $maxQuantity = 0;
 
-                // Add to items for table display
-                $items[] = [
-                    'id_penjualan' => $transaction->id_penjualan,
-                    'tanggal' => $transaction->created_at,
-                    'nama_barang' => $item->product->masterStock ? $item->product->masterStock->name : 'Produk tidak tersedia',
-                    'sku' => $item->product->masterStock ? $item->product->masterStock->sku : '-',
-                    'ukuran' => $item->product->size,
-                    'jumlah' => $item->quantity,
-                    'total_harga' => $item->subtotal,
-                    'laba' => $profit,
-                    'laba_total' => $profit * $item->quantity
-                ];
+        // Process items for detailed reporting
+        $items = [];
 
-                // Add to total profit
-                $totalProfit += $profit * $item->quantity;
+        foreach ($transactions as $transaction) {
+            foreach ($transaction->items as $item) {
+                if ($item->product) {
+                    // Calculate profit for each item
+                    $profit = $item->price - $item->product->purchase_price;
 
-                // Group by category
-                if ($item->product->masterStock) {
-                    $kategori = $item->product->masterStock->type;
-                    if (!isset($penjualanPerKategori[$kategori])) {
-                        $penjualanPerKategori[$kategori] = [
-                            'total' => 0,
-                            'jumlah' => 0
-                        ];
+                    // Add to items for table display
+                    $items[] = [
+                        'id_penjualan' => $transaction->id_penjualan,
+                        'tanggal' => $transaction->created_at,
+                        'nama_barang' => $item->product->masterStock ? $item->product->masterStock->name : 'Produk tidak tersedia',
+                        'sku' => $item->product->masterStock ? $item->product->masterStock->sku : '-',
+                        'ukuran' => $item->product->size,
+                        'jumlah' => $item->quantity,
+                        'total_harga' => $item->subtotal,
+                        'laba' => $profit,
+                        'laba_total' => $profit * $item->quantity
+                    ];
+
+                    // Add to total profit
+                    $totalProfit += $profit * $item->quantity;
+
+                    // Group by category
+                    if ($item->product->masterStock) {
+                        $kategori = $item->product->masterStock->type;
+                        if (!isset($penjualanPerKategori[$kategori])) {
+                            $penjualanPerKategori[$kategori] = [
+                                'total' => 0,
+                                'jumlah' => 0
+                            ];
+                        }
+                        $penjualanPerKategori[$kategori]['total'] += $item->subtotal;
+                        $penjualanPerKategori[$kategori]['jumlah'] += $item->quantity;
                     }
-                    $penjualanPerKategori[$kategori]['total'] += $item->subtotal;
-                    $penjualanPerKategori[$kategori]['jumlah'] += $item->quantity;
-                }
 
-                // Check if this is the best selling product
-                if ($item->quantity > $maxQuantity) {
-                    $maxQuantity = $item->quantity;
-                    $produkTerlaris = $item->product->masterStock ? $item->product->masterStock->name : 'Produk tidak tersedia';
+                    // Check if this is the best selling product
+                    if ($item->quantity > $maxQuantity) {
+                        $maxQuantity = $item->quantity;
+                        $produkTerlaris = $item->product->masterStock ? $item->product->masterStock->name : 'Produk tidak tersedia';
+                    }
                 }
             }
         }
-    }
 
-    $pdf = PDF::loadView('penjualan.laporan', compact('items', 'totalPenjualan', 'totalProfit', 'produkTerlaris', 'penjualanPerKategori', 'bulan', 'tahun'));
-    return $pdf->download("laporan_penjualan_{$bulan}_{$tahun}.pdf");
-  }
+        $pdf = PDF::loadView('penjualan.laporan', compact('items', 'totalPenjualan', 'totalProfit', 'produkTerlaris', 'penjualanPerKategori', 'bulan', 'tahun'));
+        return $pdf->download("laporan_penjualan_{$bulan}_{$tahun}.pdf");
+    }
 }

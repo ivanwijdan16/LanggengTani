@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
   Route::get('/', [HomeController::class, 'index'])->name('home');
 
   // Existing routes
-Route::prefix('stocks')->name('stocks.')->group(function () {
+  Route::prefix('stocks')->name('stocks.')->group(function () {
     Route::get('/', [StockController::class, 'index'])->name('index');
     Route::get('/create', [StockController::class, 'create'])->name('create');
     Route::post('/', [StockController::class, 'store'])->name('store');
@@ -57,7 +57,8 @@ Route::prefix('stocks')->name('stocks.')->group(function () {
     Route::get('/{id}/edit', [StockController::class, 'edit'])->name('edit');
     Route::put('/{id}', [StockController::class, 'update'])->name('update');
     Route::delete('/{id}', [StockController::class, 'destroy'])->name('destroy');
-});
+  });
+
 
   // Route untuk mencari produk
   Route::get('/cart/search', [CartController::class, 'search'])->name('cart.search');
@@ -103,13 +104,11 @@ Route::prefix('stocks')->name('stocks.')->group(function () {
   Route::get('/dokumentasi', [DokumentasiController::class, 'index'])->name('dokumentasi');
 
 
-// Route untuk checkout (jika anda menggunakan GET method)
-Route::get('/checkout', [TransactionController::class, 'checkout'])->name('checkout');
+  // Route untuk checkout (jika anda menggunakan GET method)
+  Route::get('/checkout', [TransactionController::class, 'checkout'])->name('checkout');
 
-// Route untuk menampilkan halaman sukses transaksi dengan ID
-Route::get('/transaction/success/{id}', [TransactionController::class, 'showSuccess'])->name('transaction.success');
-
-
+  // Route untuk menampilkan halaman sukses transaksi dengan ID
+  Route::get('/transaction/success/{id}', [TransactionController::class, 'showSuccess'])->name('transaction.success');
 });
 
 require __DIR__ . '/auth.php';

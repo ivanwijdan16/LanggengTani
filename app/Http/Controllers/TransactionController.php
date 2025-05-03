@@ -87,20 +87,20 @@ class TransactionController extends Controller
         return redirect()->route('transaction.success', ['id' => $transaction->id]);
     }
 
-  // Method baru untuk menampilkan halaman sukses
-  public function showSuccess($id)
-{
-    // Cari transaksi berdasarkan ID dan muat relasi items dengan produk (termasuk yang sudah soft delete)
-    $transaction = Transaction::with(['items.product' => function($query) {
-        $query->withTrashed(); // Ini akan mengambil produk meskipun sudah dihapus (soft deleted)
-    }])->findOrFail($id);
+    // Method baru untuk menampilkan halaman sukses
+    public function showSuccess($id)
+    {
+        // Cari transaksi berdasarkan ID dan muat relasi items dengan produk (termasuk yang sudah soft delete)
+        $transaction = Transaction::with(['items.product' => function ($query) {
+            $query->withTrashed(); // Ini akan mengambil produk meskipun sudah dihapus (soft deleted)
+        }])->findOrFail($id);
 
-    // Pastikan transaksi ini milik user yang sedang login
-    if ($transaction->user_id != auth()->id()) {
-        return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke transaksi ini!');
-    }
+        // Pastikan transaksi ini milik user yang sedang login
+        if ($transaction->user_id != auth()->id()) {
+            return redirect()->route('home')->with('error', 'Anda tidak memiliki akses ke transaksi ini!');
+        }
 
-    // Tampilkan view success dengan data transaksi
-    return view('transaction.success', compact('transaction'));
+        // Tampilkan view success dengan data transaksi
+        return view('transaction.success', compact('transaction'));
     }
 }

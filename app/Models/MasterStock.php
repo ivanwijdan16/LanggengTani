@@ -40,18 +40,18 @@ class MasterStock extends Model
     }
 
     public function sizeImages()
-{
-    return $this->hasMany(StockSizeImage::class, 'master_stock_id');
-}
-
-public function getSizeImage($size)
-{
-    $sizeImage = $this->sizeImages()->where('size', $size)->first();
-    if ($sizeImage && $sizeImage->image) {
-        return $sizeImage->image;
+    {
+        return $this->hasMany(StockSizeImage::class, 'master_stock_id');
     }
 
-    // Return master stock image as a fallback
-    return $this->image;
-}
+    public function getSizeImage($size)
+    {
+        $sizeImage = $this->sizeImages()->where('size', $size)->first();
+        if ($sizeImage && $sizeImage->image) {
+            return $sizeImage->image;
+        }
+
+        // Return master stock image as a fallback
+        return $this->image;
+    }
 }

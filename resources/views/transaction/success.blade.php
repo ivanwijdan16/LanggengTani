@@ -1,485 +1,490 @@
 @extends('layouts.app')
 
 @section('style')
-<style>
-  :root {
-    --primary-color: #149d80;
-    --primary-dark: #0c8b71;
-    --primary-light: rgba(0, 114, 79, 0.1);
-    --text-dark: #1e293b;
-    --text-medium: #475569;
-    --text-light: #64748b;
-    --border-color: #e2e8f0;
-    --background-light: #f8fafc;
-    --white: #ffffff;
-  }
+    <style>
+        :root {
+            --primary-color: #149d80;
+            --primary-dark: #0c8b71;
+            --primary-light: rgba(0, 114, 79, 0.1);
+            --text-dark: #1e293b;
+            --text-medium: #475569;
+            --text-light: #64748b;
+            --border-color: #e2e8f0;
+            --background-light: #f8fafc;
+            --white: #ffffff;
+        }
 
-  .success-container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-  }
+        .success-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
 
-  .success-header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
+        .success-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
 
-  .success-icon {
-    background-color: var(--primary-light);
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-  }
+        .success-icon {
+            background-color: var(--primary-light);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
 
-  .success-icon i {
-    font-size: 2.5rem;
-    color: var(--primary-color);
-  }
+        .success-icon i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
 
-  .success-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    margin-bottom: 0.5rem;
-  }
+        .success-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
 
-  .success-subtitle {
-    font-size: 1rem;
-    color: var(--text-medium);
-    margin-bottom: 0;
-  }
+        .success-subtitle {
+            font-size: 1rem;
+            color: var(--text-medium);
+            margin-bottom: 0;
+        }
 
-  .item-name {
-  font-size: 10pt;
-}
+        .item-name {
+            font-size: 10pt;
+        }
 
-.item-size {
-  font-size: 8pt;
-  display: block;
-}
+        .item-size {
+            font-size: 8pt;
+            display: block;
+        }
 
-  .receipt-card {
-    background-color: var(--white);
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    margin-bottom: 2rem;
-    overflow: hidden;
-  }
+        .receipt-card {
+            background-color: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
 
-  .receipt-header {
-    background-color: var(--primary-color);
-    color: var(--white);
-    padding: 1.5rem;
-    text-align: center;
-  }
+        .receipt-header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 1.5rem;
+            text-align: center;
+        }
 
-  .receipt-title {
-    font-size: 1.25rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-    color: #ffffff;
-  }
+        .receipt-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
 
-  .receipt-details {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-  }
+        .receipt-details {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
 
-  .receipt-body {
-    padding: 1.5rem;
-  }
+        .receipt-body {
+            padding: 1.5rem;
+        }
 
-  .receipt-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1.5rem;
-  }
+        .receipt-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
 
-  .receipt-table th {
-    background-color: var(--background-light);
-    color: var(--text-medium);
-    font-weight: 600;
-    text-align: left;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-    border-bottom: 1px solid var(--border-color);
-  }
+        .receipt-table th {
+            background-color: var(--background-light);
+            color: var(--text-medium);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-  .receipt-table td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-dark);
-    font-size: 0.95rem;
-  }
+        .receipt-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
 
-  .receipt-table tr:last-child td {
-    border-bottom: none;
-  }
+        .receipt-table tr:last-child td {
+            border-bottom: none;
+        }
 
-  .receipt-table .item-name {
-    font-weight: 500;
-  }
+        .receipt-table .item-name {
+            font-weight: 500;
+        }
 
-  .receipt-table .item-price,
-  .receipt-table .item-subtotal {
-    text-align: right;
-  }
+        .receipt-table .item-price,
+        .receipt-table .item-subtotal {
+            text-align: right;
+        }
 
-  .receipt-table .item-qty {
-    text-align: center;
-  }
+        .receipt-table .item-qty {
+            text-align: center;
+        }
 
-  .receipt-summary {
-    background-color: var(--background-light);
-    padding: 1.25rem;
-    border-radius: 10px;
-    margin-bottom: 1.5rem;
-  }
+        .receipt-summary {
+            background-color: var(--background-light);
+            padding: 1.25rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
 
-  .summary-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-    font-size: 0.95rem;
-    color: var(--text-medium);
-  }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            color: var(--text-medium);
+        }
 
-  .summary-row:last-child {
-    margin-bottom: 0;
-  }
+        .summary-row:last-child {
+            margin-bottom: 0;
+        }
 
-  .summary-row.total {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    border-top: 1px dashed var(--border-color);
-    padding-top: 0.75rem;
-    margin-top: 0.5rem;
-  }
+        .summary-row.total {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            border-top: 1px dashed var(--border-color);
+            padding-top: 0.75rem;
+            margin-top: 0.5rem;
+        }
 
-  .summary-row.change {
-    font-weight: 600;
-    color: var(--primary-color);
-  }
+        .summary-row.change {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
 
-  .summary-label {
-    font-weight: 500;
-  }
+        .summary-label {
+            font-weight: 500;
+        }
 
-  .action-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 2rem;
-  }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
 
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    font-size: 0.95rem;
-    border: none;
-  }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            border: none;
+        }
 
-  .btn i {
-    margin-right: 0.5rem;
-    font-size: 1.1rem;
-  }
+        .btn i {
+            margin-right: 0.5rem;
+            font-size: 1.1rem;
+        }
 
-  .btn-primary {
-    background-color: var(--primary-color);
-    color: var(--white);
-  }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
 
-  .btn-primary:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 114, 79, 0.2);
-  }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 114, 79, 0.2);
+        }
 
-  .btn-secondary {
-    background-color: var(--background-light);
-    color: var(--text-medium);
-    border: 1px solid var(--border-color);
-  }
+        .btn-secondary {
+            background-color: var(--background-light);
+            color: var(--text-medium);
+            border: 1px solid var(--border-color);
+        }
 
-  .btn-secondary:hover {
-    background-color: var(--white);
-    color: var(--text-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  }
+        .btn-secondary:hover {
+            background-color: var(--white);
+            color: var(--text-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
 
-  .store-info {
-    text-align: center;
-    margin-top: 1.5rem;
-    font-size: 0.85rem;
-    color: var(--text-light);
-  }
+        .store-info {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
 
-  /* Styles for printing */
-  @media print {
-    body {
-      background-color: white;
-      font-family: 'Courier New', monospace;
-      font-size: 12pt;
-      color: black;
-      width: 80mm; /* Standard thermal receipt width */
-      margin: 0 auto;
-    }
+        /* Styles for printing */
+        @media print {
+            body {
+                background-color: white;
+                font-family: 'Courier New', monospace;
+                font-size: 12pt;
+                color: black;
+                width: 80mm;
+                /* Standard thermal receipt width */
+                margin: 0 auto;
+            }
 
-    .action-buttons,
-    .print-hide,
-    .success-header {
-      display: none !important;
-    }
+            .action-buttons,
+            .print-hide,
+            .success-header {
+                display: none !important;
+            }
 
-    .success-container {
-      margin: 0 auto;
-      padding: 0;
-      max-width: 100%;
-    }
+            .success-container {
+                margin: 0 auto;
+                padding: 0;
+                max-width: 100%;
+            }
 
-    .receipt-card {
-      box-shadow: none;
-      border: none;
-      width: 100%;
-    }
+            .receipt-card {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+            }
 
-    .receipt-header {
-      color: black;
-      background-color: white;
-      border-bottom: 1px dashed #000;
-      text-align: center;
-      padding: 0.5rem 0;
-    }
+            .receipt-header {
+                color: black;
+                background-color: white;
+                border-bottom: 1px dashed #000;
+                text-align: center;
+                padding: 0.5rem 0;
+            }
 
-    .receipt-title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-bottom: 0.3rem;
-    }
+            .receipt-title {
+                font-size: 1.2rem;
+                font-weight: bold;
+                margin-bottom: 0.3rem;
+            }
 
-    .receipt-details {
-      justify-content: center;
-      flex-direction: column;
-      font-size: 0.8rem;
-    }
+            .receipt-details {
+                justify-content: center;
+                flex-direction: column;
+                font-size: 0.8rem;
+            }
 
-    .receipt-details span {
-      display: block;
-      margin: 0.1rem 0;
-    }
+            .receipt-details span {
+                display: block;
+                margin: 0.1rem 0;
+            }
 
-    .receipt-body {
-      padding: 0.5rem 0;
-    }
+            .receipt-body {
+                padding: 0.5rem 0;
+            }
 
-    .receipt-table {
-      font-size: 0.9rem;
-      border-collapse: collapse;
-    }
+            .receipt-table {
+                font-size: 0.9rem;
+                border-collapse: collapse;
+            }
 
-    .receipt-table th {
-      background-color: white;
-      border-bottom: 1px dashed #000;
-      padding: 0.3rem;
-      text-align: left;
-      font-size: 0.8rem;
-    }
+            .receipt-table th {
+                background-color: white;
+                border-bottom: 1px dashed #000;
+                padding: 0.3rem;
+                text-align: left;
+                font-size: 0.8rem;
+            }
 
-    .receipt-table td {
-      border-bottom: none;
-      padding: 0.2rem 0.3rem;
-      font-size: 0.8rem;
-    }
+            .receipt-table td {
+                border-bottom: none;
+                padding: 0.2rem 0.3rem;
+                font-size: 0.8rem;
+            }
 
-    .receipt-table .item-name {
-      width: 50%;
-    }
+            .receipt-table .item-name {
+                width: 50%;
+            }
 
-    .receipt-table .item-qty {
-      width: 10%;
-      text-align: center;
-    }
+            .receipt-table .item-qty {
+                width: 10%;
+                text-align: center;
+            }
 
-    .receipt-table .item-price,
-    .receipt-table .item-subtotal {
-      width: 20%;
-      text-align: right;
-    }
+            .receipt-table .item-price,
+            .receipt-table .item-subtotal {
+                width: 20%;
+                text-align: right;
+            }
 
-    .receipt-summary {
-      background-color: white;
-      border: none;
-      border-top: 1px dashed #000;
-      padding: 0.5rem 0;
-      margin-bottom: 0.5rem;
-    }
+            .receipt-summary {
+                background-color: white;
+                border: none;
+                border-top: 1px dashed #000;
+                padding: 0.5rem 0;
+                margin-bottom: 0.5rem;
+            }
 
-    .summary-row {
-      margin-bottom: 0.2rem;
-      font-size: 0.8rem;
-    }
+            .summary-row {
+                margin-bottom: 0.2rem;
+                font-size: 0.8rem;
+            }
 
-    .summary-row.total {
-      font-size: 0.9rem;
-      border-top: 1px dashed #000;
-    }
+            .summary-row.total {
+                font-size: 0.9rem;
+                border-top: 1px dashed #000;
+            }
 
-    .store-info {
-      text-align: center;
-      border-top: 1px dashed #000;
-      padding-top: 0.5rem;
-      font-size: 0.8rem;
-    }
+            .store-info {
+                text-align: center;
+                border-top: 1px dashed #000;
+                padding-top: 0.5rem;
+                font-size: 0.8rem;
+            }
 
-    .store-info p {
-      margin: 0.2rem 0;
-    }
+            .store-info p {
+                margin: 0.2rem 0;
+            }
 
-    /* Add a tear-off line at the bottom */
-    .store-info:after {
-      content: "--------------------------------";
-      display: block;
-      text-align: center;
-      padding-top: 0.5rem;
-    }
-  }
+            /* Add a tear-off line at the bottom */
+            .store-info:after {
+                content: "--------------------------------";
+                display: block;
+                text-align: center;
+                padding-top: 0.5rem;
+            }
+        }
 
-  /* Responsive Styling */
-  @media (max-width: 576px) {
-    .receipt-header {
-      padding: 1.25rem 1rem;
-    }
+        /* Responsive Styling */
+        @media (max-width: 576px) {
+            .receipt-header {
+                padding: 1.25rem 1rem;
+            }
 
-    .receipt-body {
-      padding: 1rem;
-    }
+            .receipt-body {
+                padding: 1rem;
+            }
 
-    .receipt-table th,
-    .receipt-table td {
-      padding: 0.5rem;
-      font-size: 0.85rem;
-    }
+            .receipt-table th,
+            .receipt-table td {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
 
-    .action-buttons {
-      flex-direction: column;
-    }
+            .action-buttons {
+                flex-direction: column;
+            }
 
-    .btn {
-      width: 100%;
-    }
-  }
-</style>
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
 @endsection
 
 @section('content')
-<div class="success-container">
-  <div class="success-header print-hide">
-    <div class="success-icon">
-      <i class="bx bx-check"></i>
-    </div>
-    <h1 class="success-title">Transaksi Berhasil!</h1>
-    <p class="success-subtitle">Pembayaran telah berhasil diproses</p>
-  </div>
-
-  <div class="receipt-card" id="receipt-container">
-    <div class="receipt-header">
-      <h2 class="receipt-title mb-4 mt-3">Toko Pertanian Joyo Langgeng Sejahtera</h2>
-      <div class="receipt-details">
-        <span>ID: {{ $transaction->id_penjualan }}</span>
-        <span>Tanggal: {{ \Carbon\Carbon::parse($transaction->created_at)->locale('id')->isoFormat('DD MMMM YYYY, HH:mm') }}</span>
-      </div>
-    </div>
-
-    <div class="receipt-body">
-      <table class="receipt-table">
-        <thead>
-          <tr>
-            <th style="width: 40%">Nama Barang</th>
-            <th class="item-qty" style="width: 15%">Qty</th>
-            <th class="item-price" style="width: 20%">Harga</th>
-            <th class="item-subtotal" style="width: 25%">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach ($transaction->items as $item)
-            <tr>
-                <td class="item-name">
-                    @if($item->product && $item->product->masterStock)
-                        <strong>{{ $item->product->masterStock->name }}</strong>
-                        <span style="font-size: 0.8rem; color: var(--text-medium);"> ({{ $item->product->size }})</span>
-                    @elseif($item->product)
-                        <strong>{{ $item->product->stock_id }}</strong>
-                        <span style="font-size: 0.8rem; color: var(--text-medium);"> ({{ $item->product->size }})</span>
-                    @else
-                        <strong>Barang</strong>
-                    @endif
-                </td>
-              <td class="item-qty">{{ $item->quantity }}</td>
-              <td class="item-price">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
-              <td class="item-subtotal">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
-
-      <div class="receipt-summary">
-        <div class="summary-row">
-          <span class="summary-label">Total Harga</span>
-          <span>Rp {{ number_format($transaction->total_price, 0, ',', '.') }}</span>
+    <div class="success-container">
+        <div class="success-header print-hide">
+            <div class="success-icon">
+                <i class="bx bx-check"></i>
+            </div>
+            <h1 class="success-title">Transaksi Berhasil!</h1>
+            <p class="success-subtitle">Pembayaran telah berhasil diproses</p>
         </div>
-        <div class="summary-row">
-          <span class="summary-label">Total Bayar</span>
-          <span>Rp {{ number_format($transaction->total_paid, 0, ',', '.') }}</span>
-        </div>
-        <div class="summary-row change">
-          <span class="summary-label">Kembalian</span>
-          <span>Rp {{ number_format($transaction->change, 0, ',', '.') }}</span>
-        </div>
-      </div>
 
-      <div class="store-info">
-        <p>Terima kasih telah berbelanja di Toko Pertanian Joyo Langgeng Sejahtera</p>
-        <p>Mojorejo, Jetis, Mojokerto</p>
-      </div>
+        <div class="receipt-card" id="receipt-container">
+            <div class="receipt-header">
+                <h2 class="receipt-title mb-4 mt-3">Toko Pertanian Joyo Langgeng Sejahtera</h2>
+                <div class="receipt-details">
+                    <span>ID: {{ $transaction->id_penjualan }}</span>
+                    <span>Tanggal:
+                        {{ \Carbon\Carbon::parse($transaction->created_at)->locale('id')->isoFormat('DD MMMM YYYY, HH:mm') }}</span>
+                </div>
+            </div>
+
+            <div class="receipt-body">
+                <table class="receipt-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%">Nama Barang</th>
+                            <th class="item-qty" style="width: 15%">Qty</th>
+                            <th class="item-price" style="width: 20%">Harga</th>
+                            <th class="item-subtotal" style="width: 25%">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($transaction->items as $item)
+                            <tr>
+                                <td class="item-name">
+                                    @if ($item->product && $item->product->masterStock)
+                                        <strong>{{ $item->product->masterStock->name }}</strong>
+                                        <span style="font-size: 0.8rem; color: var(--text-medium);">
+                                            ({{ $item->product->size }})
+                                        </span>
+                                    @elseif($item->product)
+                                        <strong>{{ $item->product->stock_id }}</strong>
+                                        <span style="font-size: 0.8rem; color: var(--text-medium);">
+                                            ({{ $item->product->size }})</span>
+                                    @else
+                                        <strong>Barang</strong>
+                                    @endif
+                                </td>
+                                <td class="item-qty">{{ $item->quantity }}</td>
+                                <td class="item-price">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
+                                <td class="item-subtotal">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <div class="receipt-summary">
+                    <div class="summary-row">
+                        <span class="summary-label">Total Harga</span>
+                        <span>Rp {{ number_format($transaction->total_price, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Total Bayar</span>
+                        <span>Rp {{ number_format($transaction->total_paid, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="summary-row change">
+                        <span class="summary-label">Kembalian</span>
+                        <span>Rp {{ number_format($transaction->change, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+
+                <div class="store-info">
+                    <p>Terima kasih telah berbelanja di Toko Pertanian Joyo Langgeng Sejahtera</p>
+                    <p>Mojorejo, Jetis, Mojokerto</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{{ route('cart.index') }}" class="btn btn-secondary">
+                <i class="bx bx-arrow-back"></i> Kembali
+            </a>
+            <button class="btn btn-primary" id="print-btn" onclick="printReceipt()">
+                <i class="bx bx-printer"></i> Cetak Struk
+            </button>
+        </div>
     </div>
-  </div>
-
-  <div class="action-buttons">
-    <a href="{{ route('cart.index') }}" class="btn btn-secondary">
-      <i class="bx bx-arrow-back"></i> Kembali
-    </a>
-    <button class="btn btn-primary" id="print-btn" onclick="printReceipt()">
-      <i class="bx bx-printer"></i> Cetak Struk
-    </button>
-  </div>
-</div>
 @endsection
 
 @section('script')
-<script>
-  function printReceipt() {
-    // Use a more traditional approach for thermal receipt style
-    var printWindow = window.open('', '', 'height=600,width=300');
+    <script>
+        function printReceipt() {
+            // Use a more traditional approach for thermal receipt style
+            var printWindow = window.open('', '', 'height=600,width=300');
 
-    // Write the receipt content with thermal receipt styling
-    printWindow.document.write('<html><head><title>Struk Pembayaran</title>');
-    printWindow.document.write('<style>');
-    printWindow.document.write(`
+            // Write the receipt content with thermal receipt styling
+            printWindow.document.write('<html><head><title>Struk Pembayaran</title>');
+            printWindow.document.write('<style>');
+            printWindow.document.write(`
       body {
         font-family: 'Courier New', monospace;
         width: 80mm;
@@ -568,10 +573,10 @@
         margin: 15px 0;
       }
     `);
-    printWindow.document.write('</style></head><body>');
+            printWindow.document.write('</style></head><body>');
 
-    // Create receipt content
-    printWindow.document.write(`
+            // Create receipt content
+            printWindow.document.write(`
       <div class="receipt-header">
         <div class="receipt-title">Toko Pertanian Joyo Langgeng Sejahtera</div>
         <div class="receipt-details">Mojorejo, Jetis, Mojokerto</div>
@@ -596,10 +601,10 @@
         @foreach ($transaction->items as $item)
         <tr>
           <td>
-            @if($item->product && $item->product->masterStock)
+            @if ($item->product && $item->product->masterStock)
                 <span class="item-name">{{ $item->product->masterStock->name }}</span>
                 <span class="item-size">({{ $item->product->size }})</span>
-            @elseif($item->product)
+            @elseif ($item->product)
                 <span class="item-name">{{ $item->product->stock_id }}</span>
                 <span class="item-size">({{ $item->product->size }})</span>
             @else
@@ -637,15 +642,15 @@
       </div>
     `);
 
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
 
-    // Wait for content to load before printing
-    printWindow.onload = function() {
-      printWindow.focus();
-      printWindow.print();
-      // printWindow.close(); // Uncomment if you want the print window to close after printing
-    };
-  }
-</script>
+            // Wait for content to load before printing
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+                // printWindow.close(); // Uncomment if you want the print window to close after printing
+            };
+        }
+    </script>
 @endsection
