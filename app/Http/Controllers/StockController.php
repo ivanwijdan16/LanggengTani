@@ -397,7 +397,12 @@ class StockController extends Controller
     // Check for notifications
     $stock->checkAndCreateNotifications();
 
-    return redirect()->route('stocks.sizes', $validated['master_stock_id'])->with('success', 'Stok berhasil ditambahkan!');
+    return redirect()->route('stocks.sizes', $validated['master_stock_id'])->with([
+        'success' => 'Stok berhasil ditambahkan!',
+        'quantity' => $validated['quantity'],
+        'product_name' => $masterStock->name,
+        'product_size' => $validated['size']
+    ]);
 }
 
     public function updateMaster(Request $request, $id)
