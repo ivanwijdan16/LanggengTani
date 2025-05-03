@@ -2,44 +2,73 @@
 
 @section('style')
 <style>
-  .stock-card {
-    transition: all 0.3s ease;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
-    height: 100%;
-    border: none;
-  }
+  /* Card Styling */
+.stock-card {
+  transition: all 0.3s ease;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+  height: 100%;
+  border: none;
+  position: relative;
+}
 
-  .stock-card:hover {
-    transform: translateY(-7px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-  }
+.stock-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
 
-  .stock-card .card-img-wrapper {
-    height: 200px;
-    overflow: hidden;
-    position: relative;
-  }
+/* Green top border animation */
+.stock-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(to right, #149d80, #0c8b71);
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
 
-  .stock-card .card-img-top {
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-  }
+.stock-card:hover::after {
+  transform: translateY(0);
+}
 
-  .stock-card:hover .card-img-top {
-    transform: scale(1.08);
-  }
+/* Card Image */
+.stock-card .card-img-wrapper {
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+}
 
-  .stock-badge {
-    font-size: 0.75rem;
-    padding: 0.35rem 0.65rem;
-    border-radius: 20px;
-    font-weight: 500;
-  }
+.stock-card .card-img-top {
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
 
-  .stock-card .card-actions {
+.stock-card:hover .card-img-top {
+  transform: scale(1.08);
+}
+
+/* Card Body */
+.stock-card .card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.stock-card .card-title {
+  margin-bottom: 0.75rem;
+  color: #1e293b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Card Actions */
+.stock-card .card-actions {
   display: flex;
   justify-content: space-between;
   padding-top: 0.75rem;
@@ -48,6 +77,7 @@
   gap: 0.5rem;
 }
 
+/* Action Buttons */
 .stock-card .action-btn {
   border-radius: 8px;
   padding: 0.5rem;
@@ -65,7 +95,7 @@
   font-size: 1rem;
 }
 
-/* Button types */
+/* Button Types */
 .stock-card .btn-edit {
   background-color: #e0f2f1;
   color: #0c8b71;
@@ -118,41 +148,28 @@
   box-shadow: 0 3px 10px rgba(16, 185, 129, 0.2);
 }
 
-/* Stock Card Hover Animation Improvement */
-.stock-card {
-  position: relative;
-  overflow: hidden;
+/* Badges and Tags */
+.badge-small {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
 }
 
-.stock-card::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  background: linear-gradient(to right, #149d80, #0c8b71);
-  transform: translateY(-100%);
-  transition: transform 0.3s ease;
+.badge-small i {
+  font-size: 0.7rem;
+  margin-right: 3px;
 }
 
-.stock-card:hover::after {
-  transform: translateY(0);
+.stock-badge {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 20px;
+  font-weight: 500;
 }
 
-/* Improve card content spacing */
-.stock-card .card-body {
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.stock-card .card-title {
-  margin-bottom: 0.75rem;
-  color: #1e293b;
-}
-
-/* Enhanced quantity badge */
 .stock-quantity-badge {
   background-color: #ecfdf5;
   color: #0f766e;
@@ -161,13 +178,326 @@
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
 }
 
 .stock-quantity-badge i {
   color: #10b981;
+  margin-right: 5px;
+  font-size: 0.8rem;
 }
 
-/* Mobile responsiveness improvements */
+.price-tag {
+  color: #149d80;
+  font-weight: 700;
+}
+
+/* Date Badge */
+.date-badge {
+  transition: all 0.3s ease;
+}
+
+.date-badge i {
+  transition: all 0.3s ease;
+}
+
+.stock-card:hover .date-badge i {
+  transform: translateX(-3px);
+}
+
+/* Header */
+.header-title {
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 1.75rem;
+}
+
+.header-title i {
+  color: #149d80;
+  margin-right: 10px;
+  font-size: 1.5rem;
+}
+
+/* Add Button */
+.add-btn {
+  background-color: #149d80;
+  border-color: #149d80;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0,114,79,0.2);
+  transition: all 0.3s ease;
+}
+
+.add-btn:hover {
+  background-color: #0c8b71;
+  border-color: #0c8b71;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,114,79,0.3);
+}
+
+/* Sorting Styles */
+.sort-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.sort-label {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+  padding: 6px 0;
+  display: flex;
+  align-items: center;
+  margin-right: 5px;
+}
+
+.sort-link {
+  font-size: 0.9rem;
+  color: #64748b;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background-color: #f1f5f9;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.sort-link:hover {
+  background-color: #e2e8f0;
+  color: #334155;
+}
+
+.sort-link.active {
+  background-color: #149d80;
+  color: white;
+}
+
+.sort-link i {
+  margin-left: 5px;
+  font-size: 0.75rem;
+}
+
+/* Breadcrumb Styles */
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.breadcrumb-item {
+  color: #64748b;
+}
+
+.breadcrumb-item a {
+  color: #64748b;
+  text-decoration: none;
+}
+
+.breadcrumb-divider {
+  margin: 0 0.5rem;
+  color: #cbd5e1;
+}
+
+/* Improved Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  position: absolute;
+  top: 10px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.stock-minimal {
+  left: 10px;
+  background-color: #FF9800;
+}
+
+.nearly-expired {
+  right: 10px;
+  background-color: #FF9800;
+}
+
+.expired {
+  right: 10px;
+  background-color: #ef4444;
+}
+
+.status-badge i {
+  margin-right: 6px;
+  font-size: 0.9rem;
+}
+
+/* Existing Badge Styles - Update */
+.badge-small {
+  font-size: 0.65rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.badge-small i {
+  font-size: 0.7rem;
+  margin-right: 5px;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 50px 20px;
+  border-radius: 15px;
+}
+
+/* Delete Modal Styles */
+.delete-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 23, 42, 0.7);
+  z-index: 1050;
+  display: none; /* Initially hidden */
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.delete-modal-backdrop.show {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+}
+
+.delete-modal-dialog {
+  background-color: white;
+  border-radius: 15px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-30px) scale(0.95);
+  transition: transform 0.3s ease;
+  margin: 1.5rem;
+  overflow: hidden;
+}
+
+.delete-modal-backdrop.show .delete-modal-dialog {
+  transform: translateY(0) scale(1);
+}
+
+.delete-modal-content {
+  width: 100%;
+}
+
+.delete-modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+}
+
+.delete-modal-title {
+  margin: 0;
+  color: #ef4444;
+  font-size: 1.35rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.delete-modal-title i {
+  color: #ef4444;
+  margin-right: 0.75rem;
+  font-size: 1.5rem;
+}
+
+.delete-modal-body {
+  padding: 1.75rem;
+  color: #475569;
+  text-align: center;
+}
+
+.delete-modal-product {
+  margin: 0.5rem 0;
+  padding: 1rem;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.delete-modal-product-name {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 1.15rem;
+}
+
+.delete-modal-product-type {
+  display: inline-block;
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+.delete-modal-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.delete-modal-btn {
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.delete-modal-btn-cancel {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: none;
+}
+
+.delete-modal-btn-cancel:hover {
+  background-color: #e2e8f0;
+  color: #334155;
+}
+
+.delete-modal-btn-delete {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+}
+
+.delete-modal-btn-delete:hover {
+  background-color: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2);
+}
+
+/* Responsive Styles */
 @media (max-width: 575.98px) {
   .stock-card .card-actions {
     flex-direction: column;
@@ -181,6 +511,14 @@
 
   .stock-card .action-btn i {
     margin-right: 0.5rem;
+  }
+
+  .delete-modal-footer {
+    flex-direction: column;
+  }
+
+  .delete-modal-btn {
+    width: 100%;
   }
 }
 
@@ -221,396 +559,6 @@
     margin-right: 0.35rem;
   }
 }
-
-  .stat-card {
-    border-radius: 15px;
-    border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
-  }
-
-  .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-  }
-
-  .icon-circle {
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
-
-  .search-wrapper {
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
-
-  .search-control {
-    border: none;
-    padding: 12px 20px;
-    height: auto;
-  }
-
-  .search-control:focus {
-    box-shadow: none;
-  }
-
-  .search-btn {
-    border-radius: 0 15px 15px 0 !important;
-    padding-left: 25px;
-    padding-right: 25px;
-    background-color: #149d80;
-    border-color: #149d80;
-  }
-
-  .search-btn:hover {
-    background-color: #0c8b71;
-    border-color: #0c8b71;
-  }
-
-  .search-addon {
-    border: none;
-    background-color: transparent;
-  }
-
-  .add-btn {
-    background-color: #149d80;
-    border-color: #149d80;
-    border-radius: 12px;
-    padding: 10px 20px;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0,114,79,0.2);
-    transition: all 0.3s ease;
-  }
-
-  .add-btn:hover {
-    background-color: #0c8b71;
-    border-color: #0c8b71;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,114,79,0.3);
-  }
-
-  .price-tag {
-    color: #149d80;
-    font-weight: 700;
-  }
-
-  .quantity-badge {
-    background-color: #f1f5f9;
-    color: #334155;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-  }
-
-  .card-title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .empty-state {
-    padding: 50px 20px;
-    border-radius: 15px;
-  }
-
-  /* Custom Pagination */
-  .pagination {
-    gap: 5px;
-  }
-
-  .page-item .page-link {
-    border-radius: 8px;
-    border: none;
-    color: #475569;
-    padding: 10px 15px;
-  }
-
-  .page-item.active .page-link {
-    background-color: #149d80;
-    color: white;
-  }
-
-  .date-badge {
-    transition: all 0.3s ease;
-  }
-
-  .date-badge i {
-    transition: all 0.3s ease;
-  }
-
-  .stock-card:hover .date-badge i {
-    transform: translateX(-3px);
-  }
-
-  .header-title {
-    color: #1e293b;
-    font-weight: 700;
-    font-size: 1.75rem;
-  }
-
-  .header-title i {
-    color: #149d80;
-    margin-right: 10px;
-    font-size: 1.5rem;
-  }
-
-  .badge-small {
-    font-size: 0.65rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 20px;
-    display: inline-flex;
-    align-items: center;
-    font-weight: 500;
-  }
-
-  .badge-small i {
-    font-size: 0.7rem;
-    margin-right: 3px;
-  }
-
-  /* Breadcrumb styles */
-  .breadcrumbs {
-    display: flex;
-    align-items: center;
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .breadcrumb-item {
-    color: #64748b;
-  }
-
-  .breadcrumb-item a {
-    color: #64748b;
-    text-decoration: none;
-  }
-
-  .breadcrumb-divider {
-    margin: 0 0.5rem;
-    color: #cbd5e1;
-  }
-
-  /* Sorting styles */
-  .sort-links {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
-    align-items: center;
-  }
-
-  .sort-label {
-    font-size: 0.9rem;
-    color: #64748b;
-    margin: 0;
-    padding: 6px 0;
-    display: flex;
-    align-items: center;
-    margin-right: 5px;
-  }
-
-  .sort-link {
-    font-size: 0.9rem;
-    color: #64748b;
-    text-decoration: none;
-    padding: 6px 12px;
-    border-radius: 8px;
-    background-color: #f1f5f9;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-  }
-
-  .sort-link:hover {
-    background-color: #e2e8f0;
-    color: #334155;
-  }
-
-  .sort-link.active {
-    background-color: #149d80;
-    color: white;
-  }
-
-  .sort-link i {
-    margin-left: 5px;
-    font-size: 0.75rem;
-  }
-
-  .sort-dropdown {
-    border-radius: 8px;
-    background-color: #f1f5f9;
-    border: none;
-    color: #64748b;
-    padding: 6px 15px;
-    font-size: 0.9rem;
-  }
-
-  /* Total Stock Badge Style */
-  .stock-quantity-badge {
-    background-color: #e2e8f0;
-    color: #334155;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    display: inline-flex;
-    align-items: center;
-    margin-top: 8px;
-  }
-
-  .stock-quantity-badge i {
-    margin-right: 5px;
-    font-size: 0.8rem;
-    color: #149d80;
-  }
-
-  /* Delete Modal Styles */
-  .delete-modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(15, 23, 42, 0.7);
-    z-index: 1050;
-    display: none; /* Initially hidden */
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
-  }
-
-  .delete-modal-backdrop.show {
-    display: flex;
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .delete-modal-dialog {
-    background-color: white;
-    border-radius: 15px;
-    max-width: 450px;
-    width: 90%;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    transform: translateY(-30px) scale(0.95);
-    transition: transform 0.3s ease;
-    margin: 1.5rem;
-    overflow: hidden;
-  }
-
-  .delete-modal-backdrop.show .delete-modal-dialog {
-    transform: translateY(0) scale(1);
-  }
-
-  .delete-modal-content {
-    width: 100%;
-  }
-
-  .delete-modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid #f1f5f9;
-    display: flex;
-    align-items: center;
-  }
-
-  .delete-modal-title {
-    margin: 0;
-    color: #ef4444;
-    font-size: 1.35rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-  }
-
-  .delete-modal-title i {
-    color: #ef4444;
-    margin-right: 0.75rem;
-    font-size: 1.5rem;
-  }
-
-  .delete-modal-body {
-    padding: 1.75rem;
-    color: #475569;
-    text-align: center;
-  }
-
-  .delete-modal-product {
-    margin: 0.5rem 0;
-    padding: 1rem;
-    background-color: #f8fafc;
-    border-radius: 12px;
-    text-align: center;
-  }
-
-  .delete-modal-product-name {
-    font-weight: 600;
-    color: #1e293b;
-    font-size: 1.15rem;
-  }
-
-  .delete-modal-product-type {
-    display: inline-block;
-    color: #64748b;
-    font-size: 0.9rem;
-    margin-top: 0.3rem;
-  }
-
-  .delete-modal-footer {
-    padding: 1.25rem 1.5rem;
-    border-top: 1px solid #f1f5f9;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  .delete-modal-btn {
-    border-radius: 10px;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-  }
-
-  .delete-modal-btn-cancel {
-    background-color: #f1f5f9;
-    color: #475569;
-    border: none;
-  }
-
-  .delete-modal-btn-cancel:hover {
-    background-color: #e2e8f0;
-    color: #334155;
-  }
-
-  .delete-modal-btn-delete {
-    background-color: #ef4444;
-    color: white;
-    border: none;
-  }
-
-  .delete-modal-btn-delete:hover {
-    background-color: #dc2626;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2);
-  }
-
-  @media (max-width: 768px) {
-    .delete-modal-footer {
-      flex-direction: column;
-    }
-
-    .delete-modal-btn {
-      width: 100%;
-    }
-  }
 </style>
 @endsection
 
@@ -676,13 +624,13 @@
     <a href="{{ $expirationLink['url'] }}" class="sort-link {{ $expirationLink['isActive'] ? 'active' : '' }}">{!! $expirationLink['label'] !!}</a>
   </div>
 
-  <!-- Batch-based Stock Grid -->
-  <!-- Batch-based Stock Grid -->
+<!-- Batch-based Stock Grid -->
 <div class="row">
     @forelse ($stocks as $stock)
       @php
         $expired = \Carbon\Carbon::parse($stock->expiration_date)->isPast();
         $almostExpired = !$expired && \Carbon\Carbon::parse($stock->expiration_date)->diffInDays(now()) < 30;
+        $lowStock = $stock->quantity <= 10; // Assuming 10 is your low stock threshold
         $sizeImagePath = isset($sizeImage) && $sizeImage && $sizeImage->image ?
                         $sizeImage->image : $masterStock->image;
         $image = $sizeImagePath ? asset('storage/' . $sizeImagePath) : asset('images/default.png');
@@ -691,19 +639,26 @@
         <div class="card stock-card" onclick="viewStockDetail({{ $stock->id }})" style="cursor: pointer;">
           <div class="card-img-wrapper">
             <img src="{{ $image }}" class="card-img-top" alt="{{ $masterStock->name }} - {{ $size }}">
-          </div>
-          <div class="card-body">
-            <h5 class="card-title fw-bold">{{ $masterStock->name }} - {{ $size }}</h5>
+
+            @if ($lowStock)
+              <span class="status-badge stock-minimal">
+                <i class="bx bx-package"></i> Stok Minimal
+              </span>
+            @endif
 
             @if ($expired)
-              <span class="badge bg-danger badge-small">
-                <i class="bx bx-error-circle"></i> Kadaluwarsa
+              <span class="status-badge expired">
+                <i class="bx bx-x-circle"></i> Kadaluwarsa
               </span>
             @elseif($almostExpired)
-              <span class="badge bg-warning text-dark badge-small">
+              <span class="status-badge nearly-expired">
                 <i class="bx bx-time"></i> Hampir Kadaluwarsa
               </span>
             @endif
+          </div>
+
+          <div class="card-body">
+            <h5 class="card-title fw-bold">{{ $masterStock->name }} - {{ $size }}</h5>
 
             <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
               <h6 class="card-subtitle mb-0">{{ $stock->stock_id }}</h6>
