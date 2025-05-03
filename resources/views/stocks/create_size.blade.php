@@ -239,10 +239,19 @@
             </div>
 
             <div class="col-md-6">
-              <div class="form-group">
-                <label class="form-label required-label">Tanggal Kadaluwarsa</label>
-                <input type="date" name="expiration_date" class="form-control" required>
-              </div>
+                <div class="form-group">
+                    <label class="form-label">Gambar Produk untuk Ukuran Ini</label>
+                    @if($masterStock->image)
+                      <div class="file-input-preview">
+                        <img src="{{ asset('storage/' . $masterStock->image) }}"
+                             alt="{{ $masterStock->name }}"
+                             style="max-height: 150px; max-width: 100%;">
+                        <p class="text-muted small">Gambar default produk (Anda dapat mengunggah gambar khusus untuk ukuran ini)</p>
+                      </div>
+                    @endif
+                    <input type="file" name="image" class="form-control mt-3" accept="image/*">
+                    <div class="form-text text-muted">Biarkan kosong untuk menggunakan gambar default produk.</div>
+                  </div>
             </div>
           </div>
         </div>

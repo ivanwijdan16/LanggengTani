@@ -414,9 +414,16 @@
       @php
         $expired = \Carbon\Carbon::parse($stock->expiration_date)->isPast();
         $almostExpired = !$expired && \Carbon\Carbon::parse($stock->expiration_date)->diffInDays(now()) < 30;
+        $sizeImagePath = isset($sizeImage) && $sizeImage && $sizeImage->image ?
+                        $sizeImage->image : $masterStock->image;
+        $image = $sizeImagePath ? asset('storage/' . $sizeImagePath) : asset('images/default.png');
       @endphp
       <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
         <div class="card stock-card" onclick="viewStockDetail({{ $stock->id }})" style="cursor: pointer;">
+          <!-- Add image container -->
+          <div class="card-img-wrapper">
+            <img src="{{ $image }}" class="card-img-top" alt="{{ $masterStock->name }} - {{ $size }}">
+          </div>
           <div class="card-body p-3">
             <h5 class="card-title fw-bold">{{ $masterStock->name }} - {{ $size }}</h5>
 

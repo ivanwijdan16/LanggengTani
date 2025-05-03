@@ -38,4 +38,20 @@ class MasterStock extends Model
     {
         return $this->hasMany(Stock::class, 'master_stock_id');
     }
+
+    public function sizeImages()
+{
+    return $this->hasMany(StockSizeImage::class, 'master_stock_id');
+}
+
+public function getSizeImage($size)
+{
+    $sizeImage = $this->sizeImages()->where('size', $size)->first();
+    if ($sizeImage && $sizeImage->image) {
+        return $sizeImage->image;
+    }
+
+    // Return master stock image as a fallback
+    return $this->image;
+}
 }

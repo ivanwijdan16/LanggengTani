@@ -10,6 +10,7 @@ use App\Models\MasterPembelian;
 use App\Helpers\IdGenerator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Models\StockSizeImage;
 
 class StockController extends Controller
 {
@@ -47,30 +48,38 @@ class StockController extends Controller
     }
 
     public function sizes($masterId)
-    {
-        $masterStock = MasterStock::findOrFail($masterId);
+{
+    $masterStock = MasterStock::findOrFail($masterId);
 
-        // Get all stocks for this master stock, grouped by size
-        $stocks = Stock::where('master_stock_id', $masterId)->get();
+    // Get all stocks for this master stock, grouped by size
+    $stocks = Stock::where('master_stock_id', $masterId)->get();
 
-        // Group stocks by size
-        $sizeGroups = $stocks->groupBy('size');
+    // Group stocks by size
+    $sizeGroups = $stocks->groupBy('size');
 
-        return view('stocks.sizes', compact('masterStock', 'sizeGroups'));
-    }
+    // Get all size images for this master stock
+    $sizeImages = StockSizeImage::where('master_stock_id', $masterId)->get()->keyBy('size');
 
-    public function batches($masterId, $size)
-    {
-        $masterStock = MasterStock::findOrFail($masterId);
+    return view('stocks.sizes', compact('masterStock', 'sizeGroups', 'sizeImages'));
+}
 
-        // Get all stocks for this master stock and size
-        $stocks = Stock::where('master_stock_id', $masterId)
-                    ->where('size', $size)
-                    ->orderBy('expiration_date')
-                    ->get();
+public function batches($masterId, $size)
+{
+    $masterStock = MasterStock::findOrFail($masterId);
 
-        return view('stocks.batches', compact('masterStock', 'stocks', 'size'));
-    }
+    // Get all stocks for this master stock and size
+    $stocks = Stock::where('master_stock_id', $masterId)
+                ->where('size', $size)
+                ->orderBy('expiration_date')
+                ->get();
+
+    // Get the size image if it exists
+    $sizeImage = StockSizeImage::where('master_stock_id', $masterId)
+                             ->where('size', $size)
+                             ->first();
+
+    return view('stocks.batches', compact('masterStock', 'stocks', 'size', 'sizeImage'));
+}
 
     public function create()
     {
@@ -96,16 +105,21 @@ class StockController extends Controller
     }
 
     public function editSize($masterId, $size)
-    {
-        $masterStock = MasterStock::findOrFail($masterId);
+{
+    $masterStock = MasterStock::findOrFail($masterId);
 
-        // Get a representative stock for this size
-        $sizeStock = Stock::where('master_stock_id', $masterId)
-                    ->where('size', $size)
-                    ->first();
+    // Get a representative stock for this size
+    $sizeStock = Stock::where('master_stock_id', $masterId)
+                ->where('size', $size)
+                ->first();
 
-        return view('stocks.edit_size', compact('masterStock', 'size', 'sizeStock'));
-    }
+    // Get the size image if it exists
+    $sizeImage = StockSizeImage::where('master_stock_id', $masterId)
+                             ->where('size', $size)
+                             ->first();
+
+    return view('stocks.edit_size', compact('masterStock', 'size', 'sizeStock', 'sizeImage'));
+}
 
     public function show($id)
     {
@@ -285,56 +299,73 @@ class StockController extends Controller
     }
 
     public function storeSize(Request $request)
-    {
-        $validated = $request->validate([
-            'master_stock_id' => 'required|exists:master_stocks,id',
-            'size' => 'required',
-            'purchase_price' => 'required|numeric|min:0',
-            'selling_price' => 'required|numeric|min:0',
-            'quantity' => 'required|integer|min:1',
-            'expiration_date' => 'required|date',
-        ]);
+{
+    $validated = $request->validate([
+        'master_stock_id' => 'required|exists:master_stocks,id',
+        'size' => 'required',
+        'purchase_price' => 'required|numeric|min:0',
+        'selling_price' => 'required|numeric|min:0',
+        'quantity' => 'required|integer|min:1',
+        'expiration_date' => 'required|date',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        $masterStock = MasterStock::findOrFail($validated['master_stock_id']);
+    $masterStock = MasterStock::findOrFail($validated['master_stock_id']);
 
-        // Create master pembelian entry
-        $master_pembelian = MasterPembelian::create([
-            'total' => $validated['purchase_price'] * $validated['quantity'],
-            'date' => date('Y-m-d'),
-        ]);
+    // Handle size-specific image
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('stocks', 'public');
 
-        // Get the batch number for new stock
-        $batchNumber = Stock::where('master_stock_id', $validated['master_stock_id'])
-                        ->where('size', $validated['size'])
-                        ->count() + 1;
-
-        // Generate stock ID
-        $stockId = IdGenerator::generateStockId(
-            $masterStock->sku,
-            $validated['size'],
-            $validated['expiration_date'],
-            $batchNumber
+        // Create or update the size image record
+        StockSizeImage::updateOrCreate(
+            [
+                'master_stock_id' => $validated['master_stock_id'],
+                'size' => $validated['size']
+            ],
+            [
+                'image' => $imagePath
+            ]
         );
-
-        // Create stock
-        $stock = Stock::create([
-            'master_stock_id' => $validated['master_stock_id'],
-            'size' => $validated['size'],
-            'purchase_price' => $validated['purchase_price'],
-            'selling_price' => $validated['selling_price'],
-            'quantity' => $validated['quantity'],
-            'expiration_date' => $validated['expiration_date'],
-            'stock_id' => $stockId,
-        ]);
-
-        // Create pembelian record
-        $this->createPembelian($stock, $validated['quantity'], $validated['purchase_price'], $validated['expiration_date'], $master_pembelian);
-
-        // Check for notifications
-        $stock->checkAndCreateNotifications();
-
-        return redirect()->route('stocks.sizes', $validated['master_stock_id'])->with('success', 'Stok berhasil ditambahkan!');
     }
+
+    // Create master pembelian entry
+    $master_pembelian = MasterPembelian::create([
+        'total' => $validated['purchase_price'] * $validated['quantity'],
+        'date' => date('Y-m-d'),
+    ]);
+
+    // Get the batch number for new stock
+    $batchNumber = Stock::where('master_stock_id', $validated['master_stock_id'])
+                    ->where('size', $validated['size'])
+                    ->count() + 1;
+
+    // Generate stock ID
+    $stockId = IdGenerator::generateStockId(
+        $masterStock->sku,
+        $validated['size'],
+        $validated['expiration_date'],
+        $batchNumber
+    );
+
+    // Create stock
+    $stock = Stock::create([
+        'master_stock_id' => $validated['master_stock_id'],
+        'size' => $validated['size'],
+        'purchase_price' => $validated['purchase_price'],
+        'selling_price' => $validated['selling_price'],
+        'quantity' => $validated['quantity'],
+        'expiration_date' => $validated['expiration_date'],
+        'stock_id' => $stockId,
+    ]);
+
+    // Create pembelian record
+    $this->createPembelian($stock, $validated['quantity'], $validated['purchase_price'], $validated['expiration_date'], $master_pembelian);
+
+    // Check for notifications
+    $stock->checkAndCreateNotifications();
+
+    return redirect()->route('stocks.sizes', $validated['master_stock_id'])->with('success', 'Stok berhasil ditambahkan!');
+}
 
     public function updateMaster(Request $request, $id)
     {
@@ -362,32 +393,49 @@ class StockController extends Controller
     }
 
     public function updateSize(Request $request)
-    {
-        $validated = $request->validate([
-            'master_stock_id' => 'required|exists:master_stocks,id',
-            'size' => 'required',
-            'selling_price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+{
+    $validated = $request->validate([
+        'master_stock_id' => 'required|exists:master_stocks,id',
+        'size' => 'required',
+        'selling_price' => 'required|numeric|min:0',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        $masterStock = MasterStock::findOrFail($validated['master_stock_id']);
+    $masterStock = MasterStock::findOrFail($validated['master_stock_id']);
 
-        // Update image if provided
-        if ($request->hasFile('image')) {
-            if ($masterStock->image) {
-                Storage::disk('public')->delete($masterStock->image);
-            }
-            $masterStock->image = $request->file('image')->store('stocks', 'public');
-            $masterStock->save();
+    // Handle size-specific image
+    if ($request->hasFile('image')) {
+        // Check if there's an existing size image
+        $existingSizeImage = StockSizeImage::where('master_stock_id', $validated['master_stock_id'])
+                                         ->where('size', $validated['size'])
+                                         ->first();
+
+        if ($existingSizeImage && $existingSizeImage->image) {
+            // Delete old image if it exists
+            Storage::disk('public')->delete($existingSizeImage->image);
         }
 
-        // Update selling price for all stocks of this size
-        Stock::where('master_stock_id', $validated['master_stock_id'])
-            ->where('size', $validated['size'])
-            ->update(['selling_price' => $validated['selling_price']]);
+        $imagePath = $request->file('image')->store('stocks', 'public');
 
-        return redirect()->route('stocks.sizes', $validated['master_stock_id'])->with('success', 'Stok berhasil diupdate.');
+        // Create or update the size image record
+        StockSizeImage::updateOrCreate(
+            [
+                'master_stock_id' => $validated['master_stock_id'],
+                'size' => $validated['size']
+            ],
+            [
+                'image' => $imagePath
+            ]
+        );
     }
+
+    // Update selling price for all stocks of this size
+    Stock::where('master_stock_id', $validated['master_stock_id'])
+        ->where('size', $validated['size'])
+        ->update(['selling_price' => $validated['selling_price']]);
+
+    return redirect()->route('stocks.sizes', $validated['master_stock_id'])->with('success', 'Stok berhasil diupdate.');
+}
 
     public function update(Request $request, $id)
     {

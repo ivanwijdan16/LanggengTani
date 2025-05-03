@@ -247,17 +247,25 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Gambar Produk</label>
-            @if ($masterStock->image)
+            <label class="form-label">Gambar Produk untuk Ukuran Ini</label>
+            @if(isset($sizeImage) && $sizeImage && $sizeImage->image)
               <div class="file-input-preview">
-                <img src="{{ asset('storage/' . $masterStock->image) }}" class="preview-image" alt="{{ $masterStock->name }}">
-                <span class="current-image-label">Gambar saat ini</span>
+                <img src="{{ asset('storage/' . $sizeImage->image) }}"
+                     alt="{{ $masterStock->name }} - {{ $size }}"
+                     style="max-height: 150px; max-width: 100%;">
+                <span class="current-image-label">Gambar saat ini untuk ukuran {{ $size }}</span>
+              </div>
+            @elseif($masterStock->image)
+              <div class="file-input-preview">
+                <img src="{{ asset('storage/' . $masterStock->image) }}"
+                     alt="{{ $masterStock->name }}"
+                     style="max-height: 150px; max-width: 100%;">
+                <p class="text-muted small">Saat ini menggunakan gambar default produk</p>
               </div>
             @endif
             <input type="file" name="image" class="form-control mt-3" accept="image/*">
-            <div class="form-text text-muted">Unggah gambar baru untuk mengganti yang lama. Biarkan kosong jika tidak ingin mengganti.</div>
+            <div class="form-text text-muted">Unggah gambar baru untuk ukuran ini. Biarkan kosong jika tidak ingin mengganti.</div>
           </div>
-        </div>
 
         <!-- Form Actions -->
         <div class="form-actions">

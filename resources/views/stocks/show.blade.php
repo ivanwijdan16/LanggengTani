@@ -482,9 +482,14 @@
     <div class="detail-container">
       <!-- Product Image (Left Side) -->
       <div class="product-img-container">
-        <img
-          src="{{ $stock->masterStock->image ? asset('storage/' . $stock->masterStock->image) : asset('images/default.png') }}"
-          class="product-img" alt="{{ $stock->masterStock->name }}">
+        @php
+          $sizeImage = \App\Models\StockSizeImage::where('master_stock_id', $stock->master_stock_id)
+                                               ->where('size', $stock->size)
+                                               ->first();
+          $imagePath = $sizeImage && $sizeImage->image ? $sizeImage->image : $stock->masterStock->image;
+          $imageUrl = $imagePath ? asset('storage/' . $imagePath) : asset('images/default.png');
+        @endphp
+        <img src="{{ $imageUrl }}" class="product-img" alt="{{ $stock->masterStock->name }}">
       </div>
 
       <!-- Product Details (Right Side) -->
