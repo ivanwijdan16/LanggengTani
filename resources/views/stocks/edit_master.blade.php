@@ -168,6 +168,100 @@
     margin-right: 0.5rem;
     font-size: 1.1rem;
   }
+
+  /* Success Modal Styles */
+  .success-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.7);
+    z-index: 1050;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+
+  .success-modal-backdrop.show {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .success-modal-dialog {
+    background-color: white;
+    border-radius: 15px;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-30px) scale(0.95);
+    transition: transform 0.3s ease;
+    margin: 1.5rem;
+    overflow: hidden;
+  }
+
+  .success-modal-backdrop.show .success-modal-dialog {
+    transform: translateY(0) scale(1);
+  }
+
+  .success-modal-content {
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .success-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background-color: rgba(0, 114, 79, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+
+  .success-icon-wrapper i {
+    color: #149d80;
+    font-size: 2.5rem;
+  }
+
+  .success-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+  }
+
+  .success-message {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+  }
+
+  .success-modal-btn {
+    background-color: #149d80;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .success-modal-btn:hover {
+    background-color: #0c8b71;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
+    color: white;
+    text-decoration: none;
+  }
 </style>
 @endsection
 
@@ -267,4 +361,73 @@
     </div>
   </div>
 </div>
+
+<!-- Success Modal -->
+<div class="success-modal-backdrop" id="successModal">
+  <div class="success-modal-dialog">
+    <div class="success-modal-content">
+      <div class="success-icon-wrapper">
+        <i class="bx bx-check"></i>
+      </div>
+      <h3 class="success-title">Perubahan Berhasil!</h3>
+      <p class="success-message">Produk berhasil diperbarui.</p>
+
+      <a href="{{ route('stocks.index') }}" class="success-modal-btn">
+        <i class="bx bx-check me-2"></i> Kembali ke Daftar Produk
+      </a>
+    </div>
+  </div>
+</div>
+@endsection
+
+@section('script')
+<script>
+  // Show success modal if session has success message
+  @if(session('success'))
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get the modal element
+      const modal = document.getElementById('successModal');
+
+      // Show the modal
+      if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(function() {
+          modal.classList.add('show');
+          document.body.style.overflow = 'hidden';
+        }, 100);
+      }
+    });
+
+    @endif
+
+  // Close modal when clicking outside or pressing ESC key
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('successModal');
+
+    if (modal) {
+      // Close modal when clicking outside the content
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+
+      // Close modal with ESC key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('show')) {
+          closeModal();
+        }
+      });
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('successModal');
+      modal.classList.remove('show');
+      setTimeout(function() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      }, 300);
+    }
+  });
+</script>
 @endsection

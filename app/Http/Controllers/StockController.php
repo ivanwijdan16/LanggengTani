@@ -405,30 +405,33 @@ class StockController extends Controller
     ]);
 }
 
-    public function updateMaster(Request $request, $id)
-    {
-        $masterStock = MasterStock::findOrFail($id);
+public function updateMaster(Request $request, $id)
+{
+    $masterStock = MasterStock::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:Obat,Pupuk,Bibit',
-            'sub_type' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'description' => 'nullable|string',
-        ]);
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'type' => 'required|in:Obat,Pupuk,Bibit',
+        'sub_type' => 'nullable|string',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'description' => 'nullable|string',
+    ]);
 
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($masterStock->image) {
-                Storage::disk('public')->delete($masterStock->image);
-            }
-            $validated['image'] = $request->file('image')->store('stocks', 'public');
+    if ($request->hasFile('image')) {
+        // Delete old image if exists
+        if ($masterStock->image) {
+            Storage::disk('public')->delete($masterStock->image);
         }
-
-        $masterStock->update($validated);
-
-        return redirect()->route('stocks.index')->with('success', 'Produk berhasil diupdate.');
+        $validated['image'] = $request->file('image')->store('stocks', 'public');
     }
+
+    $masterStock->update($validated);
+
+    return redirect()->route('stocks.index')->with([
+        'success' => true,
+        'message' => 'Produk berhasil diupdate.'
+    ]);
+}
 
     public function updateSize(Request $request)
 {
@@ -476,7 +479,10 @@ class StockController extends Controller
             'selling_price' => $validated['selling_price']
         ]);
 
-    return redirect()->route('stocks.sizes', $validated['master_stock_id'])->with('success', 'Stok berhasil diupdate.');
+    return redirect()->route('stocks.sizes', $validated['master_stock_id'])->with([
+        'success' => true,
+        'message' => 'SBerhasil Diupdate'
+    ]);
 }
 
     public function update(Request $request, $id)
