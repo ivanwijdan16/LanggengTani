@@ -507,6 +507,22 @@
         @endif
 
         <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">ID Stok</span>
+                <span class="info-value">
+                  <i class="bx bx-barcode"></i>
+                  {{ $stock->stock_id }}
+                </span>
+              </div>
+
+              <!-- Quantity -->
+          <div class="info-item">
+            <span class="info-label">Jumlah Stok</span>
+            <span class="info-value">
+              <i class="bx bx-cabinet"></i>
+              {{ $stock->quantity }} pcs
+            </span>
+          </div>
           <!-- Purchase Price -->
           <div class="info-item">
             <span class="info-label">Harga Beli</span>
@@ -525,14 +541,7 @@
             </span>
           </div>
 
-          <!-- Quantity -->
-          <div class="info-item">
-            <span class="info-label">Jumlah Stok</span>
-            <span class="info-value">
-              <i class="bx bx-cabinet"></i>
-              {{ $stock->quantity }} pcs
-            </span>
-          </div>
+
 
           <!-- Size -->
           <div class="info-item">

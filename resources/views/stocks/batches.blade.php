@@ -408,6 +408,39 @@
     <div class="breadcrumb-item">{{ $size }}</div>
   </div>
 
+  <!-- Add this after the breadcrumbs section -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <div class="sort-links">
+        <p class="sort-label mb-0">Urutkan:</p>
+        @php
+          $currentSort = $sort ?? 'expiration_date';
+          $currentDirection = $direction ?? 'asc';
+
+          function getSortLink($field, $label, $currentSort, $currentDirection, $masterId, $size) {
+            $direction = ($currentSort == $field && $currentDirection == 'asc') ? 'desc' : 'asc';
+            $isActive = $currentSort == $field;
+            $icon = '';
+
+            if ($isActive) {
+              $icon = $currentDirection == 'asc' ? '<i class="bx bx-sort-up"></i>' : '<i class="bx bx-sort-down"></i>';
+            }
+
+            return [
+              'url' => route('stocks.batches', ['master_id' => $masterId, 'size' => $size, 'sort' => $field, 'direction' => $direction]),
+              'label' => $label . ' ' . $icon,
+              'isActive' => $isActive
+            ];
+          }
+
+          $expirationLink = getSortLink('expiration_date', 'Kadaluwarsa', $currentSort, $currentDirection, $masterStock->id, $size);
+        @endphp
+
+        <a href="{{ $expirationLink['url'] }}" class="sort-link {{ $expirationLink['isActive'] ? 'active' : '' }}">{!! $expirationLink['label'] !!}</a>
+      </div>
+    </div>
+  </div>
+
   <!-- Batch-based Stock Grid -->
   <div class="row">
     @forelse ($stocks as $stock)

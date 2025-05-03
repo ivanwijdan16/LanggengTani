@@ -453,6 +453,45 @@
     <div class="breadcrumb-item">{{ $masterStock->name }}</div>
   </div>
 
+  <!-- Add this after the breadcrumbs section -->
+<div class="row mb-3">
+    <div class="col-12">
+      <div class="sort-links">
+        <p class="sort-label mb-0">Urutkan:</p>
+        @php
+          $currentSort = $sort ?? '';
+          $currentDirection = $direction ?? 'asc';
+
+          function getSortLink($field, $label, $currentSort, $currentDirection, $masterId) {
+            $direction = ($currentSort == $field && $currentDirection == 'asc') ? 'desc' : 'asc';
+            $isActive = $currentSort == $field;
+            $icon = '';
+
+            if ($isActive) {
+              $icon = $currentDirection == 'asc' ? '<i class="bx bx-sort-up"></i>' : '<i class="bx bx-sort-down"></i>';
+            }
+
+            return [
+              'url' => route('stocks.sizes', ['master_id' => $masterId, 'sort' => $field, 'direction' => $direction]),
+              'label' => $label . ' ' . $icon,
+              'isActive' => $isActive
+            ];
+          }
+
+          $defaultLink = [
+            'url' => route('stocks.sizes', ['master_id' => $masterStock->id]),
+            'label' => 'Default',
+            'isActive' => $currentSort === ''
+          ];
+
+          $priceLink = getSortLink('price', 'Harga', $currentSort, $currentDirection, $masterStock->id);
+        @endphp
+
+        <a href="{{ $priceLink['url'] }}" class="sort-link {{ $priceLink['isActive'] ? 'active' : '' }}">{!! $priceLink['label'] !!}</a>
+      </div>
+    </div>
+  </div>
+
   <!-- Size-based Stock Grid -->
   <div class="row">
     @forelse ($sizeGroups as $size => $stocks)

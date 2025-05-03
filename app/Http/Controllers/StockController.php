@@ -47,39 +47,72 @@ class StockController extends Controller
         return view('stocks.index', compact('stocks'));
     }
 
-    public function sizes($masterId)
-{
-    $masterStock = MasterStock::findOrFail($masterId);
+    public function sizes($masterId, Request $request)
+    {
+        $masterStock = MasterStock::findOrFail($masterId);
 
-    // Get all stocks for this master stock, grouped by size
-    $stocks = Stock::where('master_stock_id', $masterId)->get();
+        // Get all stocks for this master stock
+        $stocks = Stock::where('master_stock_id', $masterId)->get();
 
-    // Group stocks by size
-    $sizeGroups = $stocks->groupBy('size');
+        // Get sort parameters
+        $sort = $request->input('sort', '');
+        $direction = $request->input('direction', 'asc');
 
-    // Get all size images for this master stock
-    $sizeImages = StockSizeImage::where('master_stock_id', $masterId)->get()->keyBy('size');
+        // Group stocks by size
+        $sizeGroups = $stocks->groupBy('size');
 
-    return view('stocks.sizes', compact('masterStock', 'sizeGroups', 'sizeImages'));
-}
+        // Apply sorting to each size group if sorting by price
+        if ($sort === 'price') {
+            // Sort each size group by selling_price
+            foreach ($sizeGroups as $size => $stocksInSize) {
+                if ($direction === 'asc') {
+                    $sizeGroups[$size] = $stocksInSize->sortBy('selling_price');
+                } else {
+                    $sizeGroups[$size] = $stocksInSize->sortByDesc('selling_price');
+                }
+            }
 
-public function batches($masterId, $size)
-{
-    $masterStock = MasterStock::findOrFail($masterId);
+            // Sort the size groups based on the first item's selling_price
+            $sizeGroups = $direction === 'asc'
+                ? $sizeGroups->sortBy(function ($stocks) {
+                    return $stocks->first()->selling_price;
+                  })
+                : $sizeGroups->sortByDesc(function ($stocks) {
+                    return $stocks->first()->selling_price;
+                  });
+        }
 
-    // Get all stocks for this master stock and size
-    $stocks = Stock::where('master_stock_id', $masterId)
-                ->where('size', $size)
-                ->orderBy('expiration_date')
-                ->get();
+        // Get all size images for this master stock
+        $sizeImages = StockSizeImage::where('master_stock_id', $masterId)->get()->keyBy('size');
 
-    // Get the size image if it exists
-    $sizeImage = StockSizeImage::where('master_stock_id', $masterId)
-                             ->where('size', $size)
-                             ->first();
+        return view('stocks.sizes', compact('masterStock', 'sizeGroups', 'sizeImages', 'sort', 'direction'));
+    }
+    public function batches($masterId, $size, Request $request)
+    {
+        $masterStock = MasterStock::findOrFail($masterId);
 
-    return view('stocks.batches', compact('masterStock', 'stocks', 'size', 'sizeImage'));
-}
+        // Get sort parameters
+        $sort = $request->input('sort', 'expiration_date');
+        $direction = $request->input('direction', 'asc');
+
+        // Get all stocks for this master stock and size with sorting
+        $query = Stock::where('master_stock_id', $masterId)
+                    ->where('size', $size);
+
+        // Apply sorting
+        if ($sort === 'expiration_date') {
+            $query->orderBy('expiration_date', $direction);
+        }
+
+        $stocks = $query->get();
+
+        // Get the size image if it exists
+        $sizeImage = StockSizeImage::where('master_stock_id', $masterId)
+                                 ->where('size', $size)
+                                 ->first();
+
+        return view('stocks.batches', compact('masterStock', 'stocks', 'size', 'sizeImage', 'sort', 'direction'));
+    }
 
     public function create()
     {
