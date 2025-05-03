@@ -233,8 +233,8 @@
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label class="form-label">Harga Beli</label>
-                <input type="text" class="form-control form-control-static" value="Rp {{ number_format($sizeStock->purchase_price, 0, ',', '.') }}" readonly>
+                <label class="form-label required-label">Harga Beli</label>
+                <input type="number" name="purchase_price" class="form-control" value="{{ $sizeStock->purchase_price }}" required>
               </div>
             </div>
 

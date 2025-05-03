@@ -397,6 +397,7 @@ public function batches($masterId, $size)
     $validated = $request->validate([
         'master_stock_id' => 'required|exists:master_stocks,id',
         'size' => 'required',
+        'purchase_price' => 'required|numeric|min:0', // Added purchase_price validation
         'selling_price' => 'required|numeric|min:0',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
@@ -429,10 +430,13 @@ public function batches($masterId, $size)
         );
     }
 
-    // Update selling price for all stocks of this size
+    // Update purchase_price and selling_price for all stocks of this size
     Stock::where('master_stock_id', $validated['master_stock_id'])
         ->where('size', $validated['size'])
-        ->update(['selling_price' => $validated['selling_price']]);
+        ->update([
+            'purchase_price' => $validated['purchase_price'], // Added purchase_price update
+            'selling_price' => $validated['selling_price']
+        ]);
 
     return redirect()->route('stocks.sizes', $validated['master_stock_id'])->with('success', 'Stok berhasil diupdate.');
 }
