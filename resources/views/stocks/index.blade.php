@@ -654,6 +654,100 @@
     color: #334155;
   }
 
+   /* Success Modal Styles */
+   .success-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.7);
+    z-index: 1050;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+
+  .success-modal-backdrop.show {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .success-modal-dialog {
+    background-color: white;
+    border-radius: 15px;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-30px) scale(0.95);
+    transition: transform 0.3s ease;
+    margin: 1.5rem;
+    overflow: hidden;
+  }
+
+  .success-modal-backdrop.show .success-modal-dialog {
+    transform: translateY(0) scale(1);
+  }
+
+  .success-modal-content {
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .success-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background-color: rgba(0, 114, 79, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+
+  .success-icon-wrapper i {
+    color: #149d80;
+    font-size: 2.5rem;
+  }
+
+  .success-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+  }
+
+  .success-message {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+  }
+
+  .success-modal-btn {
+    background-color: #149d80;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .success-modal-btn:hover {
+    background-color: #0c8b71;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
+    color: white;
+    text-decoration: none;
+  }
+
   @media (max-width: 768px) {
     .error-modal-footer,
     .delete-modal-footer {
@@ -827,6 +921,29 @@
   @csrf
   @method('DELETE')
 </form>
+
+<!-- Success Modal -->
+<div class="success-modal-backdrop" id="successModal">
+    <div class="success-modal-dialog">
+      <div class="success-modal-content">
+        <div class="success-icon-wrapper">
+          <i class="bx bx-check"></i>
+        </div>
+        <h3 class="success-title">Operasi Berhasil!</h3>
+        <p class="success-message" id="success-message">
+          @if(session('message'))
+            {{ session('message') }}
+          @else
+            Perubahan telah berhasil disimpan.
+          @endif
+        </p>
+
+        <a href="{{ route('stocks.index') }}" class="success-modal-btn">
+          <i class="bx bx-check me-2"></i> Tutup
+          </a>
+      </div>
+    </div>
+  </div>
 @endsection
 
 @section('script')
@@ -905,20 +1022,55 @@
       }
     });
 
+    function closeSuccessModal() {
+    const modal = document.getElementById('successModal');
+    if (modal) {
+      modal.classList.remove('show');
+      modal.style.opacity = '0';
+      setTimeout(function() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      }, 300);
+    }
+  }
+
     // Add success modal handler if needed
-    @if (session('showSuccessModal'))
-      // Show success modal if it exists
-      const successModal = document.getElementById('successModal');
-      if (successModal) {
-        successModal.style.display = 'flex';
-        setTimeout(function() {
-          successModal.classList.add('show');
-          successModal.style.opacity = '1';
-          successModal.style.visibility = 'visible';
-          document.body.style.overflow = 'hidden';
-        }, 10);
+    @if (session('success') || session('showSuccessModal'))
+    // Get the modal element
+    const successModal = document.getElementById('successModal');
+
+    // Set custom message if available
+    @if(session('message'))
+      const successMessage = document.getElementById('success-message');
+      if (successMessage) {
+        successMessage.textContent = "{{ session('message') }}";
       }
     @endif
+
+    // Show the modal
+    if (successModal) {
+      successModal.style.display = 'flex';
+      setTimeout(function() {
+        successModal.classList.add('show');
+        successModal.style.opacity = '1';
+        document.body.style.overflow = 'hidden';
+      }, 100);
+
+      // Add click handler for closing
+      successModal.addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeSuccessModal();
+        }
+      });
+
+      // Add ESC key handler
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && successModal.classList.contains('show')) {
+          closeSuccessModal();
+        }
+      });
+    }
+  @endif
   });
 </script>
 @endsection

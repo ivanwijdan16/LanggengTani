@@ -370,7 +370,13 @@
         <i class="bx bx-check"></i>
       </div>
       <h3 class="success-title">Perubahan Berhasil!</h3>
-      <p class="success-message">Produk berhasil diperbarui.</p>
+      <p class="success-message" id="success-message">
+        @if(session('message'))
+          {{ session('message') }}
+        @else
+          Produk berhasil diupdate.
+        @endif
+      </p>
 
       <a href="{{ route('stocks.index') }}" class="success-modal-btn">
         <i class="bx bx-check me-2"></i> Kembali ke Daftar Produk
@@ -382,52 +388,60 @@
 
 @section('script')
 <script>
-  // Show success modal if session has success message
-  @if(session('success'))
-    document.addEventListener('DOMContentLoaded', function() {
-      // Get the modal element
-      const modal = document.getElementById('successModal');
-
-      // Show the modal
-      if (modal) {
-        modal.style.display = 'flex';
-        setTimeout(function() {
-          modal.classList.add('show');
-          document.body.style.overflow = 'hidden';
-        }, 100);
-      }
-    });
-
-    @endif
-
-  // Close modal when clicking outside or pressing ESC key
-  document.addEventListener('DOMContentLoaded', function() {
+  // Define closeSuccessModal at the top level so it's available everywhere
+  function closeSuccessModal() {
     const modal = document.getElementById('successModal');
-
     if (modal) {
-      // Close modal when clicking outside the content
-      modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-          closeModal();
-        }
-      });
-
-      // Close modal with ESC key
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal.classList.contains('show')) {
-          closeModal();
-        }
-      });
-    }
-
-    function closeModal() {
-      const modal = document.getElementById('successModal');
       modal.classList.remove('show');
+      modal.style.opacity = '0';
       setTimeout(function() {
         modal.style.display = 'none';
         document.body.style.overflow = '';
       }, 300);
     }
+  }
+
+  // Document ready event for all event listeners
+  document.addEventListener('DOMContentLoaded', function() {
+    // Close modal with ESC key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        if (document.getElementById('successModal')?.classList.contains('show')) {
+          closeSuccessModal();
+        }
+      }
+    });
+
+    // Show success modal if needed
+    @if (session('success'))
+      // Get the modal element
+      const successModal = document.getElementById('successModal');
+
+      // Set custom message if available
+      @if(session('message'))
+        const successMessage = document.getElementById('success-message');
+        if (successMessage) {
+          successMessage.textContent = "{{ session('message') }}";
+        }
+      @endif
+
+      // Show the modal
+      if (successModal) {
+        successModal.style.display = 'flex';
+        setTimeout(function() {
+          successModal.classList.add('show');
+          successModal.style.opacity = '1';
+          document.body.style.overflow = 'hidden';
+        }, 100);
+
+        // Add click handler for closing
+        successModal.addEventListener('click', function(e) {
+          if (e.target === this) {
+            closeSuccessModal();
+          }
+        });
+      }
+    @endif
   });
 </script>
 @endsection

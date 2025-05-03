@@ -433,12 +433,12 @@ public function updateMaster(Request $request, $id)
     ]);
 }
 
-    public function updateSize(Request $request)
+public function updateSize(Request $request)
 {
     $validated = $request->validate([
         'master_stock_id' => 'required|exists:master_stocks,id',
         'size' => 'required',
-        'purchase_price' => 'required|numeric|min:0', // Added purchase_price validation
+        'purchase_price' => 'required|numeric|min:0',
         'selling_price' => 'required|numeric|min:0',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
@@ -475,13 +475,13 @@ public function updateMaster(Request $request, $id)
     Stock::where('master_stock_id', $validated['master_stock_id'])
         ->where('size', $validated['size'])
         ->update([
-            'purchase_price' => $validated['purchase_price'], // Added purchase_price update
+            'purchase_price' => $validated['purchase_price'],
             'selling_price' => $validated['selling_price']
         ]);
 
     return redirect()->route('stocks.sizes', $validated['master_stock_id'])->with([
         'success' => true,
-        'message' => 'SBerhasil Diupdate'
+        'message' => 'Stok berhasil diupdate.'
     ]);
 }
 
