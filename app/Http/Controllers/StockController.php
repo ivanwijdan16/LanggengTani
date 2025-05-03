@@ -621,19 +621,16 @@ public function updateSize(Request $request)
 
     // Fungsi untuk mencatat pembelian baru
     private function createPembelian($stock, $quantity, $purchasePrice, $expirationDate, $master_pembelian)
-    {
-        // Generate purchase code using the helper
-        $purchaseCode = IdGenerator::generatePurchaseCode();
+{
+    $pembelianData = [
+        'stock_id' => $stock->id,
+        'purchase_price' => $purchasePrice,
+        'quantity' => $quantity,
+        'purchase_date' => now(),
+        'master_pembelians_id' => $master_pembelian->id,
+        'purchase_code' => IdGenerator::generatePurchaseCode(),
+    ];
 
-        $pembelianData = [
-            'stock_id' => $stock->id,
-            'purchase_code' => $purchaseCode,
-            'purchase_price' => $purchasePrice,
-            'quantity' => $quantity,
-            'purchase_date' => now(),
-            'master_pembelians_id' => $master_pembelian->id,
-        ];
-
-        Pembelian::create($pembelianData);
+    Pembelian::create($pembelianData);
     }
 }
