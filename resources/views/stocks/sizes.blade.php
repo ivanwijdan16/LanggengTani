@@ -39,6 +39,189 @@
     font-weight: 500;
   }
 
+  .stock-card .card-actions {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  gap: 0.5rem;
+}
+
+.stock-card .action-btn {
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex: 1;
+  white-space: nowrap;
+}
+
+.stock-card .action-btn i {
+  font-size: 1rem;
+}
+
+/* Button types */
+.stock-card .btn-edit {
+  background-color: #e0f2f1;
+  color: #0c8b71;
+  border: none;
+}
+
+.stock-card .btn-edit:hover {
+  background-color: #0c8b71;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(12, 139, 113, 0.2);
+}
+
+.stock-card .btn-delete {
+  background-color: #fee2e2;
+  color: #ef4444;
+  border: none;
+}
+
+.stock-card .btn-delete:hover {
+  background-color: #ef4444;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.2);
+}
+
+.stock-card .btn-info {
+  background-color: #e0f7fa;
+  color: #0288d1;
+  border: none;
+}
+
+.stock-card .btn-info:hover {
+  background-color: #0288d1;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(2, 136, 209, 0.2);
+}
+
+.stock-card .btn-success {
+  background-color: #e3f8e9;
+  color: #10b981;
+  border: none;
+}
+
+.stock-card .btn-success:hover {
+  background-color: #10b981;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.2);
+}
+
+/* Stock Card Hover Animation Improvement */
+.stock-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stock-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(to right, #149d80, #0c8b71);
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+.stock-card:hover::after {
+  transform: translateY(0);
+}
+
+/* Improve card content spacing */
+.stock-card .card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.stock-card .card-title {
+  margin-bottom: 0.75rem;
+  color: #1e293b;
+}
+
+/* Enhanced quantity badge */
+.stock-quantity-badge {
+  background-color: #ecfdf5;
+  color: #0f766e;
+  border: 1px solid #d1fae5;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.stock-quantity-badge i {
+  color: #10b981;
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 575.98px) {
+  .stock-card .card-actions {
+    flex-direction: column;
+  }
+
+  .stock-card .action-btn {
+    margin-bottom: 0.5rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stock-card .action-btn i {
+    margin-right: 0.5rem;
+  }
+}
+
+/* Small tablets and large phones */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .stock-card .action-btn {
+    padding: 0.4rem;
+  }
+
+  .stock-card .action-btn span {
+    display: none;
+  }
+
+  .stock-card .action-btn i {
+    margin-right: 0;
+    font-size: 1.1rem;
+  }
+}
+
+/* Tablets */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .stock-card .action-btn {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .stock-card .action-btn i {
+    margin-right: 0.35rem;
+  }
+}
+
+/* Show text on large screens */
+@media (min-width: 992px) {
+  .stock-card .action-btn {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .stock-card .action-btn i {
+    margin-right: 0.35rem;
+  }
+}
+
   .stat-card {
     border-radius: 15px;
     border: none;
@@ -493,23 +676,23 @@
   </div>
 
   <!-- Size-based Stock Grid -->
-  <div class="row">
+  <!-- Size-based Stock Grid -->
+<div class="row">
     @forelse ($sizeGroups as $size => $stocks)
       @php
         $totalQuantity = $stocks->sum('quantity');
         $stock = $stocks->first(); // Representative stock for this size
         $sizeImagePath = isset($sizeImages[$size]) && $sizeImages[$size]->image ?
-                         $sizeImages[$size]->image : $masterStock->image;
+                        $sizeImages[$size]->image : $masterStock->image;
         $image = $sizeImagePath ? asset('storage/' . $sizeImagePath) : asset('images/default.png');
       @endphp
       <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
         <div class="card stock-card" onclick="viewStockBatches({{ $masterStock->id }}, '{{ $size }}')" style="cursor: pointer;">
-          <!-- Add image container -->
           <div class="card-img-wrapper">
             <img src="{{ $image }}" class="card-img-top" alt="{{ $masterStock->name }} - {{ $size }}">
           </div>
 
-          <div class="card-body p-3">
+          <div class="card-body">
             <h5 class="card-title fw-bold">{{ $masterStock->name }} - {{ $size }}</h5>
             <div class="d-flex justify-content-between align-items-center mb-2">
               <h6 class="card-subtitle mb-0">{{ $stock->stock_id }}</h6>
@@ -517,21 +700,21 @@
                 <i class="bx bx-package"></i> {{ $totalQuantity }} pcs
               </span>
             </div>
-            <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="d-flex justify-content-between align-items-center mt-2 mb-2">
               <span class="price-tag fs-5">Rp {{ number_format($stock->selling_price, 0, ',', '.') }}</span>
             </div>
 
-            <div class="mt-3 pt-2 border-top d-flex justify-content-between">
+            <div class="card-actions">
               <a href="{{ route('stocks.create.size', ['master_id' => $masterStock->id, 'size' => $size]) }}"
-                class="btn btn-sm btn-success" onclick="event.stopPropagation();">
-                <i class="bx bx-plus"></i> Tambah Stok
+                class="btn action-btn btn-success" onclick="event.stopPropagation();">
+                <i class="bx bx-plus"></i> <span>Tambah</span>
               </a>
               <a href="{{ route('stocks.edit.size', ['master_id' => $masterStock->id, 'size' => $size]) }}"
-                class="btn btn-sm btn-primary" onclick="event.stopPropagation();">
-                <i class="bx bx-edit"></i> Edit
+                class="btn action-btn btn-edit" onclick="event.stopPropagation();">
+                <i class="bx bx-edit"></i> <span>Edit</span>
               </a>
-              <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); openDeleteSizeModal('{{ $size }}')">
-                <i class="bx bx-trash"></i> Hapus
+              <button class="btn action-btn btn-delete" onclick="event.stopPropagation(); openDeleteSizeModal('{{ $size }}')">
+                <i class="bx bx-trash"></i> <span>Hapus</span>
               </button>
             </div>
           </div>
@@ -551,7 +734,6 @@
       </div>
     @endforelse
   </div>
-</div>
 
 <!-- Delete Size Modal -->
 <div class="delete-modal-backdrop" id="deleteSizeModal">
