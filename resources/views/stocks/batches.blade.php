@@ -190,59 +190,26 @@
     margin-right: 3px;
   }
 
-  /* Sorting styles */
-  .sort-links {
+  /* Breadcrumb styles */
+  .breadcrumbs {
     display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
     align-items: center;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
   }
 
-  .sort-label {
-    font-size: 0.9rem;
+  .breadcrumb-item {
     color: #64748b;
-    margin: 0;
-    padding: 6px 0;
-    display: flex;
-    align-items: center;
-    margin-right: 5px;
   }
 
-  .sort-link {
-    font-size: 0.9rem;
+  .breadcrumb-item a {
     color: #64748b;
     text-decoration: none;
-    padding: 6px 12px;
-    border-radius: 8px;
-    background-color: #f1f5f9;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
   }
 
-  .sort-link:hover {
-    background-color: #e2e8f0;
-    color: #334155;
-  }
-
-  .sort-link.active {
-    background-color: #149d80;
-    color: white;
-  }
-
-  .sort-link i {
-    margin-left: 5px;
-    font-size: 0.75rem;
-  }
-
-  .sort-dropdown {
-    border-radius: 8px;
-    background-color: #f1f5f9;
-    border: none;
-    color: #64748b;
-    padding: 6px 15px;
-    font-size: 0.9rem;
+  .breadcrumb-divider {
+    margin: 0 0.5rem;
+    color: #cbd5e1;
   }
 
   /* Total Stock Badge Style */
@@ -263,9 +230,8 @@
     color: #149d80;
   }
 
-  /* Shared Modal Styles */
-  .success-modal-backdrop,
-  .error-modal-backdrop {
+  /* Delete Modal Styles */
+  .delete-modal-backdrop {
     position: fixed;
     top: 0;
     left: 0;
@@ -273,7 +239,7 @@
     height: 100%;
     background-color: rgba(15, 23, 42, 0.7);
     z-index: 1050;
-    display: flex;
+    display: none; /* Initially hidden */
     align-items: center;
     justify-content: center;
     opacity: 0;
@@ -281,14 +247,13 @@
     transition: opacity 0.25s ease, visibility 0.25s ease;
   }
 
-  .success-modal-backdrop.show,
-  .error-modal-backdrop.show {
+  .delete-modal-backdrop.show {
+    display: flex;
     opacity: 1;
     visibility: visible;
   }
 
-  .success-modal-dialog,
-  .error-modal-dialog {
+  .delete-modal-dialog {
     background-color: white;
     border-radius: 15px;
     max-width: 450px;
@@ -300,90 +265,72 @@
     overflow: hidden;
   }
 
-  .success-modal-backdrop.show .success-modal-dialog,
-  .error-modal-backdrop.show .error-modal-dialog {
+  .delete-modal-backdrop.show .delete-modal-dialog {
     transform: translateY(0) scale(1);
   }
 
-  .success-modal-header,
-  .error-modal-header {
+  .delete-modal-content {
+    width: 100%;
+  }
+
+  .delete-modal-header {
     padding: 1.5rem;
     border-bottom: 1px solid #f1f5f9;
     display: flex;
     align-items: center;
   }
 
-  .success-modal-title,
-  .error-modal-title {
+  .delete-modal-title {
     margin: 0;
+    color: #ef4444;
     font-size: 1.35rem;
     font-weight: 600;
     display: flex;
     align-items: center;
   }
 
-  .success-modal-title {
-    color: #149d80;
-  }
-
-  .error-modal-title {
+  .delete-modal-title i {
     color: #ef4444;
-  }
-
-  .success-modal-title i,
-  .error-modal-title i {
     margin-right: 0.75rem;
     font-size: 1.5rem;
   }
 
-  .success-modal-body,
-  .error-modal-body {
+  .delete-modal-body {
     padding: 1.75rem;
     color: #475569;
     text-align: center;
   }
 
-  .success-modal-footer,
-  .error-modal-footer {
+  .delete-modal-product {
+    margin: 0.5rem 0;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .delete-modal-product-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1.15rem;
+  }
+
+  .delete-modal-product-type {
+    display: inline-block;
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+  }
+
+  .delete-modal-footer {
     padding: 1.25rem 1.5rem;
     border-top: 1px solid #f1f5f9;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     gap: 1rem;
   }
 
-  /* Success Modal Specific Styles */
-  .success-icon-wrapper {
-    width: 80px;
-    height: 80px;
-    background-color: rgba(0, 114, 79, 0.1);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-  }
-
-  .success-icon-wrapper i {
-    color: #149d80;
-    font-size: 2.5rem;
-  }
-
-  .success-message {
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 1rem;
-  }
-
-  .success-detail {
-    color: #64748b;
-    margin-bottom: 0;
-  }
-
-  .success-modal-btn {
-    background-color: #149d80;
-    color: white;
-    border: none;
+  .delete-modal-btn {
     border-radius: 10px;
     padding: 0.75rem 1.5rem;
     font-weight: 500;
@@ -391,125 +338,42 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex: 1;
   }
 
-  .success-modal-btn:hover {
-    background-color: #0c8b71;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
-  }
-
-  /* Error Modal Specific Styles */
-  .error-icon-wrapper {
-    width: 80px;
-    height: 80px;
-    background-color: rgba(239, 68, 68, 0.1);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-  }
-
-  .error-icon-wrapper i {
-    color: #ef4444;
-    font-size: 2.5rem;
-  }
-
-  .error-message {
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 1rem;
-  }
-
-  .error-detail {
-    color: #64748b;
-    margin-bottom: 1.5rem;
-  }
-
-  .error-info-box {
-    background-color: #f1f5f9;
-    border-radius: 10px;
-    padding: 1.25rem;
-    text-align: left;
-    margin-bottom: 1rem;
-    border-left: 4px solid #64748b;
-  }
-
-  .error-info-box ul {
-    padding-left: 1.25rem;
-    margin-bottom: 0;
-  }
-
-  .error-info-box li {
-    margin-bottom: 0.5rem;
-  }
-
-  .error-info-box li:last-child {
-    margin-bottom: 0;
-  }
-
-  .error-modal-footer {
-    justify-content: space-between;
-  }
-
-  .error-modal-btn-primary {
-    background-color: #149d80;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-  }
-
-  .error-modal-btn-primary:hover {
-    background-color: #0c8b71;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 114, 79, 0.2);
-    color: white;
-    text-decoration: none;
-  }
-
-  .error-modal-btn-secondary {
+  .delete-modal-btn-cancel {
     background-color: #f1f5f9;
     color: #475569;
     border: none;
-    border-radius: 10px;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
-  .error-modal-btn-secondary:hover {
+  .delete-modal-btn-cancel:hover {
     background-color: #e2e8f0;
     color: #334155;
   }
 
+  .delete-modal-btn-delete {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+  }
+
+  .delete-modal-btn-delete:hover {
+    background-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2);
+  }
+
   @media (max-width: 768px) {
-    .error-modal-footer {
+    .delete-modal-footer {
       flex-direction: column;
     }
 
-    .error-modal-btn-primary,
-    .error-modal-btn-secondary {
+    .delete-modal-btn {
       width: 100%;
     }
   }
 </style>
-@endsection
-
-@extends('layouts.app')
-
-@section('style')
-<!-- Copy styles from stocks/index.blade.php and adjust as needed -->
 @endsection
 
 @section('content')
@@ -524,8 +388,24 @@
           <i class="bx bx-arrow-back"></i> Kembali
         </a>
       </div>
-      <p class="text-muted">{{ $masterStock->sku }} - {{ $masterStock->type }} @if($masterStock->sub_type) - {{ $masterStock->sub_type }} @endif</p>
     </div>
+  </div>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumbs">
+    <div class="breadcrumb-item">
+      <a href="{{ route('stocks.index') }}">Stok</a>
+    </div>
+    <div class="breadcrumb-divider">
+      <i class="bx bx-chevron-right"></i>
+    </div>
+    <div class="breadcrumb-item">
+      <a href="{{ route('stocks.sizes', $masterStock->id) }}">{{ $masterStock->name }}</a>
+    </div>
+    <div class="breadcrumb-divider">
+      <i class="bx bx-chevron-right"></i>
+    </div>
+    <div class="breadcrumb-item">{{ $size }}</div>
   </div>
 
   <!-- Batch-based Stock Grid -->
@@ -561,7 +441,16 @@
               <span class="price-tag fs-5">Rp {{ number_format($stock->selling_price, 0, ',', '.') }}</span>
             </div>
 
-            <div class="mt-3 pt-2 border-top">
+            <div class="mt-3 pt-2 border-top d-flex justify-content-between">
+              <a href="{{ route('stocks.show', $stock->id) }}" class="btn btn-sm btn-info" onclick="event.stopPropagation();">
+                <i class="bx bx-show"></i> Detail
+              </a>
+              <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); openDeleteStockModal({{ $stock->id }}, '{{ $masterStock->name }} - {{ $size }}', '{{ $stock->stock_id }}')">
+                <i class="bx bx-trash"></i> Hapus
+              </button>
+            </div>
+
+            <div class="mt-2">
               <div class="d-flex align-items-center small date-badge">
                 <i class="bx bx-calendar me-2 text-muted"></i>
                 <span class="{{ $expired ? 'text-danger' : ($almostExpired ? 'text-warning' : 'text-muted') }}">
@@ -587,6 +476,39 @@
     @endforelse
   </div>
 </div>
+
+<!-- Delete Stock Modal -->
+<div class="delete-modal-backdrop" id="deleteStockModal">
+  <div class="delete-modal-dialog">
+    <div class="delete-modal-content">
+      <div class="delete-modal-header">
+        <h5 class="delete-modal-title">
+          <i class="bx bx-error-circle"></i> Konfirmasi Hapus
+        </h5>
+      </div>
+      <div class="delete-modal-body">
+        <p>Apakah Anda yakin ingin menghapus stok ini?</p>
+        <div class="delete-modal-product" id="deleteStockProduct">
+          <!-- Stock info will be inserted here -->
+        </div>
+        <p>Tindakan ini tidak dapat dibatalkan.</p>
+      </div>
+      <div class="delete-modal-footer">
+        <button type="button" class="delete-modal-btn delete-modal-btn-cancel" onclick="closeDeleteStockModal()">
+          <i class="bx bx-x me-1"></i> Batal
+        </button>
+        <button type="button" class="delete-modal-btn delete-modal-btn-delete" onclick="deleteStock()">
+          <i class="bx bx-trash me-1"></i> Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form id="delete-stock-form" method="POST" style="display: none;">
+  @csrf
+  @method('DELETE')
+</form>
 @endsection
 
 @section('script')
@@ -594,5 +516,85 @@
   function viewStockDetail(stockId) {
     window.location.href = "{{ url('stocks') }}/" + stockId;
   }
+
+  function openDeleteStockModal(stockId, stockName, stockIdTag) {
+    event.stopPropagation();
+
+    // Set form action URL
+    document.getElementById('delete-stock-form').action = "{{ url('stocks') }}/" + stockId;
+
+    // Set stock info in modal
+    document.getElementById('deleteStockProduct').innerHTML = `
+      <div class="delete-modal-product-name">${stockName}</div>
+      <div class="delete-modal-product-type">${stockIdTag}</div>
+    `;
+
+    // Show the modal
+    const modal = document.getElementById('deleteStockModal');
+
+    // Set display to flex first
+    modal.style.display = 'flex';
+
+    // Trigger a reflow
+    void modal.offsetWidth;
+
+    // Then add the show class for the transitions
+    modal.classList.add('show');
+    modal.style.opacity = '1';
+    modal.style.visibility = 'visible';
+
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDeleteStockModal() {
+    const modal = document.getElementById('deleteStockModal');
+
+    // Start the transition
+    modal.style.opacity = '0';
+
+    // Wait for transition to finish before hiding
+    setTimeout(function() {
+      modal.classList.remove('show');
+      modal.style.visibility = 'hidden';
+      modal.style.display = 'none';
+
+      // Re-enable background scrolling
+      document.body.style.overflow = '';
+    }, 300); // Match this to your CSS transition duration
+  }
+
+  function deleteStock() {
+    document.getElementById('delete-stock-form').submit();
+  }
+
+  // Close modal when clicking outside
+  document.getElementById('deleteStockModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+      closeDeleteStockModal();
+    }
+  });
+
+  // Close modal with ESC key
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && document.getElementById('deleteStockModal').classList.contains('show')) {
+      closeDeleteStockModal();
+    }
+  });
+
+  // Show success modal if needed
+  @if (session('showSuccessModal'))
+    // Show success modal if it exists
+    const successModal = document.getElementById('successModal');
+    if (successModal) {
+      successModal.style.display = 'flex';
+      setTimeout(function() {
+        successModal.classList.add('show');
+        successModal.style.opacity = '1';
+        successModal.style.visibility = 'visible';
+        document.body.style.overflow = 'hidden';
+      }, 10);
+    }
+  @endif
 </script>
 @endsection
