@@ -1,19 +1,102 @@
 <?php
 
-// app/Http/Controllers/CartController.php
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Stock;
 use App\Models\StockSizeImage;
+use App\Models\MasterStock;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class CartController extends Controller
 {
-  public function index()
+  public function index(Request $request)
   {
-    $carts = Cart::all();
-    return view('cart.index', compact('carts'));
+    $searchQuery = $request->input('search', '');
+    $sort = $request->input('sort', 'newest');
+    $direction = $request->input('direction', 'desc');
+
+    // Start with master stocks, possibly filtered by search
+    $masterStocksQuery = MasterStock::query();
+
+    if ($searchQuery) {
+        $masterStocksQuery->where(function($query) use ($searchQuery) {
+            $query->where('name', 'like', "%{$searchQuery}%")
+                ->orWhere('type', 'like', "%{$searchQuery}%")
+                ->orWhere('sku', 'like', "%{$searchQuery}%");
+        });
+    }
+
+    $masterStocks = $masterStocksQuery->get();
+    $products = collect();
+
+    foreach ($masterStocks as $masterStock) {
+        // Get all unique sizes for this master stock
+        $sizes = Stock::where('master_stock_id', $masterStock->id)
+            ->select('size')
+            ->distinct()
+            ->get()
+            ->pluck('size');
+
+        // For each size, get the product with the closest non-expired expiration date and available stock
+        foreach ($sizes as $size) {
+            $product = Stock::where('master_stock_id', $masterStock->id)
+                ->where('size', $size)
+                ->where('quantity', '>', 0)
+                ->whereDate('expiration_date', '>', Carbon::today())
+                ->orderBy('expiration_date', 'asc')
+                ->first();
+
+            // If we found a valid product, add it to our collection
+            if ($product) {
+                // Add custom properties
+                $product->expired = Carbon::parse($product->expiration_date)->isPast();
+                $product->expiration_date_formatted = Carbon::parse($product->expiration_date)->format('d M Y');
+
+                // Get the image (either size-specific or master stock image)
+                $sizeImage = StockSizeImage::where('master_stock_id', $masterStock->id)
+                    ->where('size', $size)
+                    ->first();
+
+                if ($sizeImage && $sizeImage->image) {
+                    $product->image = $sizeImage->image;
+                } else {
+                    $product->image = $masterStock->image;
+                }
+
+                // Load the master stock relationship
+                $product->load('masterStock');
+
+                // Add to our collection
+                $products->push($product);
+            }
+        }
+    }
+
+    // Sort the products based on the request
+    if ($sort === 'name') {
+        $products = $direction === 'asc'
+            ? $products->sortBy(function($p) { return $p->masterStock->name; })
+            : $products->sortByDesc(function($p) { return $p->masterStock->name; });
+    } elseif ($sort === 'price') {
+        $products = $direction === 'asc'
+            ? $products->sortBy('selling_price')
+            : $products->sortByDesc('selling_price');
+    } elseif ($sort === 'expiry') {
+        $products = $direction === 'asc'
+            ? $products->sortBy('expiration_date')
+            : $products->sortByDesc('expiration_date');
+    } elseif ($sort === 'newest') {
+        $products = $direction === 'desc'
+            ? $products->sortByDesc('created_at')
+            : $products->sortBy('created_at');
+    }
+
+    // Get the cart items
+    $carts = Cart::where('user_id', auth()->id())->get();
+
+    return view('cart.index', compact('carts', 'products', 'searchQuery', 'sort', 'direction'));
   }
 
   public function getCart()
@@ -46,70 +129,91 @@ class CartController extends Controller
 
   public function search(Request $request)
   {
-    $searchQuery = $request->input('query', ''); // Rename $query to $searchQuery to avoid conflict
-    $sortBy = $request->input('sort_by', 'created_at'); // Default sort field: created_at
-    $direction = $request->input('direction', 'desc'); // Default direction: desc
+    $searchQuery = $request->input('query', '');
+    $sortBy = $request->input('sort_by', 'created_at');
+    $direction = $request->input('direction', 'desc');
 
-    // Membuat query dasar
-    $productsQuery = Stock::with(['masterStock', 'masterStock.sizeImages']) // Add sizeImages relation
-      ->whereHas('masterStock', function ($query) use ($searchQuery) {
-        // Filter by masterStock name using the renamed $searchQuery
-        $query->where('name', 'like', "%{$searchQuery}%");
-      })
-      ->whereDate('expiration_date', '>', \Carbon\Carbon::today()); // Filter produk yang belum expired
+    // Create a collection for our unique products
+    $uniqueProducts = collect();
 
-    // Mapping sort option dari frontend ke field di database
-    $sortField = 'created_at'; // Default field
+    // First, find all master stocks that match the search query
+    $masterStocksQuery = MasterStock::query();
 
-    switch ($sortBy) {
-      case 'name':
-        // Sort by masterStock's name
-        $sortField = 'master_stocks.name';
-        break;
-      case 'price':
-        $sortField = 'selling_price';
-        break;
-      case 'expiry':
-        $sortField = 'expiration_date';
-        break;
-      case 'newest':
-        $sortField = 'created_at';
-        break;
+    if ($searchQuery) {
+        $masterStocksQuery->where(function($query) use ($searchQuery) {
+            $query->where('name', 'like', "%{$searchQuery}%")
+                ->orWhere('type', 'like', "%{$searchQuery}%")
+                ->orWhere('sku', 'like', "%{$searchQuery}%");
+        });
     }
 
-    // Menerapkan pengurutan
-    $productsQuery->orderBy($sortField, $direction);
+    $masterStocks = $masterStocksQuery->get();
 
-    // Batasi jumlah produk dan ambil data
-    $products = $productsQuery->limit(12)
-      ->get()
-      ->map(function ($product) {
-        // Add a custom expired field
-        $product->expired = \Carbon\Carbon::parse($product->expiration_date)->isPast();
-        // Format expiration_date
-        $product->expiration_date = \Carbon\Carbon::parse($product->expiration_date)->format('d M Y');
+    // For each master stock, find the product with the nearest expiration date for each size
+    foreach ($masterStocks as $masterStock) {
+        // Get distinct sizes for this master stock
+        $sizes = Stock::where('master_stock_id', $masterStock->id)
+            ->select('size')
+            ->distinct()
+            ->get()
+            ->pluck('size');
 
-        // Add master stock details to the product
-        if ($product->masterStock) {
-          $product->master_stock = $product->masterStock; // Including related master stock data
+        // For each size, get the stock with the closest expiration date that's not expired and has quantity
+        foreach ($sizes as $size) {
+            $product = Stock::where('master_stock_id', $masterStock->id)
+                ->where('size', $size)
+                ->where('quantity', '>', 0)
+                ->whereDate('expiration_date', '>', Carbon::today())
+                ->orderBy('expiration_date', 'asc')
+                ->first();
 
-          // Get size-specific image if available
-          $sizeImage = StockSizeImage::where('master_stock_id', $product->master_stock_id)
-            ->where('size', $product->size)
-            ->first();
+            if ($product) {
+                // Add a custom expired field
+                $product->expired = Carbon::parse($product->expiration_date)->isPast();
+                // Format expiration_date
+                $product->expiration_date = Carbon::parse($product->expiration_date)->format('d M Y');
 
-          if ($sizeImage && $sizeImage->image) {
-            $product->image = $sizeImage->image;
-          } else {
-            $product->image = $product->masterStock->image;
-          }
+                // Add master stock details to the product
+                $product->load('masterStock');
+                $product->master_stock = $product->masterStock; // Including related master stock data
+
+                // Get size-specific image if available
+                $sizeImage = StockSizeImage::where('master_stock_id', $product->master_stock_id)
+                    ->where('size', $product->size)
+                    ->first();
+
+                if ($sizeImage && $sizeImage->image) {
+                    $product->image = $sizeImage->image;
+                } else {
+                    $product->image = $product->masterStock->image;
+                }
+
+                $uniqueProducts->push($product);
+            }
         }
+    }
 
-        return $product;
-      });
+    // Apply final sorting based on user's sort preference
+    if ($sortBy === 'name') {
+        $uniqueProducts = $direction === 'asc'
+            ? $uniqueProducts->sortBy(function($p) { return $p->masterStock->name; })
+            : $uniqueProducts->sortByDesc(function($p) { return $p->masterStock->name; });
+    } elseif ($sortBy === 'price') {
+        $uniqueProducts = $direction === 'asc'
+            ? $uniqueProducts->sortBy('selling_price')
+            : $uniqueProducts->sortByDesc('selling_price');
+    } elseif ($sortBy === 'expiry') {
+        $uniqueProducts = $direction === 'asc'
+            ? $uniqueProducts->sortBy('expiration_date')
+            : $uniqueProducts->sortByDesc('expiration_date');
+    } elseif ($sortBy === 'newest') {
+        $uniqueProducts = $direction === 'desc'
+            ? $uniqueProducts->sortByDesc('created_at')
+            : $uniqueProducts->sortBy('created_at');
+    }
 
     return response()->json([
-      'products' => $products
+      'products' => $uniqueProducts->values()->all()
     ]);
   }
 
