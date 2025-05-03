@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Stock;
+use App\Models\StockSizeImage;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -20,6 +21,23 @@ class CartController extends Controller
     // Ambil data keranjang berdasarkan user yang sedang login
     $carts = Cart::with('product.masterStock')->where('user_id', auth()->id())->get();
 
+    // Add the size-specific image to each cart item
+    $carts->map(function($cart) {
+        if ($cart->product && $cart->product->masterStock) {
+            // Get size-specific image if available
+            $sizeImage = StockSizeImage::where('master_stock_id', $cart->product->master_stock_id)
+                ->where('size', $cart->product->size)
+                ->first();
+
+            if ($sizeImage && $sizeImage->image) {
+                $cart->product->image = $sizeImage->image;
+            } else {
+                $cart->product->image = $cart->product->masterStock->image;
+            }
+        }
+        return $cart;
+    });
+
     // Mengembalikan data ke view dengan AJAX
     return response()->json([
       'carts' => $carts
@@ -33,7 +51,7 @@ class CartController extends Controller
     $direction = $request->input('direction', 'desc'); // Default direction: desc
 
     // Membuat query dasar
-    $productsQuery = Stock::with('masterStock') // Eager load the masterStock relation
+    $productsQuery = Stock::with(['masterStock', 'masterStock.sizeImages']) // Add sizeImages relation
       ->whereHas('masterStock', function ($query) use ($searchQuery) {
         // Filter by masterStock name using the renamed $searchQuery
         $query->where('name', 'like', "%{$searchQuery}%");
@@ -74,6 +92,17 @@ class CartController extends Controller
         // Add master stock details to the product
         if ($product->masterStock) {
           $product->master_stock = $product->masterStock; // Including related master stock data
+
+          // Get size-specific image if available
+          $sizeImage = StockSizeImage::where('master_stock_id', $product->master_stock_id)
+            ->where('size', $product->size)
+            ->first();
+
+          if ($sizeImage && $sizeImage->image) {
+            $product->image = $sizeImage->image;
+          } else {
+            $product->image = $product->masterStock->image;
+          }
         }
 
         return $product;

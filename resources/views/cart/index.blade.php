@@ -701,82 +701,83 @@
             // For 'newest', we assume the products are already sorted by the backend
 
             sortedProducts.forEach(function(product) {
-              // console.log(product.master_stock);
+  // console.log(product.master_stock);
 
-              let isExpired = product.expired;
-              let expirationDate = new Date(product.expiration_date);
-              let formattedDate = expirationDate.toLocaleDateString('id-ID', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-              });
-              let image = product.master_stock.image ? '/storage/' + product.master_stock.image :
-                '/images/default.png';
-              let isLowStock = product.quantity < 5;
+  let isExpired = product.expired;
+  let expirationDate = new Date(product.expiration_date);
+  let formattedDate = expirationDate.toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
 
-              let badgeClass = isExpired ? 'expired-badge' : (isLowStock ? 'low-stock-badge' : '');
-              let badgeText = isExpired ? 'Kadaluarsa' : (isLowStock ? 'Stok Terbatas' : product.quantity +
-                ' pcs');
+  // Use the size-specific image if available
+  let image = product.image ? '/storage/' + product.image :
+             (product.master_stock.image ? '/storage/' + product.master_stock.image : '/images/default.png');
 
-              // console.log(image);
+  let isLowStock = product.quantity < 5;
 
+  let badgeClass = isExpired ? 'expired-badge' : (isLowStock ? 'low-stock-badge' : '');
+  let badgeText = isExpired ? 'Kadaluarsa' : (isLowStock ? 'Stok Terbatas' : product.quantity + ' pcs');
 
-              productsHtml += `
-              <div class="col-md-6 col-xl-4 px-3">
-                <div class="card ${isExpired ? 'border-danger' : ''}">
-                  <div class="card-img-container">
-                    <img src="${image}" class="card-img-top" alt="${product.master_stock.name}">
-                  </div>
-                  <div class="card-body">
-                    <span class="product-type">${product.master_stock.type}</span>
-                    <h5 class="card-title">${product.master_stock.name} (${product.size})</h5>
+  // console.log(image);
 
-                    <div class="product-meta">
-                      <span class="product-price">Rp ${new Intl.NumberFormat('id-ID').format(product.selling_price)}</span>
-                      ${product.retail_price !== null ? `
-                            <div class="d-flex flex-column">
-                              <span class="product-quantity">Stok: ${product.quantity}</span>
-                              <span class="product-quantity">Eceran: ${product.retail_quantity}</span>
-                            </div>
-                          ` : `<span class="product-quantity">Stok: ${product.quantity}</span>`
-                      }
-                    </div>
+  productsHtml += `
+  <div class="col-md-6 col-xl-4 px-3">
+    <div class="card ${isExpired ? 'border-danger' : ''}">
+      <div class="card-img-container">
+        <img src="${image}" class="card-img-top" alt="${product.master_stock.name}">
+      </div>
+      <div class="card-body">
+        <span class="product-type">${product.master_stock.type}</span>
+        <h5 class="card-title">${product.master_stock.name} (${product.size})</h5>
 
-                    <div class="product-quantity-input row">
-                      <label for="quantity-${product.id}">Jumlah:</label>
-                      <input type="number" id="quantity-${product.id}" name="quantity" value="1" min="1" max="${product.quantity}" class="form-control">
-                    </div>
-
-                    <br>
-
-                    <div class="product-expiry">
-                      <i class="bx ${isExpired ? 'bx-x-circle' : 'bx-calendar'}"></i>
-                      <span class="${isExpired ? 'expired-text' : ''}">
-                        ${isExpired ? 'Sudah Kadaluarsa' : 'Exp: ' + formattedDate}
-                      </span>
-                    </div>
-
-                    <!-- Check if retail_price is not null -->
-                    ${product.retail_price !== null ? `
-                                  <button type="button" class="add-to-cart-btn ${isExpired ? 'expired-btn' : ''}" ${isExpired ? 'disabled' : 'onclick="addToCart(' + product.id + ')"'}>
-                                    <i class="bx ${isExpired ? 'bx-x' : 'bx-cart-add'}"></i>
-                                    Tambahkan
-                                  </button>
-                                  <button type="button" class="add-to-cart-btn ${isExpired ? 'expired-btn' : ''}" ${isExpired ? 'disabled' : 'onclick="addToCart(' + product.id + ',`retail`)"'}>
-                                    <i class="bx ${isExpired ? 'bx-x' : 'bx-cart-add'}"></i>
-                                    Tambah Eceran
-                                  </button>
-                                ` : `
-                                  <button type="button" class="add-to-cart-btn ${isExpired ? 'expired-btn' : ''}" ${isExpired ? 'disabled' : 'onclick="addToCart(' + product.id + ')"'}>
-                                    <i class="bx ${isExpired ? 'bx-x' : 'bx-cart-add'}"></i>
-                                    Tambahkan
-                                  </button>
-                                `}
-                  </div>
+        <div class="product-meta">
+          <span class="product-price">Rp ${new Intl.NumberFormat('id-ID').format(product.selling_price)}</span>
+          ${product.retail_price !== null ? `
+                <div class="d-flex flex-column">
+                  <span class="product-quantity">Stok: ${product.quantity}</span>
+                  <span class="product-quantity">Eceran: ${product.retail_quantity}</span>
                 </div>
-              </div>
-            `;
-            });
+              ` : `<span class="product-quantity">Stok: ${product.quantity}</span>`
+          }
+        </div>
+
+        <div class="product-quantity-input row">
+          <label for="quantity-${product.id}">Jumlah:</label>
+          <input type="number" id="quantity-${product.id}" name="quantity" value="1" min="1" max="${product.quantity}" class="form-control">
+        </div>
+
+        <br>
+
+        <div class="product-expiry">
+          <i class="bx ${isExpired ? 'bx-x-circle' : 'bx-calendar'}"></i>
+          <span class="${isExpired ? 'expired-text' : ''}">
+            ${isExpired ? 'Sudah Kadaluarsa' : 'Exp: ' + formattedDate}
+          </span>
+        </div>
+
+        <!-- Check if retail_price is not null -->
+        ${product.retail_price !== null ? `
+                      <button type="button" class="add-to-cart-btn ${isExpired ? 'expired-btn' : ''}" ${isExpired ? 'disabled' : 'onclick="addToCart(' + product.id + ')"'}>
+                        <i class="bx ${isExpired ? 'bx-x' : 'bx-cart-add'}"></i>
+                        Tambahkan
+                      </button>
+                      <button type="button" class="add-to-cart-btn ${isExpired ? 'expired-btn' : ''}" ${isExpired ? 'disabled' : 'onclick="addToCart(' + product.id + ',`retail`)"'}>
+                        <i class="bx ${isExpired ? 'bx-x' : 'bx-cart-add'}"></i>
+                        Tambah Eceran
+                      </button>
+                    ` : `
+                      <button type="button" class="add-to-cart-btn ${isExpired ? 'expired-btn' : ''}" ${isExpired ? 'disabled' : 'onclick="addToCart(' + product.id + ')"'}>
+                        <i class="bx ${isExpired ? 'bx-x' : 'bx-cart-add'}"></i>
+                        Tambahkan
+                      </button>
+                    `}
+      </div>
+    </div>
+  </div>
+`;
+});
           } else {
             productsHtml = `
             <div class="col-12 text-center py-5">
