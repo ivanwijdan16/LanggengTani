@@ -401,7 +401,7 @@
       <h2 class="receipt-title mb-4 mt-3">Toko Pertanian Joyo Langgeng Sejahtera</h2>
       <div class="receipt-details">
         <span>ID: {{ $transaction->id_penjualan }}</span>
-        <span>Tanggal: {{ \Carbon\Carbon::parse($transaction->created_at)->format('d M Y, H:i') }}</span>
+        <span>Tanggal: {{ \Carbon\Carbon::parse($transaction->created_at)->locale('id')->isoFormat('DD MMMM YYYY, HH:mm') }}</span>
       </div>
     </div>
 
@@ -419,8 +419,11 @@
           @foreach ($transaction->items as $item)
             <tr>
                 <td class="item-name">
-                    @if($item->product)
-                        <strong>{{ $item->product->name }}</strong>
+                    @if($item->product && $item->product->masterStock)
+                        <strong>{{ $item->product->masterStock->name }}</strong>
+                        <span style="font-size: 0.8rem; color: var(--text-medium);"> ({{ $item->product->size }})</span>
+                    @elseif($item->product)
+                        <strong>{{ $item->product->stock_id }}</strong>
                         <span style="font-size: 0.8rem; color: var(--text-medium);"> ({{ $item->product->size }})</span>
                     @else
                         <strong>Barang</strong>
@@ -577,7 +580,7 @@
 
       <div class="receipt-details">
         <div>No: {{ $transaction->id_penjualan }}</div>
-        <div>Tanggal: {{ \Carbon\Carbon::parse($transaction->created_at)->format('d/m/Y H:i') }}</div>
+        <div>Tanggal: {{ \Carbon\Carbon::parse($transaction->created_at)->locale('id')->isoFormat('DD MMMM YYYY, HH:mm') }}</div>
       </div>
 
       <div class="dotted-line"></div>
@@ -592,8 +595,17 @@
 
         @foreach ($transaction->items as $item)
         <tr>
-          <td><span class="item-name">{{ $item->product->name }}</span>
-  <span class="item-size">({{ $item->product->size }})</span></td>
+          <td>
+            @if($item->product && $item->product->masterStock)
+                <span class="item-name">{{ $item->product->masterStock->name }}</span>
+                <span class="item-size">({{ $item->product->size }})</span>
+            @elseif($item->product)
+                <span class="item-name">{{ $item->product->stock_id }}</span>
+                <span class="item-size">({{ $item->product->size }})</span>
+            @else
+                <span class="item-name">Barang</span>
+            @endif
+          </td>
           <td class="center">{{ $item->quantity }}</td>
           <td class="right">{{ number_format($item->price, 0, ',', '.') }}</td>
           <td class="right">{{ number_format($item->subtotal, 0, ',', '.') }}</td>
