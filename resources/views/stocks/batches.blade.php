@@ -310,15 +310,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem;
+  padding: 0.35rem 0.75rem;
   border-radius: 50px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: white;
   position: absolute;
   top: 10px;
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .stock-minimal {
@@ -337,24 +337,8 @@
 }
 
 .status-badge i {
-  margin-right: 6px;
-  font-size: 0.9rem;
-}
-
-/* Existing Badge Styles - Update */
-.badge-small {
-  font-size: 0.65rem;
-  padding: 0.35rem 0.65rem;
-  border-radius: 20px;
-  display: inline-flex;
-  align-items: center;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-.badge-small i {
-  font-size: 0.7rem;
-  margin-right: 5px;
+  margin-right: 4px;
+  font-size: 0.8rem;
 }
 
 /* Empty State */
@@ -594,43 +578,47 @@
     <div class="breadcrumb-item">{{ $size }}</div>
   </div>
 
-  <!-- Add this after the breadcrumbs section -->
-  <!-- Sorting Links -->
-<div class="sort-links mb-4">
+  <!-- Sorting Links Section -->
+  <div class="sort-links mb-4">
     <p class="sort-label mb-0">Urutkan:</p>
     @php
-      $currentSort = $sort ?? 'expiration_date';
-      $currentDirection = $direction ?? 'asc';
+      $currentSort = request('sort', 'expiration_date');
+      $currentDirection = request('direction', 'asc');
 
-      function getSortLink($field, $label, $currentSort, $currentDirection) {
+      function getSortLink($field, $label, $currentSort, $currentDirection, $masterId, $size) {
         $direction = ($currentSort == $field && $currentDirection == 'asc') ? 'desc' : 'asc';
         $isActive = $currentSort == $field;
         $icon = '';
 
         if ($isActive) {
-          $icon = $currentDirection == 'asc' ? '<i class="bx bx-sort-down"></i>' : '<i class="bx bx-sort-up"></i>';
+          $icon = $currentDirection == 'asc' ? '<i class="bx bx-sort-up"></i>' : '<i class="bx bx-sort-down"></i>';
         }
 
         return [
-          'url' => route('stocks.batches', array_merge(request()->except(['sort', 'direction']), ['master_id' => request()->route('master_id'), 'size' => request()->route('size'), 'sort' => $field, 'direction' => $direction])),
-          'label' => $label . $icon,
+          'url' => route('stocks.batches', [
+            'master_id' => $masterId,
+            'size' => $size,
+            'sort' => $field,
+            'direction' => $direction
+          ]),
+          'label' => $label . ' ' . $icon,
           'isActive' => $isActive
         ];
       }
 
-      $expirationLink = getSortLink('expiration_date', 'Kadaluwarsa', $currentSort, $currentDirection);
+      $expirationLink = getSortLink('expiration_date', 'Kadaluwarsa', $currentSort, $currentDirection, $masterStock->id, $size);
     @endphp
 
     <a href="{{ $expirationLink['url'] }}" class="sort-link {{ $expirationLink['isActive'] ? 'active' : '' }}">{!! $expirationLink['label'] !!}</a>
   </div>
 
-<!-- Batch-based Stock Grid -->
-<div class="row">
+  <!-- Batch-based Stock Grid -->
+  <div class="row">
     @forelse ($stocks as $stock)
       @php
         $expired = \Carbon\Carbon::parse($stock->expiration_date)->isPast();
         $almostExpired = !$expired && \Carbon\Carbon::parse($stock->expiration_date)->diffInDays(now()) < 30;
-        $lowStock = $stock->quantity <= 10; // Assuming 10 is your low stock threshold
+        $lowStock = $stock->quantity <= 3;
         $sizeImagePath = isset($sizeImage) && $sizeImage && $sizeImage->image ?
                         $sizeImage->image : $masterStock->image;
         $image = $sizeImagePath ? asset('storage/' . $sizeImagePath) : asset('images/default.png');
@@ -642,7 +630,7 @@
 
             @if ($lowStock)
               <span class="status-badge stock-minimal">
-                <i class="bx bx-package"></i> Stok Minimal
+                <i class="bx bx-package"></i> Stok Menipis
               </span>
             @endif
 
@@ -705,6 +693,7 @@
       </div>
     @endforelse
   </div>
+</div>
 
 <!-- Delete Stock Modal -->
 <div class="delete-modal-backdrop" id="deleteStockModal">
