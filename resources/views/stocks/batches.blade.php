@@ -187,6 +187,12 @@
   margin-right: 5px;
   font-size: 0.8rem;
 }
+.stock-card .card-subtitle {
+  font-size: 0.75rem;  /* Reduced from default size */
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 0;
+}
 
 .price-tag {
   color: #149d80;

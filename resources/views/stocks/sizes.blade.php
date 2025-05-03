@@ -18,6 +18,13 @@
   box-shadow: 0 8px 25px rgba(0,0,0,0.12);
 }
 
+.stock-card .card-subtitle {
+  font-size: 0.75rem;  /* Reduced from default size */
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
 /* Green top border animation */
 .stock-card::after {
   content: "";
