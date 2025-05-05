@@ -106,12 +106,16 @@ class PenjualanController extends Controller
                     // Calculate profit for each item
                     $profit = $item->price - $item->product->purchase_price;
 
+                    // Get product name - check both product and masterStock
+                    $namaBarang = $item->product->masterStock ? $item->product->masterStock->name : 'Barang Terhapus';
+                    $sku = $item->product->masterStock ? $item->product->masterStock->sku : '-';
+
                     // Add to items for table display
                     $items[] = [
                         'id_penjualan' => $transaction->id_penjualan,
                         'tanggal' => $transaction->created_at,
-                        'nama_barang' => $item->product->masterStock ? $item->product->masterStock->name : 'Produk tidak tersedia',
-                        'sku' => $item->product->masterStock ? $item->product->masterStock->sku : '-',
+                        'nama_barang' => $namaBarang,
+                        'sku' => $sku,
                         'ukuran' => $item->product->size,
                         'jumlah' => $item->quantity,
                         'total_harga' => $item->subtotal,
@@ -138,7 +142,26 @@ class PenjualanController extends Controller
                     // Check if this is the best selling product
                     if ($item->quantity > $maxQuantity) {
                         $maxQuantity = $item->quantity;
-                        $produkTerlaris = $item->product->masterStock ? $item->product->masterStock->name : 'Produk tidak tersedia';
+                        $produkTerlaris = $namaBarang;
+                    }
+                } else {
+                    // Handle case where product is completely deleted
+                    $items[] = [
+                        'id_penjualan' => $transaction->id_penjualan,
+                        'tanggal' => $transaction->created_at,
+                        'nama_barang' => 'Barang Terhapus',
+                        'sku' => '-',
+                        'ukuran' => '-',
+                        'jumlah' => $item->quantity,
+                        'total_harga' => $item->subtotal,
+                        'laba' => 0, // Assume no profit for deleted items
+                        'laba_total' => 0
+                    ];
+
+                    // Check if this is the best selling product
+                    if ($item->quantity > $maxQuantity) {
+                        $maxQuantity = $item->quantity;
+                        $produkTerlaris = 'Barang Terhapus';
                     }
                 }
             }

@@ -165,6 +165,11 @@
             font-size: 9px;
         }
 
+        .deleted-item {
+            color: var(--danger);
+            font-style: italic;
+        }
+
         @media print {
             @page {
                 size: A4 landscape;
@@ -277,7 +282,9 @@
 
                     @foreach ($rekap as $item)
                         <tr>
-                            <td>{{ $item['name'] }}</td>
+                            <td class="{{ $item['name'] === 'Barang Terhapus' ? 'deleted-item' : '' }}">
+                                {{ $item['name'] }}
+                            </td>
                             <td>{{ $item['size'] ?? '-' }}</td>
                             <td class="text-center">{{ $item['quantity'] }}</td>
                             <td class="text-right">Rp {{ number_format($item['total_harga'], 0, ',', '.') }}</td>
@@ -320,7 +327,9 @@
                             <td><span class="badge">{{ $item['id_penjualan'] }}</span></td>
                             <td>{{ \Carbon\Carbon::parse($item['tanggal'])->format('d/m/Y') }}</td>
                             <td>
-                                {{ $item['nama_barang'] }}
+                                <span class="{{ $item['nama_barang'] === 'Barang Terhapus' ? 'deleted-item' : '' }}">
+                                    {{ $item['nama_barang'] }}
+                                </span>
                                 <div style="font-size: 9px; color: #64748b;">{{ $item['sku'] }}</div>
                             </td>
                             <td>{{ $item['ukuran'] }}</td>
@@ -356,18 +365,27 @@
 
         <div class="summary-box">
             <div class="summary-title">Produk Terlaris</div>
-            <div class="summary-value">{{ $produkTerlaris }}</div>
+            <div class="summary-value {{ $produkTerlaris === 'Barang Terhapus' ? 'deleted-item' : '' }}">
+                {{ $produkTerlaris }}
+            </div>
         </div>
 
         <h3 class="section-title">Penjualan per Kategori Produk</h3>
 
-        @foreach ($penjualanPerKategori as $kategori => $data)
+        @if (empty($penjualanPerKategori))
             <div class="summary-box">
-                <div class="summary-title">{{ $kategori }}</div>
-                <div class="summary-value">{{ $data['jumlah'] }} pcs (Rp
-                    {{ number_format($data['total'], 0, ',', '.') }})</div>
+                <div class="summary-title">Tidak ada data kategori</div>
+                <div class="summary-value">0 pcs (Rp 0)</div>
             </div>
-        @endforeach
+        @else
+            @foreach ($penjualanPerKategori as $kategori => $data)
+                <div class="summary-box">
+                    <div class="summary-title">{{ $kategori ?? 'Tidak Tersedia' }}</div>
+                    <div class="summary-value">{{ $data['jumlah'] }} pcs (Rp
+                        {{ number_format($data['total'], 0, ',', '.') }})</div>
+                </div>
+            @endforeach
+        @endif
 
         <div class="print-footer">
             <p>Laporan dicetak pada: {{ Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y, H:i') }}</p>
