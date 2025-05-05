@@ -36,8 +36,9 @@ class Stock extends Model
             if (!$stock->stock_id) {
                 $masterStock = MasterStock::find($stock->master_stock_id);
                 if ($masterStock) {
-                    // Get batch number (count of stock items with same master_stock_id and size)
-                    $batchNumber = Stock::where('master_stock_id', $stock->master_stock_id)
+                    // FIXED: Get batch number including soft deleted stocks
+                    $batchNumber = Stock::withTrashed()
+                        ->where('master_stock_id', $stock->master_stock_id)
                         ->where('size', $stock->size)
                         ->count() + 1;
 

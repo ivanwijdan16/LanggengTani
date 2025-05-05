@@ -269,13 +269,16 @@ class StockController extends Controller
             }
 
             // Now handle the stock
-            // Get the batch number - you may want to customize this logic
-            $batchNumber = 1; // Default to 1 for new items
+            // FIXED: Get batch number including soft deleted stocks
+            $batchNumber = Stock::withTrashed()
+                ->where('master_stock_id', $masterStockId)
+                ->where('size', $size)
+                ->count() + 1;
 
             // Generate the new stock_id format
             $stockId = IdGenerator::generateStockId($sku, $size, $expiration_date, $batchNumber);
 
-            // Check if stock with this ID exists
+            // Check if stock with this ID exists (including soft deleted)
             $existingStock = Stock::withTrashed()->where('stock_id', $stockId)->first();
 
             if ($existingStock) {
@@ -364,8 +367,9 @@ class StockController extends Controller
             'date' => date('Y-m-d'),
         ]);
 
-        // Get the batch number for new stock
-        $batchNumber = Stock::where('master_stock_id', $validated['master_stock_id'])
+        // FIXED: Get the batch number for new stock including soft deleted ones
+        $batchNumber = Stock::withTrashed()
+            ->where('master_stock_id', $validated['master_stock_id'])
             ->where('size', $validated['size'])
             ->count() + 1;
 
