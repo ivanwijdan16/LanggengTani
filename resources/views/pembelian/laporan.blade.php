@@ -36,10 +36,8 @@
         .container {
             width: 100%;
             max-width: 180mm;
-            /* A bit narrower than A4 width to ensure margins */
             margin: 0 auto;
             padding: 15mm 0;
-            /* Top and bottom padding only */
         }
 
         .header {
@@ -174,7 +172,6 @@
             @page {
                 size: A4;
                 margin: 10mm 15mm;
-                /* Standard print margins for A4 */
             }
 
             body {
@@ -229,15 +226,85 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="company-name">Toko Pertanian Joyo Langgeng Sejahtera</h1>
+            <h1 class="company-name">TOKO PERTANIAN JOYO LANGGENG SEJAHTERA</h1>
             <h2 class="report-title">Laporan Pembelian</h2>
             <p class="report-subtitle">Bulan
                 {{ Carbon\Carbon::parse($pembelians->first()->purchase_date ?? now())->locale('id')->translatedFormat('F Y') }}
             </p>
         </div>
 
+        <!-- Tabel Rekap Pembelian Barang Bulanan -->
+        <h3 class="section-title">Pembelian Barang Bulanan</h3>
         <div class="table-container">
-            <!-- Tabel Laporan Pembelian -->
+            <table>
+                <thead>
+                    <tr>
+                        <th width="35%">NAMA BARANG</th>
+                        <th width="15%">UKURAN</th>
+                        <th width="20%">JUMLAH BELI (PCS)</th>
+                        <th width="15%">HARGA BELI PER PCS</th>
+                        <th width="15%">TOTAL HARGA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        // Proses untuk mengumpulkan data rekap
+                        $rekap = [];
+                        $rekapTotal = 0;
+                        $rekapTotalQuantity = 0;
+
+                        foreach ($pembelians as $pembelian) {
+                            if ($pembelian->stock && $pembelian->stock->masterStock) {
+                                $name = $pembelian->stock->masterStock->name;
+                                $size = $pembelian->stock->size;
+                                $key = $name . '_' . $size;
+
+                                if (!isset($rekap[$key])) {
+                                    $rekap[$key] = [
+                                        'name' => $name,
+                                        'size' => $size,
+                                        'quantity' => 0,
+                                        'purchase_price' => $pembelian->purchase_price,
+                                        'total' => 0,
+                                    ];
+                                }
+
+                                $rekap[$key]['quantity'] += $pembelian->quantity;
+                                $rekap[$key]['total'] += $pembelian->purchase_price * $pembelian->quantity;
+
+                                $rekapTotal += $pembelian->purchase_price * $pembelian->quantity;
+                                $rekapTotalQuantity += $pembelian->quantity;
+                            }
+                        }
+
+                        // Sort by name
+                        usort($rekap, function ($a, $b) {
+                            return strcmp($a['name'], $b['name']);
+                        });
+                    @endphp
+
+                    @foreach ($rekap as $item)
+                        <tr>
+                            <td>{{ $item['name'] }}</td>
+                            <td>{{ $item['size'] ?? '-' }}</td>
+                            <td class="text-center">{{ $item['quantity'] }}</td>
+                            <td class="text-right">Rp {{ number_format($item['purchase_price'], 0, ',', '.') }}</td>
+                            <td class="text-right">Rp {{ number_format($item['total'], 0, ',', '.') }}</td>
+                        </tr>
+                    @endforeach
+                    <tr>
+                        <td colspan="2" style="text-align: right;"><strong>Total</strong></td>
+                        <td class="text-center"><strong>{{ $rekapTotalQuantity }}</strong></td>
+                        <td></td>
+                        <td class="text-right"><strong>Rp {{ number_format($rekapTotal, 0, ',', '.') }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tabel Laporan Pembelian Detail -->
+        <h3 class="section-title">Detail Pembelian</h3>
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
@@ -272,7 +339,8 @@
                             <td class="text-center">{{ $pembelian->quantity }}</td>
                             <td class="text-right">Rp {{ number_format($pembelian->purchase_price, 0, ',', '.') }}</td>
                             <td class="text-right">Rp
-                                {{ number_format($pembelian->purchase_price * $pembelian->quantity, 0, ',', '.') }}</td>
+                                {{ number_format($pembelian->purchase_price * $pembelian->quantity, 0, ',', '.') }}
+                            </td>
                         </tr>
                         @php
                             $total += $pembelian->purchase_price * $pembelian->quantity;

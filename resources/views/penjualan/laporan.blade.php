@@ -218,14 +218,86 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="company-name">Toko Pertanian Joyo Langgeng Sejahtera</h1>
+            <h1 class="company-name">TOKO PERTANIAN JOYO LANGGENG SEJAHTERA</h1>
             <h2 class="report-title">Laporan Penjualan</h2>
             <p class="report-subtitle">Bulan
                 {{ Carbon\Carbon::createFromDate($tahun, $bulan, 1)->locale('id')->translatedFormat('F Y') }}</p>
         </div>
 
+        <!-- Tabel Rekap Penjualan Barang Bulanan -->
+        <h3 class="section-title">Penjualan Barang Bulanan</h3>
         <div class="table-container">
-            <!-- Tabel Laporan Penjualan -->
+            <table>
+                <thead>
+                    <tr>
+                        <th width="35%">NAMA BARANG</th>
+                        <th width="15%">UKURAN</th>
+                        <th width="20%">JUMLAH TERJUAL (PCS)</th>
+                        <th width="15%">TOTAL HARGA</th>
+                        <th width="15%">TOTAL LABA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        // Proses untuk mengumpulkan data rekap
+                        $rekap = [];
+                        $rekapTotal = 0;
+                        $rekapTotalLaba = 0;
+                        $rekapTotalQuantity = 0;
+
+                        foreach ($items as $item) {
+                            $name = $item['nama_barang'];
+                            $size = $item['ukuran'];
+                            $key = $name . '_' . $size;
+
+                            if (!isset($rekap[$key])) {
+                                $rekap[$key] = [
+                                    'name' => $name,
+                                    'size' => $size,
+                                    'quantity' => 0,
+                                    'total_harga' => 0,
+                                    'total_laba' => 0,
+                                ];
+                            }
+
+                            $rekap[$key]['quantity'] += $item['jumlah'];
+                            $rekap[$key]['total_harga'] += $item['total_harga'];
+                            $rekap[$key]['total_laba'] += $item['laba_total'];
+
+                            $rekapTotal += $item['total_harga'];
+                            $rekapTotalLaba += $item['laba_total'];
+                            $rekapTotalQuantity += $item['jumlah'];
+                        }
+
+                        // Sort by name
+                        usort($rekap, function ($a, $b) {
+                            return strcmp($a['name'], $b['name']);
+                        });
+                    @endphp
+
+                    @foreach ($rekap as $item)
+                        <tr>
+                            <td>{{ $item['name'] }}</td>
+                            <td>{{ $item['size'] ?? '-' }}</td>
+                            <td class="text-center">{{ $item['quantity'] }}</td>
+                            <td class="text-right">Rp {{ number_format($item['total_harga'], 0, ',', '.') }}</td>
+                            <td class="text-right">Rp {{ number_format($item['total_laba'], 0, ',', '.') }}</td>
+                        </tr>
+                    @endforeach
+                    <tr>
+                        <td colspan="2" style="text-align: right;"><strong>Total</strong></td>
+                        <td class="text-center"><strong>{{ $rekapTotalQuantity }}</strong></td>
+                        <td class="text-right"><strong>Rp {{ number_format($rekapTotal, 0, ',', '.') }}</strong></td>
+                        <td class="text-right"><strong>Rp {{ number_format($rekapTotalLaba, 0, ',', '.') }}</strong>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tabel Laporan Penjualan Detail -->
+        <h3 class="section-title">Detail Penjualan</h3>
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
@@ -241,6 +313,7 @@
                 <tbody>
                     @php
                         $total = 0;
+                        $totalLaba = 0;
                     @endphp
                     @foreach ($items as $item)
                         <tr>
@@ -257,11 +330,13 @@
                         </tr>
                         @php
                             $total += $item['total_harga'];
+                            $totalLaba += $item['laba_total'];
                         @endphp
                     @endforeach
                     <tr>
-                        <td colspan="6" style="text-align: right;"><strong>Total</strong></td>
+                        <td colspan="5" style="text-align: right;"><strong>Total</strong></td>
                         <td class="text-right"><strong>Rp {{ number_format($total, 0, ',', '.') }}</strong></td>
+                        <td class="text-right"><strong>Rp {{ number_format($totalLaba, 0, ',', '.') }}</strong></td>
                     </tr>
                 </tbody>
             </table>
