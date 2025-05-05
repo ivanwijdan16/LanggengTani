@@ -397,6 +397,32 @@
             <p class="success-subtitle">Pembayaran telah berhasil diproses</p>
         </div>
 
+        @php
+            // Group items by master stock name and size
+            $groupedItems = [];
+            foreach ($transaction->items as $item) {
+                $key = '';
+                if ($item->product && $item->product->masterStock) {
+                    $key = $item->product->masterStock->name . ' (' . $item->product->size . ')';
+                } elseif ($item->product) {
+                    $key = $item->product->stock_id . ' (' . $item->product->size . ')';
+                } else {
+                    $key = 'Barang';
+                }
+
+                if (!isset($groupedItems[$key])) {
+                    $groupedItems[$key] = [
+                        'quantity' => 0,
+                        'price' => $item->price,
+                        'subtotal' => 0,
+                    ];
+                }
+
+                $groupedItems[$key]['quantity'] += $item->quantity;
+                $groupedItems[$key]['subtotal'] += $item->subtotal;
+            }
+        @endphp
+
         <div class="receipt-card" id="receipt-container">
             <div class="receipt-header">
                 <h2 class="receipt-title mb-4 mt-3">Toko Pertanian Joyo Langgeng Sejahtera</h2>
@@ -418,25 +444,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($transaction->items as $item)
+                        @foreach ($groupedItems as $key => $item)
                             <tr>
                                 <td class="item-name">
-                                    @if ($item->product && $item->product->masterStock)
-                                        <strong>{{ $item->product->masterStock->name }}</strong>
-                                        <span style="font-size: 0.8rem; color: var(--text-medium);">
-                                            ({{ $item->product->size }})
-                                        </span>
-                                    @elseif($item->product)
-                                        <strong>{{ $item->product->stock_id }}</strong>
-                                        <span style="font-size: 0.8rem; color: var(--text-medium);">
-                                            ({{ $item->product->size }})</span>
-                                    @else
-                                        <strong>Barang</strong>
-                                    @endif
+                                    <strong>{{ $key }}</strong>
                                 </td>
-                                <td class="item-qty">{{ $item->quantity }}</td>
-                                <td class="item-price">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
-                                <td class="item-subtotal">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                                <td class="item-qty">{{ $item['quantity'] }}</td>
+                                <td class="item-price">Rp {{ number_format($item['price'], 0, ',', '.') }}</td>
+                                <td class="item-subtotal">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -575,7 +590,7 @@
     `);
             printWindow.document.write('</style></head><body>');
 
-            // Create receipt content
+            // Create receipt content with grouped items
             printWindow.document.write(`
       <div class="receipt-header">
         <div class="receipt-title">Toko Pertanian Joyo Langgeng Sejahtera</div>
@@ -598,22 +613,14 @@
           <th class="right" style="width: 20%">Total</th>
         </tr>
 
-        @foreach ($transaction->items as $item)
+        @foreach ($groupedItems as $key => $item)
         <tr>
           <td>
-            @if ($item->product && $item->product->masterStock)
-                <span class="item-name">{{ $item->product->masterStock->name }}</span>
-                <span class="item-size">({{ $item->product->size }})</span>
-            @elseif ($item->product)
-                <span class="item-name">{{ $item->product->stock_id }}</span>
-                <span class="item-size">({{ $item->product->size }})</span>
-            @else
-                <span class="item-name">Barang</span>
-            @endif
+            <span class="item-name">{{ $key }}</span>
           </td>
-          <td class="center">{{ $item->quantity }}</td>
-          <td class="right">{{ number_format($item->price, 0, ',', '.') }}</td>
-          <td class="right">{{ number_format($item->subtotal, 0, ',', '.') }}</td>
+          <td class="center">{{ $item['quantity'] }}</td>
+          <td class="right">{{ number_format($item['price'], 0, ',', '.') }}</td>
+          <td class="right">{{ number_format($item['subtotal'], 0, ',', '.') }}</td>
         </tr>
         @endforeach
       </table>

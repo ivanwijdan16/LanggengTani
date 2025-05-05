@@ -8,6 +8,7 @@ use App\Models\StockSizeImage;
 use App\Models\MasterStock;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -68,6 +69,23 @@ class CartController extends Controller
                     // Load the master stock relationship
                     $product->load('masterStock');
 
+                    // Get total quantity for this SKU and size combination
+                    $totalQuantity = Stock::where('master_stock_id', $masterStock->id)
+                        ->where('size', $size)
+                        ->sum('quantity');
+
+                    $product->total_quantity = $totalQuantity;
+
+                    // Get all batch info for this SKU and size
+                    $batches = Stock::where('master_stock_id', $masterStock->id)
+                        ->where('size', $size)
+                        ->where('quantity', '>', 0)
+                        ->whereDate('expiration_date', '>', Carbon::today())
+                        ->orderBy('expiration_date', 'asc')
+                        ->get();
+
+                    $product->batches = $batches;
+
                     // Add to our collection
                     $products->push($product);
                 }
@@ -101,6 +119,35 @@ class CartController extends Controller
         $carts = Cart::where('user_id', auth()->id())->get();
 
         return view('cart.index', compact('carts', 'products', 'searchQuery', 'sort', 'direction'));
+    }
+
+    public function getProductStock(Request $request)
+    {
+        $masterStockId = $request->input('master_stock_id');
+        $size = $request->input('size');
+
+        // Get all stocks for this master stock and size with details
+        $stocks = Stock::where('master_stock_id', $masterStockId)
+            ->where('size', $size)
+            ->where('quantity', '>', 0)
+            ->whereDate('expiration_date', '>', Carbon::today())
+            ->orderBy('expiration_date', 'asc')
+            ->get()
+            ->map(function ($stock) {
+                return [
+                    'stock_id' => $stock->stock_id,
+                    'expiration_date' => Carbon::parse($stock->expiration_date)->format('d M Y'),
+                    'quantity' => $stock->quantity,
+                    'expired' => Carbon::parse($stock->expiration_date)->isPast(),
+                    'almost_expired' => !Carbon::parse($stock->expiration_date)->isPast() &&
+                        Carbon::parse($stock->expiration_date)->diffInDays(now()) < 30
+                ];
+            });
+
+        return response()->json([
+            'stocks' => $stocks,
+            'total_quantity' => $stocks->sum('quantity')
+        ]);
     }
 
     public function getCart()

@@ -196,6 +196,130 @@
             transform: none;
         }
 
+        /* Info Badge */
+        .info-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: var(--primary-color);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .info-badge:hover {
+            background-color: var(--primary-color);
+            color: var(--white);
+            transform: scale(1.1);
+        }
+
+        /* Modal Styles */
+        .stock-info-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .stock-info-content {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .stock-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stock-info-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--text-dark);
+        }
+
+        .batch-item {
+            background-color: var(--background-light);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .batch-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .batch-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .batch-id {
+            font-size: 0.85rem;
+            color: var(--text-medium);
+            font-weight: 500;
+        }
+
+        .batch-expiry {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .batch-quantity {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .total-info {
+            background-color: var(--primary-light);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .total-quantity {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
         /* Search Bar Styling */
         .search-container {
             position: relative;
@@ -227,7 +351,7 @@
             font-size: 1.2rem;
         }
 
-        /* Cart Section Styling */
+        /* Cart Section Styling - same as original */
         .cart-container {
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -647,6 +771,13 @@
                                 <div class="card-img-container">
                                     <img src="{{ $product->image ? '/storage/' . $product->image : '/images/default.png' }}"
                                         class="card-img-top" alt="{{ $product->masterStock->name }}">
+
+                                    <!-- Info Badge -->
+                                    <div class="info-badge"
+                                        onclick="showStockInfo({{ $product->master_stock_id }}, '{{ $product->size }}')"
+                                        title="Lihat info stok">
+                                        <i class="bx bx-info-circle"></i>
+                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <span class="product-type">{{ $product->masterStock->type }}</span>
@@ -657,30 +788,29 @@
                                             {{ number_format($product->selling_price, 0, ',', '.') }}</span>
                                         @if ($product->retail_price !== null)
                                             <div class="d-flex flex-column">
-                                                <span class="product-quantity">Stok: {{ $product->quantity }}</span>
-                                                <span class="product-quantity">Eceran:
-                                                    {{ $product->retail_quantity }}</span>
+                                                <span class="product-quantity">Total: {{ $product->total_quantity }}
+                                                    pcs</span>
                                             </div>
                                         @else
-                                            <span class="product-quantity">Stok: {{ $product->quantity }}</span>
+                                            <span class="product-quantity">Total: {{ $product->total_quantity }} pcs</span>
                                         @endif
                                     </div>
 
                                     <div class="product-quantity-input row">
                                         <label for="quantity-{{ $product->id }}">Jumlah:</label>
                                         <input type="number" id="quantity-{{ $product->id }}" name="quantity"
-                                            value="1" min="1" max="{{ $product->quantity }}"
+                                            value="1" min="1" max="{{ $product->total_quantity }}"
                                             class="form-control">
                                     </div>
 
                                     <br>
 
-                                    <div class="product-expiry">
+                                    {{-- <div class="product-expiry">
                                         <i class="bx {{ $product->expired ? 'bx-x-circle' : 'bx-calendar' }}"></i>
                                         <span class="{{ $product->expired ? 'expired-text' : '' }}">
                                             {{ $product->expired ? 'Sudah Kadaluarsa' : 'Exp: ' . $product->expiration_date_formatted }}
                                         </span>
-                                    </div>
+                                    </div> --}}
 
                                     <!-- Check if retail_price is not null -->
                                     @if ($product->retail_price !== null)
@@ -750,6 +880,25 @@
             </div>
         </div>
     </div>
+
+    <!-- Stock Info Modal -->
+    <div class="stock-info-modal" id="stockInfoModal">
+        <div class="stock-info-content">
+            <div class="stock-info-header">
+                <h3 class="stock-info-title" id="modalTitle">Info Stok</h3>
+                <button class="close-modal" onclick="closeStockInfoModal()">
+                    <i class="bx bx-x"></i>
+                </button>
+            </div>
+            <div id="batchInfo">
+                <!-- Batch information will be inserted here -->
+            </div>
+            <div class="total-info">
+                <p class="mb-0">Total Stok</p>
+                <h3 class="total-quantity" id="totalQuantity">0 pcs</h3>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('script')
@@ -759,6 +908,56 @@
             const query = $(this).val();
             if (query.length >= 2 || query.length === 0) {
                 $('#searchForm').submit();
+            }
+        });
+
+        // Function to show stock info modal
+        function showStockInfo(masterStockId, size) {
+            $.ajax({
+                url: "{{ route('cart.index') }}/stock-info",
+                method: 'GET',
+                data: {
+                    master_stock_id: masterStockId,
+                    size: size
+                },
+                success: function(response) {
+                    let batchHtml = '';
+                    let totalQuantity = 0;
+
+                    if (response.stocks.length > 0) {
+                        response.stocks.forEach(function(stock) {
+                            totalQuantity += parseInt(stock.quantity);
+                            batchHtml += `
+                                <div class="batch-item">
+                                    <div class="batch-info">
+                                        <div class="batch-id">${stock.stock_id}</div>
+                                        <div class="batch-expiry">Kadaluwarsa: ${stock.expiration_date}</div>
+                                    </div>
+                                    <div class="batch-quantity">${stock.quantity} pcs</div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        batchHtml = '<p class="text-center text-muted">Tidak ada stok tersedia</p>';
+                    }
+
+                    $('#batchInfo').html(batchHtml);
+                    $('#totalQuantity').text(totalQuantity + ' pcs');
+                    $('#stockInfoModal').css('display', 'flex');
+                }
+            });
+        }
+
+        // Function to close stock info modal
+        function closeStockInfoModal() {
+            $('#stockInfoModal').css('display', 'none');
+        }
+
+        // Close modal when clicking outside
+        $(window).click(function(e) {
+            if ($(e.target).closest('.stock-info-content').length === 0 && $(e.target).closest('.info-badge')
+                .length === 0) {
+                closeStockInfoModal();
             }
         });
 

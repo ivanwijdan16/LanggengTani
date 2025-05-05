@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
     // Cart/Kasir (semua user dapat akses)
     Route::get('/cart/search', [CartController::class, 'search'])->name('cart.search');
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::get('/cart/stock-info', [CartController::class, 'getProductStock'])->name('cart.stock-info');
     Route::get('/get-cart', [CartController::class, 'getCart'])->name('cart.get');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::delete('/cart/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');

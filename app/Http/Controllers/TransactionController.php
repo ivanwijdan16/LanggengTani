@@ -7,6 +7,8 @@ use App\Models\Cart;
 use App\Models\Transaction;
 use App\Helpers\IdGenerator;
 use Illuminate\Http\Request;
+use App\Models\Stock;
+use DB;
 
 class TransactionController extends Controller
 {
@@ -30,23 +32,26 @@ class TransactionController extends Controller
         // Generate transaction ID using the helper
         $id_penjualan = IdGenerator::generateSaleId();
 
+        // Validate stock availability before processing
         foreach ($carts as $cart) {
-            $product = $cart->product; // Ambil produk yang dibeli
+            $product = $cart->product;
 
+            // Get all stocks for this product (master_stock_id and size)
+            $stocks = Stock::where('master_stock_id', $product->master_stock_id)
+                ->where('size', $product->size)
+                ->where('quantity', '>', 0)
+                ->orderBy('expiration_date', 'asc')
+                ->get();
+
+            $totalAvailable = 0;
             if ($cart->type == 'normal') {
-                $product->quantity -= $cart->quantity; // Kurangi stok sesuai dengan jumlah yang dibeli
-
-                if ($product->quantity < 0) {
-                    // Jika stok kurang dari 0, kita bisa menambahkan pengecekan error atau memberi notifikasi
-                    return redirect()->route('cart.index')->with('error', 'Stok produk tidak mencukupi!');
-                }
+                $totalAvailable = $stocks->sum('quantity');
             } else {
-                $product->retail_quantity -= $cart->quantity; // Kurangi stok sesuai dengan jumlah yang dibeli
+                $totalAvailable = $stocks->sum('retail_quantity');
+            }
 
-                if ($product->retail_quantity < 0) {
-                    // Jika stok kurang dari 0, kita bisa menambahkan pengecekan error atau memberi notifikasi
-                    return redirect()->route('cart.index')->with('error', 'Stok produk tidak mencukupi!');
-                }
+            if ($totalAvailable < $cart->quantity) {
+                return redirect()->route('cart.index')->with('error', 'Stok produk ' . $product->masterStock->name . ' (' . $product->size . ') tidak mencukupi!');
             }
         }
 
@@ -56,28 +61,64 @@ class TransactionController extends Controller
             'total_price' => $total_price,
             'total_paid' => $total_paid,
             'change' => $change,
-            'id_penjualan' => $id_penjualan, // ID Penjualan yang sudah diformat
+            'id_penjualan' => $id_penjualan,
         ]);
 
         // Loop untuk setiap item di keranjang dan mengurangi stok produk
         foreach ($carts as $cart) {
-            $product = $cart->product; // Ambil produk yang dibeli
+            $remainingQuantity = $cart->quantity;
+            $product = $cart->product;
+            $price = $cart->type == 'normal' ? $product->selling_price : $product->retail_price;
 
-            // Simpan perubahan stok
-            $product->save();
+            // Get stocks ordered by expiration date (FIFO)
+            $stocks = Stock::where('master_stock_id', $product->master_stock_id)
+                ->where('size', $product->size)
+                ->where('quantity', '>', 0)
+                ->orderBy('expiration_date', 'asc')
+                ->get();
 
-            // Jika method checkAndCreateNotifications ada
-            if (method_exists($product, 'checkAndCreateNotifications')) {
-                $product->checkAndCreateNotifications();
+            foreach ($stocks as $stock) {
+                if ($remainingQuantity <= 0) break;
+
+                if ($cart->type == 'normal') {
+                    $availableQuantity = $stock->quantity;
+                    $quantityToTake = min($availableQuantity, $remainingQuantity);
+
+                    // Simpan detail transaksi untuk setiap batch
+                    $transaction->items()->create([
+                        'product_id' => $stock->id,
+                        'quantity' => $quantityToTake,
+                        'price' => $price,
+                        'subtotal' => $quantityToTake * $price
+                    ]);
+
+                    // Kurangi stok
+                    $stock->quantity -= $quantityToTake;
+                    $remainingQuantity -= $quantityToTake;
+                } else {
+                    $availableQuantity = $stock->retail_quantity;
+                    $quantityToTake = min($availableQuantity, $remainingQuantity);
+
+                    // Simpan detail transaksi untuk setiap batch
+                    $transaction->items()->create([
+                        'product_id' => $stock->id,
+                        'quantity' => $quantityToTake,
+                        'price' => $price,
+                        'subtotal' => $quantityToTake * $price
+                    ]);
+
+                    // Kurangi stok eceran
+                    $stock->retail_quantity -= $quantityToTake;
+                    $remainingQuantity -= $quantityToTake;
+                }
+
+                $stock->save();
+
+                // Jika method checkAndCreateNotifications ada
+                if (method_exists($stock, 'checkAndCreateNotifications')) {
+                    $stock->checkAndCreateNotifications();
+                }
             }
-
-            // Simpan detail transaksi ke tabel transaction_items
-            $transaction->items()->create([
-                'product_id' => $product->id,
-                'quantity' => $cart->quantity,
-                'price' => $cart->type == 'normal' ? $product->selling_price : $product->retail_price,  // Harga per unit produk
-                'subtotal' => $cart->subtotal  // Subtotal per produk (harga * quantity)
-            ]);
         }
 
         // Hapus barang dari keranjang setelah transaksi selesai
