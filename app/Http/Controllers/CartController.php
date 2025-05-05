@@ -39,20 +39,52 @@ class CartController extends Controller
                 ->get()
                 ->pluck('size');
 
-            // For each size, get the product with the closest non-expired expiration date and available stock
+            // For each size, get all products with the closest non-expired expiration date and available stock
             foreach ($sizes as $size) {
-                $product = Stock::where('master_stock_id', $masterStock->id)
+                // Get all non-expired products of this size
+                $stocks = Stock::where('master_stock_id', $masterStock->id)
                     ->where('size', $size)
                     ->where('quantity', '>', 0)
                     ->whereDate('expiration_date', '>', Carbon::today())
-                    ->orderBy('expiration_date', 'asc')
-                    ->first();
+                    ->get();
 
-                // If we found a valid product, add it to our collection
-                if ($product) {
-                    // Add custom properties
-                    $product->expired = Carbon::parse($product->expiration_date)->isPast();
-                    $product->expiration_date_formatted = Carbon::parse($product->expiration_date)->format('d M Y');
+                if ($stocks->isNotEmpty()) {
+                    // Create a virtual product that represents all stocks of this size
+                    $virtualProduct = new Stock();
+
+                    // Use the first stock as the base
+                    $baseStock = $stocks->first();
+
+                    // Copy properties from base stock
+                    $virtualProduct->id = $baseStock->id;
+                    $virtualProduct->master_stock_id = $baseStock->master_stock_id;
+                    $virtualProduct->size = $baseStock->size;
+                    $virtualProduct->stock_id = $baseStock->stock_id;
+                    $virtualProduct->selling_price = $baseStock->selling_price;
+                    $virtualProduct->purchase_price = $baseStock->purchase_price;
+                    $virtualProduct->retail_price = $baseStock->retail_price;
+                    $virtualProduct->retail_quantity = $baseStock->retail_quantity;
+                    $virtualProduct->created_at = $baseStock->created_at;
+
+                    // Calculate total quantity and quantity details
+                    $totalQuantity = $stocks->sum('quantity');
+                    $virtualProduct->quantity = $totalQuantity;
+
+                    // Create expiration details array
+                    $expirationDetails = $stocks->map(function ($stock) {
+                        return [
+                            'date' => Carbon::parse($stock->expiration_date)->format('d M Y'),
+                            'quantity' => $stock->quantity
+                        ];
+                    })->sortBy('date');
+
+                    // Find the nearest expiration date (for info purposes)
+                    $nearestExpiration = $stocks->sortBy('expiration_date')->first()->expiration_date;
+                    $virtualProduct->expiration_date = $nearestExpiration;
+                    $virtualProduct->expiration_date_formatted = Carbon::parse($nearestExpiration)->format('d M Y');
+
+                    // Add expiration details
+                    $virtualProduct->expirationDetails = $expirationDetails;
 
                     // Get the image (either size-specific or master stock image)
                     $sizeImage = StockSizeImage::where('master_stock_id', $masterStock->id)
@@ -60,16 +92,16 @@ class CartController extends Controller
                         ->first();
 
                     if ($sizeImage && $sizeImage->image) {
-                        $product->image = $sizeImage->image;
+                        $virtualProduct->image = $sizeImage->image;
                     } else {
-                        $product->image = $masterStock->image;
+                        $virtualProduct->image = $masterStock->image;
                     }
 
                     // Load the master stock relationship
-                    $product->load('masterStock');
+                    $virtualProduct->load('masterStock');
 
                     // Add to our collection
-                    $products->push($product);
+                    $products->push($virtualProduct);
                 }
             }
         }
@@ -153,7 +185,7 @@ class CartController extends Controller
 
         $masterStocks = $masterStocksQuery->get();
 
-        // For each master stock, find the product with the nearest expiration date for each size
+        // For each master stock, find all available products (non-expired, with quantity)
         foreach ($masterStocks as $masterStock) {
             // Get distinct sizes for this master stock
             $sizes = Stock::where('master_stock_id', $masterStock->id)
@@ -162,37 +194,68 @@ class CartController extends Controller
                 ->get()
                 ->pluck('size');
 
-            // For each size, get the stock with the closest expiration date that's not expired and has quantity
+            // For each size, get all non-expired stocks with quantity
             foreach ($sizes as $size) {
-                $product = Stock::where('master_stock_id', $masterStock->id)
+                $stocks = Stock::where('master_stock_id', $masterStock->id)
                     ->where('size', $size)
                     ->where('quantity', '>', 0)
                     ->whereDate('expiration_date', '>', Carbon::today())
-                    ->orderBy('expiration_date', 'asc')
-                    ->first();
+                    ->get();
 
-                if ($product) {
-                    // Add a custom expired field
-                    $product->expired = Carbon::parse($product->expiration_date)->isPast();
-                    // Format expiration_date
-                    $product->expiration_date = Carbon::parse($product->expiration_date)->format('d M Y');
+                if ($stocks->isNotEmpty()) {
+                    // Create a virtual product that represents all stocks of this size
+                    $virtualProduct = new Stock();
 
-                    // Add master stock details to the product
-                    $product->load('masterStock');
-                    $product->master_stock = $product->masterStock; // Including related master stock data
+                    // Use the first stock as the base
+                    $baseStock = $stocks->first();
+
+                    // Copy properties from base stock
+                    $virtualProduct->id = $baseStock->id;
+                    $virtualProduct->master_stock_id = $baseStock->master_stock_id;
+                    $virtualProduct->size = $baseStock->size;
+                    $virtualProduct->stock_id = $baseStock->stock_id;
+                    $virtualProduct->selling_price = $baseStock->selling_price;
+                    $virtualProduct->purchase_price = $baseStock->purchase_price;
+                    $virtualProduct->retail_price = $baseStock->retail_price;
+                    $virtualProduct->retail_quantity = $baseStock->retail_quantity;
+                    $virtualProduct->created_at = $baseStock->created_at;
+
+                    // Calculate total quantity
+                    $totalQuantity = $stocks->sum('quantity');
+                    $virtualProduct->quantity = $totalQuantity;
+
+                    // Create expiration details array
+                    $expirationDetails = $stocks->map(function ($stock) {
+                        return [
+                            'date' => Carbon::parse($stock->expiration_date)->format('d M Y'),
+                            'quantity' => $stock->quantity
+                        ];
+                    })->sortBy('date');
+
+                    // Find the nearest expiration date
+                    $nearestExpiration = $stocks->sortBy('expiration_date')->first()->expiration_date;
+                    $virtualProduct->expiration_date = $nearestExpiration;
+                    $virtualProduct->expiration_date_formatted = Carbon::parse($nearestExpiration)->format('d M Y');
+
+                    // Add expiration details
+                    $virtualProduct->expirationDetails = $expirationDetails;
+
+                    // Load the master stock relationship
+                    $virtualProduct->load('masterStock');
+                    $virtualProduct->master_stock = $virtualProduct->masterStock;
 
                     // Get size-specific image if available
-                    $sizeImage = StockSizeImage::where('master_stock_id', $product->master_stock_id)
-                        ->where('size', $product->size)
+                    $sizeImage = StockSizeImage::where('master_stock_id', $virtualProduct->master_stock_id)
+                        ->where('size', $virtualProduct->size)
                         ->first();
 
                     if ($sizeImage && $sizeImage->image) {
-                        $product->image = $sizeImage->image;
+                        $virtualProduct->image = $sizeImage->image;
                     } else {
-                        $product->image = $product->masterStock->image;
+                        $virtualProduct->image = $virtualProduct->masterStock->image;
                     }
 
-                    $uniqueProducts->push($product);
+                    $uniqueProducts->push($virtualProduct);
                 }
             }
         }
