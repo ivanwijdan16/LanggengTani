@@ -500,191 +500,6 @@
             font-size: 0.75rem;
         }
 
-        /* Info Badge */
-        .info-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            border-radius: 8px;
-            padding: 0.2rem 0.5rem;
-            font-size: 0.7rem;
-            font-weight: 500;
-            color: var(--white);
-            background-color: rgba(0, 114, 79, 0.8);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            z-index: 5;
-            transition: all 0.2s ease;
-        }
-
-        .info-badge:hover {
-            background-color: var(--primary-color);
-            transform: translateY(-2px);
-        }
-
-        .info-badge i {
-            margin-right: 3px;
-        }
-
-        /* Stock Info Modal */
-        .stock-info-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(15, 23, 42, 0.7);
-            z-index: 1050;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s ease, visibility 0.2s ease;
-        }
-
-        .stock-info-modal.show {
-            display: flex;
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .stock-info-modal-dialog {
-            background-color: white;
-            border-radius: 12px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transform: translateY(-20px) scale(0.95);
-            transition: transform 0.2s ease;
-            margin: 1rem;
-        }
-
-        .stock-info-modal.show .stock-info-modal-dialog {
-            transform: translateY(0) scale(1);
-        }
-
-        .stock-info-modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--card-border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .stock-info-modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin: 0;
-        }
-
-        .stock-info-modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--text-light);
-            cursor: pointer;
-            padding: 0;
-            line-height: 1;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .stock-info-modal-close:hover {
-            color: var(--text-dark);
-            background-color: var(--background-light);
-        }
-
-        .stock-info-modal-body {
-            padding: 1.5rem;
-        }
-
-        .stock-info-product {
-            margin-bottom: 1.5rem;
-        }
-
-        .stock-info-product-name {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .stock-info-product-size {
-            font-size: 0.875rem;
-            color: var(--text-medium);
-        }
-
-        .stock-info-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .stock-info-table th {
-            text-align: left;
-            font-weight: 500;
-            color: var(--text-medium);
-            font-size: 0.875rem;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--card-border);
-        }
-
-        .stock-info-table td {
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--card-border);
-            color: var(--text-dark);
-            font-size: 0.875rem;
-        }
-
-        .stock-info-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .stock-info-total {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px dashed var(--card-border);
-            font-weight: 600;
-            color: var(--text-dark);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .stock-info-modal-footer {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid var(--card-border);
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .btn-close {
-            padding: 0.5rem 1rem;
-            background-color: var(--background-light);
-            color: var(--text-dark);
-            border: none;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            top: auto;
-            right: auto;
-            transform: none;
-            font-size: 0.875rem;
-            opacity: 1;
-        }
-
-        .btn-close:hover {
-            background-color: var(--card-border);
-        }
-
         /* Responsive Adjustments */
         @media (max-width: 992px) {
             .cart-container {
@@ -828,16 +643,10 @@
                 <div class="row" id="products-container">
                     @forelse ($products as $product)
                         <div class="col-md-6 col-xl-4 px-3">
-                            <div class="card">
+                            <div class="card {{ $product->expired ? 'border-danger' : '' }}">
                                 <div class="card-img-container">
                                     <img src="{{ $product->image ? '/storage/' . $product->image : '/images/default.png' }}"
                                         class="card-img-top" alt="{{ $product->masterStock->name }}">
-
-                                    <!-- Info Badge -->
-                                    <div class="info-badge"
-                                        onclick="event.stopPropagation(); openStockInfoModal({{ $product->id }})">
-                                        <i class="bx bx-info-circle"></i> Info
-                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <span class="product-type">{{ $product->masterStock->type }}</span>
@@ -866,22 +675,32 @@
 
                                     <br>
 
+                                    <div class="product-expiry">
+                                        <i class="bx {{ $product->expired ? 'bx-x-circle' : 'bx-calendar' }}"></i>
+                                        <span class="{{ $product->expired ? 'expired-text' : '' }}">
+                                            {{ $product->expired ? 'Sudah Kadaluarsa' : 'Exp: ' . $product->expiration_date_formatted }}
+                                        </span>
+                                    </div>
+
                                     <!-- Check if retail_price is not null -->
                                     @if ($product->retail_price !== null)
-                                        <button type="button" class="add-to-cart-btn"
-                                            onclick="addToCart({{ $product->id }})">
-                                            <i class="bx bx-cart-add"></i>
+                                        <button type="button"
+                                            class="add-to-cart-btn {{ $product->expired ? 'expired-btn' : '' }}"
+                                            {{ $product->expired ? 'disabled' : 'onclick=addToCart(' . $product->id . ')' }}>
+                                            <i class="bx {{ $product->expired ? 'bx-x' : 'bx-cart-add' }}"></i>
                                             Tambahkan
                                         </button>
-                                        <button type="button" class="add-to-cart-btn"
-                                            onclick="addToCart({{ $product->id }},'retail')">
-                                            <i class="bx bx-cart-add"></i>
+                                        <button type="button"
+                                            class="add-to-cart-btn {{ $product->expired ? 'expired-btn' : '' }}"
+                                            {{ $product->expired ? 'disabled' : 'onclick=addToCart(' . $product->id . ',`retail`)' }}>
+                                            <i class="bx {{ $product->expired ? 'bx-x' : 'bx-cart-add' }}"></i>
                                             Tambah Eceran
                                         </button>
                                     @else
-                                        <button type="button" class="add-to-cart-btn"
-                                            onclick="addToCart({{ $product->id }})">
-                                            <i class="bx bx-cart-add"></i>
+                                        <button type="button"
+                                            class="add-to-cart-btn {{ $product->expired ? 'expired-btn' : '' }}"
+                                            {{ $product->expired ? 'disabled' : 'onclick=addToCart(' . $product->id . ')' }}>
+                                            <i class="bx {{ $product->expired ? 'bx-x' : 'bx-cart-add' }}"></i>
                                             Tambahkan
                                         </button>
                                     @endif
@@ -931,114 +750,10 @@
             </div>
         </div>
     </div>
-
-    <!-- Stock Info Modal -->
-    <div class="stock-info-modal" id="stockInfoModal">
-        <div class="stock-info-modal-dialog">
-            <div class="stock-info-modal-header">
-                <h3 class="stock-info-modal-title">Info Stok</h3>
-                <button class="stock-info-modal-close" onclick="closeStockInfoModal()">
-                    <i class="bx bx-x"></i>
-                </button>
-            </div>
-            <div class="stock-info-modal-body">
-                <div class="stock-info-product">
-                    <div class="stock-info-product-name" id="modalProductName"></div>
-                    <div class="stock-info-product-size" id="modalProductSize"></div>
-                </div>
-                <table class="stock-info-table">
-                    <thead>
-                        <tr>
-                            <th>Kadaluwarsa</th>
-                            <th style="text-align: right;">Stok</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stockInfoTableBody">
-                        <!-- Data will be inserted here -->
-                    </tbody>
-                </table>
-                <div class="stock-info-total">
-                    <span>Total Stok:</span>
-                    <span id="totalStock"></span>
-                </div>
-            </div>
-            <div class="stock-info-modal-footer">
-                <button class="btn-close" onclick="closeStockInfoModal()">Tutup</button>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @section('script')
     <script>
-        // Product data for modal
-        const productDataRaw = @json($products);
-        const productData = Array.from(productDataRaw);
-
-        // Function to open stock info modal
-        function openStockInfoModal(productId) {
-            const product = productData.find(p => p.id === productId);
-
-            if (!product) {
-                console.error('Product not found:', productId);
-                return;
-            }
-
-            // Set product info
-            document.getElementById('modalProductName').textContent = product.master_stock.name;
-            document.getElementById('modalProductSize').textContent = 'Ukuran: ' + product.size;
-
-            // Clear and populate table
-            const tableBody = document.getElementById('stockInfoTableBody');
-            tableBody.innerHTML = '';
-
-            let totalQty = 0;
-
-            // Handle array expiration_details
-            const expirationDetails = product.expiration_details || product.expirationDetails || [];
-            expirationDetails.forEach(detail => {
-                totalQty += detail.quantity;
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${detail.date}</td>
-                    <td style="text-align: right;">${detail.quantity} pcs</td>
-                `;
-                tableBody.appendChild(row);
-            });
-
-            document.getElementById('totalStock').textContent = totalQty + ' pcs';
-
-            // Show modal
-            const modal = document.getElementById('stockInfoModal');
-            modal.style.display = 'flex';
-            setTimeout(() => {
-                modal.classList.add('show');
-            }, 10);
-        }
-
-        // Function to close stock info modal
-        function closeStockInfoModal() {
-            const modal = document.getElementById('stockInfoModal');
-            modal.classList.remove('show');
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 200);
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('stockInfoModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeStockInfoModal();
-            }
-        });
-
-        // Close modal with ESC key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeStockInfoModal();
-            }
-        });
-
         // Function to handle real-time search input
         $('#search-bar').on('input', function() {
             const query = $(this).val();
@@ -1161,8 +876,5 @@
         $(document).ready(function() {
             loadCart();
         });
-
-        // Debug: Let's check what's in productData
-        console.log('Product Data:', productData);
     </script>
 @endsection
