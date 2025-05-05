@@ -54,12 +54,27 @@ class IdGenerator
         // Get type code (first 2 letters of type)
         $typeCode = strtoupper(substr($type, 0, 2));
 
-        // Get name code (first 6 letters of name, remove non-alphanumeric characters and convert to uppercase)
+        // Get name code (first 6 letters of name, remove non-alphanumeric)
         $cleanedName = preg_replace('/[^A-Za-z0-9]/', '', $name);
         $nameCode = strtoupper(substr($cleanedName, 0, 6));
 
-        // Format: PREFIX-TYPE-NAME
-        return "{$prefix}-{$typeCode}-{$nameCode}";
+        // Get sequence number for this name and type
+        $lastSku = DB::table('master_stocks')
+            ->where('sku', 'like', "{$prefix}-{$typeCode}-{$nameCode}-%")
+            ->orderBy('sku', 'desc')
+            ->first();
+
+        $sequence = 1;
+        if ($lastSku) {
+            $matches = [];
+            preg_match('/(\d+)$/', $lastSku->sku, $matches);
+            if (!empty($matches)) {
+                $sequence = (int)$matches[1] + 1;
+            }
+        }
+
+        // Format: PREFIX-TYPE-NAME-SEQUENCE
+        return "{$prefix}-{$typeCode}-{$nameCode}-" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
     }
 
     /**

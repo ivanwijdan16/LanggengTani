@@ -236,12 +236,10 @@ class StockController extends Controller
             // Generate SKU using the new format
             $sku = IdGenerator::generateSku($name, $type, $sub_type);
 
-            $existingMasterStock = MasterStock::where('name', $name)
-                ->where('type', $type)
-                ->where('sub_type', $sub_type)
-                ->first();
+            // Cek existing master stock berdasarkan SKU
+            $existingMasterStock = MasterStock::where('sku', $sku)->first();
 
-            // Create or get master stock first
+            // Create or get master stock
             if ($existingMasterStock) {
                 $masterStockId = $existingMasterStock->id;
 
@@ -256,16 +254,15 @@ class StockController extends Controller
                 $existingMasterStock->description = $description;
                 $existingMasterStock->save();
                 $masterStock = $existingMasterStock;
-                $sku = $existingMasterStock->sku; // Use existing SKU
             } else {
-                // Create a new master stock with the new SKU format
+                // Create a new master stock dengan SKU baru
                 $masterStock = MasterStock::create([
                     'name' => $name,
                     'image' => $validated['image'][$i] ?? null,
                     'description' => $description,
                     'type' => $type,
                     'sub_type' => $sub_type,
-                    'sku' => $sku, // Save the new SKU format
+                    'sku' => $sku, // Gunakan SKU yang sudah di-generate
                 ]);
 
                 $masterStockId = $masterStock->id;
