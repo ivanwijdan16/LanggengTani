@@ -220,6 +220,16 @@
             color: #334155;
         }
 
+        .deleted-item {
+            color: #ef4444;
+            font-style: italic;
+        }
+
+        .deleted-item .stock-id {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
         .stock-id {
             font-size: 0.8rem;
             color: #64748b;
@@ -386,6 +396,7 @@
                                     </tr>
 
                                     <!-- Hidden details container -->
+                                    <!-- Hidden details container -->
                                     <tr class="details-row" id="details-row-{{ $pembelian->id }}" style="display: none;">
                                         <td colspan="4" class="p-0">
                                             <div class="p-3 fade-in">
@@ -394,16 +405,21 @@
                                                         <div class="detail-row">
                                                             <div class="detail-item">
                                                                 <span class="detail-label">Nama Barang</span>
-                                                                <span class="detail-value">
+                                                                <span
+                                                                    class="detail-value {{ $item->stock && !$item->stock->masterStock ? 'deleted-item' : '' }}">
                                                                     @if ($item->stock && $item->stock->masterStock)
                                                                         {{ $item->stock->masterStock->name }}
-                                                                    @else
+                                                                    @elseif ($item->stock)
                                                                         Barang Terhapus
+                                                                    @else
+                                                                        Barang Tidak Ditemukan
                                                                     @endif
                                                                 </span>
                                                                 @if ($item->stock)
                                                                     <span
-                                                                        class="stock-id">{{ $item->stock->stock_id }}</span>
+                                                                        class="stock-id {{ $item->stock->masterStock ? '' : 'deleted-item' }}">
+                                                                        {{ $item->stock->stock_id }}
+                                                                    </span>
                                                                 @endif
                                                             </div>
 

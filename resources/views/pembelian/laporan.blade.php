@@ -168,6 +168,16 @@
             font-size: 9px;
         }
 
+        .deleted-item {
+            color: var(--danger);
+            font-style: italic;
+        }
+
+        .deleted-item-label {
+            color: var(--danger);
+            font-size: 9px;
+        }
+
         @media print {
             @page {
                 size: A4;
@@ -331,8 +341,12 @@
                                     {{ $pembelian->stock->masterStock->name }}
                                     <div style="font-size: 9px; color: #64748b;">
                                         {{ $pembelian->stock->masterStock->sku }}</div>
+                                @elseif ($pembelian->stock)
+                                    <span class="deleted-item">Barang Terhapus</span>
+                                    <div class="deleted-item-label">
+                                        {{ $pembelian->stock->stock_id }}</div>
                                 @else
-                                    Barang Tidak Tersedia
+                                    <span class="deleted-item">Barang Tidak Tersedia</span>
                                 @endif
                             </td>
                             <td>{{ $pembelian->stock->size ?? '-' }}</td>

@@ -18,9 +18,15 @@ class Pembelian extends Model
         'master_pembelians_id'
     ];
 
-    // Relasi dengan Stock
+    // Relasi dengan Stock - menggunakan withTrashed() untuk menampilkan data yang sudah dihapus
     public function stock()
     {
         return $this->belongsTo(Stock::class)->withTrashed();
+    }
+
+    // Relasi dengan MasterPembelian
+    public function masterPembelian()
+    {
+        return $this->belongsTo(MasterPembelian::class, 'master_pembelians_id');
     }
 }

@@ -39,12 +39,47 @@ class IdGenerator
     }
 
     /**
-     * Generate a SKU in the format [JLS]-[ProdukType]-[FirstSixLettersOfName]
+     * Generate a purchase code
      *
-     * @param string $name Product name
-     * @param string $type Product type
-     * @param string $subType Product sub-type (optional)
      * @return string
+     */
+    public static function generatePurchaseCode()
+    {
+        // Current date
+        $dateCode = date('Ymd');
+
+        DB::beginTransaction();
+        try {
+            // Lock the table to prevent concurrent access
+            DB::table('master_pembelians')->lockForUpdate()->get();
+
+            // Get the latest purchase with this date code
+            $lastPurchase = DB::table('master_pembelians')
+                ->select('purchase_code')
+                ->where('purchase_code', 'like', "PB-{$dateCode}-%")
+                ->orderBy('id', 'desc')
+                ->first();
+
+            // Set sequence number
+            $sequence = 1;
+            if ($lastPurchase) {
+                // Extract the sequence number
+                $lastSeq = substr($lastPurchase->purchase_code, strrpos($lastPurchase->purchase_code, '-') + 1);
+                $sequence = (int)$lastSeq + 1;
+            }
+
+            DB::commit();
+
+            // Format: PB-YYYYMMDD-XXXX
+            return "PB-{$dateCode}-" . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    /**
+     * Generate a SKU in the format [JLS]-[ProdukType]-[FirstSixLettersOfName]
      */
     public static function generateSku($name, $type, $subType = null)
     {
@@ -79,12 +114,6 @@ class IdGenerator
 
     /**
      * Generate a stock ID with more structure
-     *
-     * @param string $sku Product SKU
-     * @param string $size Product size (will use only first character)
-     * @param string $expirationDate Expiration date (not used in the ID)
-     * @param string $batchNumber Batch number
-     * @return string
      */
     public static function generateStockId($sku, $size, $expirationDate, $batchNumber = 1)
     {
@@ -97,14 +126,12 @@ class IdGenerator
         // Format batch number
         $bn = str_pad($batchNumber, 3, '0', STR_PAD_LEFT);
 
-        // Format: SKU-SIZE-TGLMASUK:YYMMDD-BN (removed EXP part)
+        // Format: SKU-SIZE-TGLMASUK:YYMMDD-BN
         return "{$sku}-{$sizeCode}-{$entryDate}-{$bn}";
     }
 
     /**
      * Generate a transaction ID for sales
-     *
-     * @return string
      */
     public static function generateSaleId()
     {
@@ -128,34 +155,5 @@ class IdGenerator
 
         // Format: PJ-YYYYMMDD-XXXX
         return "PJ-{$dateCode}-" . str_pad($sequence, 4, '0', STR_PAD_LEFT);
-    }
-
-    /**
-     * Generate a purchase code
-     *
-     * @return string
-     */
-    public static function generatePurchaseCode()
-    {
-        // Current date
-        $dateCode = date('Ymd');
-
-        // Get the latest purchase with this date code
-        $lastPurchase = DB::table('pembelians')
-            ->select('purchase_code')
-            ->where('purchase_code', 'like', "PB-{$dateCode}-%")
-            ->orderBy('id', 'desc')
-            ->first();
-
-        // Set sequence number
-        $sequence = 1;
-        if ($lastPurchase) {
-            // Extract the sequence number
-            $lastSeq = substr($lastPurchase->purchase_code, strrpos($lastPurchase->purchase_code, '-') + 1);
-            $sequence = (int)$lastSeq + 1;
-        }
-
-        // Format: PB-YYYYMMDD-XXXX
-        return "PB-{$dateCode}-" . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 }
