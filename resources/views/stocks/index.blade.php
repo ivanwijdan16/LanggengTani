@@ -839,7 +839,6 @@
                 class="sort-link {{ $typeLink['isActive'] ? 'active' : '' }}">{!! $typeLink['label'] !!}</a>
         </div>
 
-        <!-- Stock Grid with Master Stock Cards -->
         <!-- Stock Grid with Improved Master Stock Cards -->
         <div class="row">
             @forelse ($stocks as $stock)
@@ -862,10 +861,11 @@
                                     <i class="bx bx-package"></i> {{ $totalQuantity }} pcs
                                 </span>
                             </div>
-                            <p class="card-text text-muted mb-1 small">{{ $stock->type }}</p>
-                            @if ($stock->sub_type)
-                                <p class="card-text text-muted mb-0 small">{{ $stock->sub_type }}</p>
-                            @endif
+                            <p class="card-text text-muted mb-1 small">{{ $stock->type }} @if ($stock->sub_type)
+                                    <span class="card-text text-muted mb-0 small">{{ $stock->sub_type }}</span>
+                                @endif
+                            </p>
+
 
                             <div class="card-actions">
                                 <a href="{{ route('stocks.edit.master', $stock->id) }}" class="btn action-btn btn-edit"
