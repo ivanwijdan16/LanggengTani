@@ -79,7 +79,8 @@ class IdGenerator
     }
 
     /**
-     * Generate a SKU in the format [JLS]-[ProdukType]-[FirstSixLettersOfName]
+     * Generate a SKU in the format [JLS]-[ProdukType]-[Abbreviation]
+     * Uses abbreviation of product name instead of first six letters
      */
     public static function generateSku($name, $type, $subType = null)
     {
@@ -89,13 +90,25 @@ class IdGenerator
         // Get type code (first 2 letters of type)
         $typeCode = strtoupper(substr($type, 0, 2));
 
-        // Get name code (first 6 letters of name, remove non-alphanumeric)
+        // Normalize the name (remove spaces, special characters)
         $cleanedName = preg_replace('/[^A-Za-z0-9]/', '', $name);
-        $nameCode = strtoupper(substr($cleanedName, 0, 6));
 
-        // Get sequence number for this name and type
+        // Create abbreviation from the name
+        $abbreviation = self::createAbbreviation($name);
+
+        // Check if a master_stock with this name already exists
+        $existingProduct = DB::table('master_stocks')
+            ->where('name', 'like', $name)
+            ->first();
+
+        if ($existingProduct) {
+            // If a product with the same name exists, return its SKU
+            return $existingProduct->sku;
+        }
+
+        // Get sequence number for this abbreviation
         $lastSku = DB::table('master_stocks')
-            ->where('sku', 'like', "{$prefix}-{$typeCode}-{$nameCode}-%")
+            ->where('sku', 'like', "{$prefix}-{$typeCode}-{$abbreviation}%")
             ->orderBy('sku', 'desc')
             ->first();
 
@@ -108,8 +121,41 @@ class IdGenerator
             }
         }
 
-        // Format: PREFIX-TYPE-NAME-SEQUENCE
-        return "{$prefix}-{$typeCode}-{$nameCode}-" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+        // Format: PREFIX-TYPE-ABBREVIATION-SEQUENCE
+        return "{$prefix}-{$typeCode}-{$abbreviation}-" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Create a meaningful abbreviation from a product name
+     */
+    private static function createAbbreviation($name)
+    {
+        // Remove special characters and convert to uppercase
+        $name = preg_replace('/[^a-zA-Z0-9\s]/', '', $name);
+        $name = strtoupper($name);
+
+        // Split the name into words
+        $words = preg_split('/\s+/', $name);
+
+        // If it's just one word, take the first 4 letters
+        if (count($words) <= 1) {
+            return substr($words[0], 0, 4);
+        }
+
+        // If multiple words, take the first letter of each word, up to 4 letters
+        $abbreviation = '';
+        foreach ($words as $word) {
+            if (strlen($word) > 0) {
+                $abbreviation .= $word[0];
+            }
+        }
+
+        // If abbreviation is too short, add more letters from the first word
+        if (strlen($abbreviation) < 3 && !empty($words[0]) && strlen($words[0]) > 1) {
+            $abbreviation .= substr($words[0], 1, 3 - strlen($abbreviation));
+        }
+
+        return $abbreviation;
     }
 
     /**
