@@ -129,45 +129,48 @@
           </li>
 
           @if (auth()->user()->role == 'owner')
-<li class="menu-item">
+      <li class="menu-item">
             <a href="{{ route('pembelian.index') }}" class="menu-link">
               <!-- Changed the icon to a shopping cart icon (for purchases) -->
               <i class="menu-icon tf-icons bx bx-store"></i>
               <div data-i18n="Pembelian">Pembelian</div>
             </a>
-          </li>
+            </li>
 
-          <li class="menu-item">
+            <li class="menu-item">
             <a href="{{ route('penjualan.index') }}" class="menu-link">
               <!-- Changed the icon to a sell icon (for sales) -->
               <i class="menu-icon tf-icons bx bx-cart-alt"></i>
               <div data-i18n="Penjualan">Penjualan</div>
             </a>
-          </li>
+            </li>
 
-          <!-- Profile Settings -->
-          <li class="menu-item">
+            <!-- Profile Settings -->
+            <li class="menu-item">
             <a href="{{ route('profile.edit') }}" class="menu-link">
               <i class="menu-icon tf-icons bx bx-user"></i>
               <div data-i18n="Profile">Profil</div>
             </a>
-          </li>
+            </li>
 
-          <!-- Pegawai Settings -->
-          <li class="menu-item">
+            <!-- Pegawai Settings -->
+            <li class="menu-item">
             <a href="{{ route('user.index') }}" class="menu-link">
               <i class="menu-icon tf-icons bx bx-user-pin"></i>
               <div data-i18n="Pegawai">Pegawai</div>
             </a>
-          </li>
-@endif
+            </li>
+    @endif
 
-{{-- <li class="menu-item">
-    <a href="{{ route('dokumentasi') }}" class="menu-link">
+<li class="menu-item">
+    <a href="https://langgengtani.gitbook.io/langgengtani/" class="menu-link" target="_blank">
       <i class="menu-icon tf-icons bx bx-file"></i>
-      <div data-i18n="Dokumentasi">Panduan</div>
+      <div data-i18n="Dokumentasi" class="d-flex justify-content-between w-100">
+        <span>Panduan</span>
+        <i class="bx bx-link-external"></i>
+      </div>
     </a>
-  </li> --}}
+  </li>
         </ul>
 
 
@@ -215,16 +218,16 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                   @if (auth()->user()->role == 'owner')
-<li>
+          <li>
                     <a class="dropdown-item" href="{{ route('profile.edit') }}">
                       <i class="bx bx-user me-2"></i>
                       <span class="align-middle">My Profile</span>
                     </a>
-                  </li>
-                  <li>
+                    </li>
+                    <li>
                     <div class="dropdown-divider"></div>
-                  </li>
-@endif
+                    </li>
+        @endif
                   <li>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                       @csrf
@@ -310,22 +313,22 @@
   <script src="{{ asset('assets/js/main.js') }}"></script>
 
   <script>
-      $(document).ready(function() {
-          // Fetch notifications using Ajax
-          function loadNotifications() {
-              $.ajax({
-                  url: '/notifications',
-                  method: 'GET',
-                  success: function(response) {
-                      // Update the badge with the count of unread notifications
-                      $('#notificationBadge').text(response.unread_count);
+    $(document).ready(function () {
+      // Fetch notifications using Ajax
+      function loadNotifications() {
+        $.ajax({
+          url: '/notifications',
+          method: 'GET',
+          success: function (response) {
+            // Update the badge with the count of unread notifications
+            $('#notificationBadge').text(response.unread_count);
 
-                      // Clear existing notifications
-                      $('#notificationDropdown .dropdown-menu').empty();
+            // Clear existing notifications
+            $('#notificationDropdown .dropdown-menu').empty();
 
-                      if (response.notifications.length > 0) {
-                          response.notifications.forEach(function(notification) {
-                              $('#notificationDropdown .dropdown-menu').append(`
+            if (response.notifications.length > 0) {
+              response.notifications.forEach(function (notification) {
+                $('#notificationDropdown .dropdown-menu').append(`
                             <li>
                                 <a class="dropdown-item mark-as-read" href="#" data-id="${notification.id}">
                                     <i class="bx bx-bell me-2"></i>
@@ -333,14 +336,14 @@
                                 </a>
                             </li>
                         `);
-                          });
-                      } else {
-                          $('#notificationDropdown .dropdown-menu').append(`
+              });
+            } else {
+              $('#notificationDropdown .dropdown-menu').append(`
                         <li><a class="dropdown-item" href="#">No notifications</a></li>
                     `);
-                      }
+            }
 
-                      $('#notificationDropdown .dropdown-menu').append(`
+            $('#notificationDropdown .dropdown-menu').append(`
     <li>
         <div class="dropdown-divider"></div>
     </li>
@@ -348,31 +351,31 @@
         <a class="dropdown-item" href="{{ route('notifications.all') }}">Lihat Semua Notifikasi</a>
     </li>
 `);
-                  }
-              });
           }
+        });
+      }
 
-          // Load notifications when the page loads
-          loadNotifications();
+      // Load notifications when the page loads
+      loadNotifications();
 
-          // Optionally, refresh notifications periodically
-          setInterval(loadNotifications, 60000); // Refresh every minute
+      // Optionally, refresh notifications periodically
+      setInterval(loadNotifications, 60000); // Refresh every minute
 
-          // Mark notification as read when clicked
-          $(document).on('click', '.mark-as-read', function(e) {
-              var notificationId = $(this).data('id');
-              $.ajax({
-                  url: '/notifications/' + notificationId + '/markAsRead',
-                  method: 'POST',
-                  data: {
-                      _token: '{{ csrf_token() }}'
-                  },
-                  success: function() {
-                      loadNotifications();
-                  }
-              });
-          });
+      // Mark notification as read when clicked
+      $(document).on('click', '.mark-as-read', function (e) {
+        var notificationId = $(this).data('id');
+        $.ajax({
+          url: '/notifications/' + notificationId + '/markAsRead',
+          method: 'POST',
+          data: {
+            _token: '{{ csrf_token() }}'
+          },
+          success: function () {
+            loadNotifications();
+          }
+        });
       });
+    });
   </script>
 
   @yield('script')
