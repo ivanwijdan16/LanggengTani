@@ -740,26 +740,26 @@
                     <a href="{{ route('cart.index', ['sort' => 'price', 'direction' => $sort == 'price' && $direction == 'asc' ? 'desc' : 'asc', 'search' => $searchQuery ?? '']) }}"
                         class="sort-link {{ $sort == 'price' ? 'active' : '' }}">
                         Harga {!! $sort == 'price'
-                            ? ($direction == 'asc'
-                                ? '<i class="bx bx-sort-up"></i>'
-                                : '<i class="bx bx-sort-down"></i>')
-                            : '' !!}
+        ? ($direction == 'asc'
+            ? '<i class="bx bx-sort-up"></i>'
+            : '<i class="bx bx-sort-down"></i>')
+        : '' !!}
                     </a>
                     <a href="{{ route('cart.index', ['sort' => 'expiry', 'direction' => $sort == 'expiry' && $direction == 'asc' ? 'desc' : 'asc', 'search' => $searchQuery ?? '']) }}"
                         class="sort-link {{ $sort == 'expiry' ? 'active' : '' }}">
                         Kadaluwarsa {!! $sort == 'expiry'
-                            ? ($direction == 'asc'
-                                ? '<i class="bx bx-sort-up"></i>'
-                                : '<i class="bx bx-sort-down"></i>')
-                            : '' !!}
+        ? ($direction == 'asc'
+            ? '<i class="bx bx-sort-up"></i>'
+            : '<i class="bx bx-sort-down"></i>')
+        : '' !!}
                     </a>
                     <a href="{{ route('cart.index', ['sort' => 'newest', 'direction' => $sort == 'newest' && $direction == 'desc' ? 'asc' : 'desc', 'search' => $searchQuery ?? '']) }}"
                         class="sort-link {{ $sort == 'newest' ? 'active' : '' }}">
                         Terbaru {!! $sort == 'newest'
-                            ? ($direction == 'desc'
-                                ? '<i class="bx bx-sort-down"></i>'
-                                : '<i class="bx bx-sort-up"></i>')
-                            : '' !!}
+        ? ($direction == 'desc'
+            ? '<i class="bx bx-sort-down"></i>'
+            : '<i class="bx bx-sort-up"></i>')
+        : '' !!}
                     </a>
                 </div>
 
@@ -798,9 +798,8 @@
 
                                     <div class="product-quantity-input row">
                                         <label for="quantity-{{ $product->id }}">Jumlah:</label>
-                                        <input type="number" id="quantity-{{ $product->id }}" name="quantity"
-                                            value="1" min="1" max="{{ $product->total_quantity }}"
-                                            class="form-control">
+                                        <input type="number" id="quantity-{{ $product->id }}" name="quantity" value="1" min="1"
+                                            max="{{ $product->total_quantity }}" class="form-control">
                                     </div>
 
                                     <br>
@@ -808,27 +807,25 @@
                                     {{-- <div class="product-expiry">
                                         <i class="bx {{ $product->expired ? 'bx-x-circle' : 'bx-calendar' }}"></i>
                                         <span class="{{ $product->expired ? 'expired-text' : '' }}">
-                                            {{ $product->expired ? 'Sudah Kadaluarsa' : 'Exp: ' . $product->expiration_date_formatted }}
+                                            {{ $product->expired ? 'Sudah Kadaluarsa' : 'Exp: ' .
+                                            $product->expiration_date_formatted }}
                                         </span>
                                     </div> --}}
 
                                     <!-- Check if retail_price is not null -->
                                     @if ($product->retail_price !== null)
-                                        <button type="button"
-                                            class="add-to-cart-btn {{ $product->expired ? 'expired-btn' : '' }}"
+                                        <button type="button" class="add-to-cart-btn {{ $product->expired ? 'expired-btn' : '' }}"
                                             {{ $product->expired ? 'disabled' : 'onclick=addToCart(' . $product->id . ')' }}>
                                             <i class="bx {{ $product->expired ? 'bx-x' : 'bx-cart-add' }}"></i>
                                             Tambahkan
                                         </button>
-                                        <button type="button"
-                                            class="add-to-cart-btn {{ $product->expired ? 'expired-btn' : '' }}"
+                                        <button type="button" class="add-to-cart-btn {{ $product->expired ? 'expired-btn' : '' }}"
                                             {{ $product->expired ? 'disabled' : 'onclick=addToCart(' . $product->id . ',`retail`)' }}>
                                             <i class="bx {{ $product->expired ? 'bx-x' : 'bx-cart-add' }}"></i>
                                             Tambah Eceran
                                         </button>
                                     @else
-                                        <button type="button"
-                                            class="add-to-cart-btn {{ $product->expired ? 'expired-btn' : '' }}"
+                                        <button type="button" class="add-to-cart-btn {{ $product->expired ? 'expired-btn' : '' }}"
                                             {{ $product->expired ? 'disabled' : 'onclick=addToCart(' . $product->id . ')' }}>
                                             <i class="bx {{ $product->expired ? 'bx-x' : 'bx-cart-add' }}"></i>
                                             Tambahkan
@@ -903,8 +900,13 @@
 
 @section('script')
     <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
         // Function to handle real-time search input
-        $('#search-bar').on('input', function() {
+        $('#search-bar').on('input', function () {
             const query = $(this).val();
             if (query.length >= 2 || query.length === 0) {
                 $('#searchForm').submit();
@@ -920,22 +922,22 @@
                     master_stock_id: masterStockId,
                     size: size
                 },
-                success: function(response) {
+                success: function (response) {
                     let batchHtml = '';
                     let totalQuantity = 0;
 
                     if (response.stocks.length > 0) {
-                        response.stocks.forEach(function(stock) {
+                        response.stocks.forEach(function (stock) {
                             totalQuantity += parseInt(stock.quantity);
                             batchHtml += `
-                                <div class="batch-item">
-                                    <div class="batch-info">
-                                        <div class="batch-id">${stock.stock_id}</div>
-                                        <div class="batch-expiry">Kadaluwarsa: ${stock.expiration_date}</div>
-                                    </div>
-                                    <div class="batch-quantity">${stock.quantity} pcs</div>
-                                </div>
-                            `;
+                                        <div class="batch-item">
+                                            <div class="batch-info">
+                                                <div class="batch-id">${stock.stock_id}</div>
+                                                <div class="batch-expiry">Kadaluwarsa: ${stock.expiration_date}</div>
+                                            </div>
+                                            <div class="batch-quantity">${stock.quantity} pcs</div>
+                                        </div>
+                                    `;
                         });
                     } else {
                         batchHtml = '<p class="text-center text-muted">Tidak ada stok tersedia</p>';
@@ -954,7 +956,7 @@
         }
 
         // Close modal when clicking outside
-        $(window).click(function(e) {
+        $(window).click(function (e) {
             if ($(e.target).closest('.stock-info-content').length === 0 && $(e.target).closest('.info-badge')
                 .length === 0) {
                 closeStockInfoModal();
@@ -973,7 +975,7 @@
                     type: type ?? 'normal',
                     _token: '{{ csrf_token() }}'
                 },
-                success: function(response) {
+                success: function (response) {
                     loadCart(); // Reload cart after adding an item
                 }
             });
@@ -984,35 +986,35 @@
             $.ajax({
                 url: "{{ route('cart.get') }}",
                 method: 'GET',
-                success: function(response) {
+                success: function (response) {
                     let cartHtml = '';
                     let totalPrice = 0;
                     let cartIsEmpty = response.carts.length === 0;
 
                     if (!cartIsEmpty) {
-                        response.carts.forEach(function(cart) {
+                        response.carts.forEach(function (cart) {
                             totalPrice += parseFloat(cart.subtotal);
                             cartHtml += `
-             <div class="cart-item">
-               <div class="cart-item-details">
-                 <div class="cart-item-name">${cart.product.master_stock.name} <span style="font-size: 0.8rem; color: var(--text-medium);">(${cart.product.size})</span></div>
-                 <div class="cart-item-price">Rp ${new Intl.NumberFormat('id-ID').format(cart.type == 'normal' ? cart.product.selling_price : cart.product.retail_price)} × ${cart.quantity}</div>
-               </div>
-               <div class="cart-item-total">Rp ${new Intl.NumberFormat('id-ID').format(cart.subtotal)}</div>
-               <button type="button" class="cart-remove-btn" onclick="removeFromCart(${cart.id})">
-                 <i class="bx bx-trash"></i>
-               </button>
-             </div>
-           `;
+                     <div class="cart-item">
+                       <div class="cart-item-details">
+                         <div class="cart-item-name">${cart.product.master_stock.name} <span style="font-size: 0.8rem; color: var(--text-medium);">(${cart.product.size})</span></div>
+                         <div class="cart-item-price">Rp ${new Intl.NumberFormat('id-ID').format(cart.type == 'normal' ? cart.product.selling_price : cart.product.retail_price)} × ${cart.quantity}</div>
+                       </div>
+                       <div class="cart-item-total">Rp ${new Intl.NumberFormat('id-ID').format(cart.subtotal)}</div>
+                       <button type="button" class="cart-remove-btn" onclick="removeFromCart(${cart.id})">
+                         <i class="bx bx-trash"></i>
+                       </button>
+                     </div>
+                   `;
                         });
                     } else {
                         cartHtml = `
-           <div class="cart-empty">
-             <i class="bx bx-cart"></i>
-             <h4>Keranjang Kosong</h4>
-             <p>Tambahkan barang ke keranjang</p>
-           </div>
-         `;
+                   <div class="cart-empty">
+                     <i class="bx bx-cart"></i>
+                     <h4>Keranjang Kosong</h4>
+                     <p>Tambahkan barang ke keranjang</p>
+                   </div>
+                 `;
                     }
 
                     $('#cart-container').html(cartHtml);
@@ -1032,12 +1034,12 @@
                             'background-color': 'var(--text-light)',
                             'cursor': 'not-allowed',
                             'opacity': '0.6'
-                        }).hover(function() {
+                        }).hover(function () {
                             $(this).css({
                                 'transform': 'none',
                                 'background-color': 'var(--text-light)'
                             });
-                        }, function() {
+                        }, function () {
                             $(this).css({
                                 'transform': 'none',
                                 'background-color': 'var(--text-light)'
@@ -1059,20 +1061,19 @@
                 url: `/cart/${cartId}`,
                 type: 'POST',
                 data: {
-                    _method: 'DELETE',
-                    _token: '{{ csrf_token() }}'
+                    _method: 'DELETE'
                 },
-                success: function(response) {
+                success: function (response) {
                     loadCart();
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     alert('Terjadi kesalahan saat menghapus barang.');
                 }
             });
         }
 
         // When the document is ready, load the cart
-        $(document).ready(function() {
+        $(document).ready(function () {
             loadCart();
         });
     </script>
