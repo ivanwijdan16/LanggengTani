@@ -925,14 +925,14 @@
                         response.stocks.forEach(function (stock) {
                             totalQuantity += parseInt(stock.quantity);
                             batchHtml += `
-                                    <div class="batch-item">
-                                        <div class="batch-info">
-                                            <div class="batch-id">${stock.stock_id}</div>
-                                            <div class="batch-expiry">Kadaluwarsa: ${stock.expiration_date}</div>
+                                        <div class="batch-item">
+                                            <div class="batch-info">
+                                                <div class="batch-id">${stock.stock_id}</div>
+                                                <div class="batch-expiry">Kadaluwarsa: ${stock.expiration_date}</div>
+                                            </div>
+                                            <div class="batch-quantity">${stock.quantity} pcs</div>
                                         </div>
-                                        <div class="batch-quantity">${stock.quantity} pcs</div>
-                                    </div>
-                                `;
+                                    `;
                         });
                     } else {
                         batchHtml = '<p class="text-center text-muted">Tidak ada stok tersedia</p>';
@@ -990,26 +990,26 @@
                         response.carts.forEach(function (cart) {
                             totalPrice += parseFloat(cart.subtotal);
                             cartHtml += `
-                 <div class="cart-item">
-                   <div class="cart-item-details">
-                     <div class="cart-item-name">${cart.product.master_stock.name} <span style="font-size: 0.8rem; color: var(--text-medium);">(${cart.product.size})</span></div>
-                     <div class="cart-item-price">Rp ${new Intl.NumberFormat('id-ID').format(cart.type == 'normal' ? cart.product.selling_price : cart.product.retail_price)} × ${cart.quantity}</div>
-                   </div>
-                   <div class="cart-item-total">Rp ${new Intl.NumberFormat('id-ID').format(cart.subtotal)}</div>
-                   <button type="button" class="cart-remove-btn" onclick="removeFromCart(${cart.id})">
-                     <i class="bx bx-trash"></i>
-                   </button>
-                 </div>
-               `;
+                     <div class="cart-item">
+                       <div class="cart-item-details">
+                         <div class="cart-item-name">${cart.product.master_stock.name} <span style="font-size: 0.8rem; color: var(--text-medium);">(${cart.product.size})</span></div>
+                         <div class="cart-item-price">Rp ${new Intl.NumberFormat('id-ID').format(cart.type == 'normal' ? cart.product.selling_price : cart.product.retail_price)} × ${cart.quantity}</div>
+                       </div>
+                       <div class="cart-item-total">Rp ${new Intl.NumberFormat('id-ID').format(cart.subtotal)}</div>
+                       <button type="button" class="cart-remove-btn" onclick="removeFromCart(${cart.id})">
+                         <i class="bx bx-trash"></i>
+                       </button>
+                     </div>
+                   `;
                         });
                     } else {
                         cartHtml = `
-               <div class="cart-empty">
-                 <i class="bx bx-cart"></i>
-                 <h4>Keranjang Kosong</h4>
-                 <p>Tambahkan barang ke keranjang</p>
-               </div>
-             `;
+                   <div class="cart-empty">
+                     <i class="bx bx-cart"></i>
+                     <h4>Keranjang Kosong</h4>
+                     <p>Tambahkan barang ke keranjang</p>
+                   </div>
+                 `;
                     }
 
                     $('#cart-container').html(cartHtml);
@@ -1052,18 +1052,55 @@
         }
 
         function removeFromCart(cartId) {
+            // Tambahkan konfirmasi untuk memastikan user ingin menghapus
+            if (!confirm('Apakah Anda yakin ingin menghapus item ini dari keranjang?')) {
+                return;
+            }
+
             $.ajax({
+                // Gunakan route() helper Laravel atau URL absolut
                 url: `/cart/${cartId}`,
-                type: 'POST',
+                type: 'DELETE', // Gunakan DELETE method langsung
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Content-Type': 'application/json',
+                },
                 data: {
-                    _method: 'DELETE',
-                    _token: '{{ csrf_token() }}'
+                    _token: '{{ csrf_token() }}' // Backup CSRF token
+                },
+                beforeSend: function () {
+                    // Disable button sementara untuk mencegah double click
+                    $(`.cart-remove-btn[onclick*="${cartId}"]`).prop('disabled', true);
                 },
                 success: function (response) {
-                    loadCart();
+                    console.log('Item berhasil dihapus:', response);
+                    loadCart(); // Reload cart after removing item
                 },
                 error: function (xhr, status, error) {
-                    alert('Terjadi kesalahan saat menghapus barang.');
+                    console.error('Error details:', {
+                        status: xhr.status,
+                        statusText: xhr.statusText,
+                        responseText: xhr.responseText,
+                        error: error
+                    });
+
+                    // Re-enable button
+                    $(`.cart-remove-btn[onclick*="${cartId}"]`).prop('disabled', false);
+
+                    // Show user-friendly error message
+                    if (xhr.status === 419) {
+                        alert('Session expired. Please refresh the page and try again.');
+                        location.reload();
+                    } else if (xhr.status === 404) {
+                        alert('Item tidak ditemukan. Keranjang akan dimuat ulang.');
+                        loadCart();
+                    } else {
+                        alert('Terjadi kesalahan saat menghapus barang. Silakan coba lagi.');
+                    }
+                },
+                complete: function () {
+                    // Re-enable button setelah selesai
+                    $(`.cart-remove-btn[onclick*="${cartId}"]`).prop('disabled', false);
                 }
             });
         }
