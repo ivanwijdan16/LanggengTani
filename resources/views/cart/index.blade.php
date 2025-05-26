@@ -900,11 +900,6 @@
 
 @section('script')
     <script>
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
         // Function to handle real-time search input
         $('#search-bar').on('input', function () {
             const query = $(this).val();
@@ -930,14 +925,14 @@
                         response.stocks.forEach(function (stock) {
                             totalQuantity += parseInt(stock.quantity);
                             batchHtml += `
-                                        <div class="batch-item">
-                                            <div class="batch-info">
-                                                <div class="batch-id">${stock.stock_id}</div>
-                                                <div class="batch-expiry">Kadaluwarsa: ${stock.expiration_date}</div>
-                                            </div>
-                                            <div class="batch-quantity">${stock.quantity} pcs</div>
+                                    <div class="batch-item">
+                                        <div class="batch-info">
+                                            <div class="batch-id">${stock.stock_id}</div>
+                                            <div class="batch-expiry">Kadaluwarsa: ${stock.expiration_date}</div>
                                         </div>
-                                    `;
+                                        <div class="batch-quantity">${stock.quantity} pcs</div>
+                                    </div>
+                                `;
                         });
                     } else {
                         batchHtml = '<p class="text-center text-muted">Tidak ada stok tersedia</p>';
@@ -995,26 +990,26 @@
                         response.carts.forEach(function (cart) {
                             totalPrice += parseFloat(cart.subtotal);
                             cartHtml += `
-                     <div class="cart-item">
-                       <div class="cart-item-details">
-                         <div class="cart-item-name">${cart.product.master_stock.name} <span style="font-size: 0.8rem; color: var(--text-medium);">(${cart.product.size})</span></div>
-                         <div class="cart-item-price">Rp ${new Intl.NumberFormat('id-ID').format(cart.type == 'normal' ? cart.product.selling_price : cart.product.retail_price)} × ${cart.quantity}</div>
-                       </div>
-                       <div class="cart-item-total">Rp ${new Intl.NumberFormat('id-ID').format(cart.subtotal)}</div>
-                       <button type="button" class="cart-remove-btn" onclick="removeFromCart(${cart.id})">
-                         <i class="bx bx-trash"></i>
-                       </button>
-                     </div>
-                   `;
+                 <div class="cart-item">
+                   <div class="cart-item-details">
+                     <div class="cart-item-name">${cart.product.master_stock.name} <span style="font-size: 0.8rem; color: var(--text-medium);">(${cart.product.size})</span></div>
+                     <div class="cart-item-price">Rp ${new Intl.NumberFormat('id-ID').format(cart.type == 'normal' ? cart.product.selling_price : cart.product.retail_price)} × ${cart.quantity}</div>
+                   </div>
+                   <div class="cart-item-total">Rp ${new Intl.NumberFormat('id-ID').format(cart.subtotal)}</div>
+                   <button type="button" class="cart-remove-btn" onclick="removeFromCart(${cart.id})">
+                     <i class="bx bx-trash"></i>
+                   </button>
+                 </div>
+               `;
                         });
                     } else {
                         cartHtml = `
-                   <div class="cart-empty">
-                     <i class="bx bx-cart"></i>
-                     <h4>Keranjang Kosong</h4>
-                     <p>Tambahkan barang ke keranjang</p>
-                   </div>
-                 `;
+               <div class="cart-empty">
+                 <i class="bx bx-cart"></i>
+                 <h4>Keranjang Kosong</h4>
+                 <p>Tambahkan barang ke keranjang</p>
+               </div>
+             `;
                     }
 
                     $('#cart-container').html(cartHtml);
@@ -1061,7 +1056,8 @@
                 url: `/cart/${cartId}`,
                 type: 'POST',
                 data: {
-                    _method: 'DELETE'
+                    _method: 'DELETE',
+                    _token: '{{ csrf_token() }}'
                 },
                 success: function (response) {
                     loadCart();
