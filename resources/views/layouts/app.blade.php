@@ -30,6 +30,9 @@
 
   <meta name="description" content="" />
 
+
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon/Logo Tab.png') }}" />
   <link rel="shortcut icon" type="image/png" href="{{ asset('assets/img/favicon/Logo Tab.png') }}" />
@@ -130,36 +133,36 @@
 
           @if (auth()->user()->role == 'owner')
       <li class="menu-item">
-            <a href="{{ route('pembelian.index') }}" class="menu-link">
-              <!-- Changed the icon to a shopping cart icon (for purchases) -->
-              <i class="menu-icon tf-icons bx bx-store"></i>
-              <div data-i18n="Pembelian">Pembelian</div>
-            </a>
-            </li>
+        <a href="{{ route('pembelian.index') }}" class="menu-link">
+        <!-- Changed the icon to a shopping cart icon (for purchases) -->
+        <i class="menu-icon tf-icons bx bx-store"></i>
+        <div data-i18n="Pembelian">Pembelian</div>
+        </a>
+        </li>
 
-            <li class="menu-item">
-            <a href="{{ route('penjualan.index') }}" class="menu-link">
-              <!-- Changed the icon to a sell icon (for sales) -->
-              <i class="menu-icon tf-icons bx bx-cart-alt"></i>
-              <div data-i18n="Penjualan">Penjualan</div>
-            </a>
-            </li>
+        <li class="menu-item">
+        <a href="{{ route('penjualan.index') }}" class="menu-link">
+        <!-- Changed the icon to a sell icon (for sales) -->
+        <i class="menu-icon tf-icons bx bx-cart-alt"></i>
+        <div data-i18n="Penjualan">Penjualan</div>
+        </a>
+        </li>
 
-            <!-- Profile Settings -->
-            <li class="menu-item">
-            <a href="{{ route('profile.edit') }}" class="menu-link">
-              <i class="menu-icon tf-icons bx bx-user"></i>
-              <div data-i18n="Profile">Profil</div>
-            </a>
-            </li>
+        <!-- Profile Settings -->
+        <li class="menu-item">
+        <a href="{{ route('profile.edit') }}" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-user"></i>
+        <div data-i18n="Profile">Profil</div>
+        </a>
+        </li>
 
-            <!-- Pegawai Settings -->
-            <li class="menu-item">
-            <a href="{{ route('user.index') }}" class="menu-link">
-              <i class="menu-icon tf-icons bx bx-user-pin"></i>
-              <div data-i18n="Pegawai">Pegawai</div>
-            </a>
-            </li>
+        <!-- Pegawai Settings -->
+        <li class="menu-item">
+        <a href="{{ route('user.index') }}" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-user-pin"></i>
+        <div data-i18n="Pegawai">Pegawai</div>
+        </a>
+        </li>
     @endif
 
 <li class="menu-item">
@@ -219,14 +222,14 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                   @if (auth()->user()->role == 'owner')
           <li>
-                    <a class="dropdown-item" href="{{ route('profile.edit') }}">
-                      <i class="bx bx-user me-2"></i>
-                      <span class="align-middle">My Profile</span>
-                    </a>
-                    </li>
-                    <li>
-                    <div class="dropdown-divider"></div>
-                    </li>
+            <a class="dropdown-item" href="{{ route('profile.edit') }}">
+              <i class="bx bx-user me-2"></i>
+              <span class="align-middle">My Profile</span>
+            </a>
+            </li>
+            <li>
+            <div class="dropdown-divider"></div>
+            </li>
         @endif
                   <li>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
