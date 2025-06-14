@@ -22,25 +22,16 @@
         <!-- Password -->
         <div>
             <x-input-label for="password" :value="__('Password')" />
-            <div class="relative mt-1">
-                <x-text-input id="password" class="block w-full pr-10" type="password" name="password" required
-                    autocomplete="current-password" />
-                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
-                    onclick="togglePassword('password')">
-                    <i id="password-icon" class="bx bx-hide text-gray-400 hover:text-gray-600 text-lg"></i>
+            <div style="position: relative; margin-top: 0.25rem;">
+                <x-text-input id="password" class="block w-full" type="password" name="password" required
+                    autocomplete="current-password" style="padding-right: 2.5rem;" />
+                <button type="button" onclick="togglePassword('password')"
+                    style="position: absolute; top: 0; right: 0; height: 100%; width: 2.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; border: none;">
+                    <i id="password-icon" class="bx bx-hide" style="color: #9CA3AF; font-size: 1.125rem;"></i>
                 </button>
             </div>
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
-
-        <!-- Remember Me -->
-        {{-- <div class="block">
-      <label for="remember_me" class="inline-flex items-center">
-        <input id="remember_me" type="checkbox"
-          class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-        <span class="ml-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-      </label>
-    </div> --}}
 
         <div class="flex items-center justify-between">
             <!-- Forgot Password Link -->
@@ -57,16 +48,6 @@
         </div>
     </form>
 
-    <!-- Register Link (Button) -->
-    {{-- <div class="mt-4 text-center">
-    <p class="text-sm text-gray-600">
-      {{ __("Don't have an account?") }}
-      <a href="{{ route('register') }}" class="text-indigo-600 hover:text-indigo-900 font-medium">
-        {{ __('Register here') }}
-      </a>
-    </p>
-  </div> --}}
-
     <script>
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
@@ -76,11 +57,29 @@
                 input.type = 'text';
                 icon.classList.remove('bx-hide');
                 icon.classList.add('bx-show');
+                icon.style.color = '#6B7280'; // Darker when visible
             } else {
                 input.type = 'password';
                 icon.classList.remove('bx-show');
                 icon.classList.add('bx-hide');
+                icon.style.color = '#9CA3AF'; // Lighter when hidden
             }
         }
+
+        // Add hover effect
+        document.addEventListener('DOMContentLoaded', function() {
+            const button = document.querySelector('button[onclick="togglePassword(\'password\')"]');
+            if (button) {
+                button.addEventListener('mouseenter', function() {
+                    const icon = this.querySelector('i');
+                    icon.style.color = '#6B7280';
+                });
+                button.addEventListener('mouseleave', function() {
+                    const icon = this.querySelector('i');
+                    const input = document.getElementById('password');
+                    icon.style.color = input.type === 'password' ? '#9CA3AF' : '#6B7280';
+                });
+            }
+        });
     </script>
 </x-guest-layout>
