@@ -22,12 +22,12 @@
         <!-- Password -->
         <div>
             <x-input-label for="password" :value="__('Password')" />
-            <div class="relative">
-                <x-text-input id="password" class="block mt-1 w-full pr-12" type="password" name="password" required
+            <div class="relative mt-1">
+                <x-text-input id="password" class="block w-full pr-10" type="password" name="password" required
                     autocomplete="current-password" />
-                <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
                     onclick="togglePassword('password')">
-                    <i id="password-icon" class="bx bx-hide text-gray-500 hover:text-gray-700 text-xl"></i>
+                    <i id="password-icon" class="bx bx-hide text-gray-400 hover:text-gray-600 text-lg"></i>
                 </button>
             </div>
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
