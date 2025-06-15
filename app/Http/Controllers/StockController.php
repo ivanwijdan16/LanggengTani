@@ -268,33 +268,35 @@ class StockController extends Controller
                 $masterStockId = $masterStock->id;
             }
 
-            // Now handle the stock
-            // FIXED: Get batch number including soft deleted stocks
-            $batchNumber = Stock::withTrashed()
-                ->where('master_stock_id', $masterStockId)
+            // ===== BAGIAN YANG DIPERBAIKI =====
+            // Cek apakah sudah ada stok dengan kombinasi yang sama (master_stock_id, size, expiration_date)
+            $existingStock = Stock::where('master_stock_id', $masterStockId)
                 ->where('size', $size)
-                ->count() + 1;
-
-            // Generate the new stock_id format
-            $stockId = IdGenerator::generateStockId($sku, $size, $expiration_date, $batchNumber);
-
-            // Check if stock with this ID exists (including soft deleted)
-            $existingStock = Stock::withTrashed()->where('stock_id', $stockId)->first();
+                ->where('expiration_date', $expiration_date)
+                ->where('purchase_price', $purchase_price) // Tambahan: cek harga beli juga
+                ->where('selling_price', $selling_price)   // Tambahan: cek harga jual juga
+                ->first();
 
             if ($existingStock) {
-                if ($existingStock->trashed()) {
-                    // Jika stok sebelumnya telah dihapus (soft delete), restore dan update jumlahnya
-                    $existingStock->restore();
-                    $existingStock->quantity = $quantity;
-                    $existingStock->save();
-                } else {
-                    // Jika stok ada dan tidak dihapus, tambahkan jumlahnya
-                    $existingStock->increment('quantity', $quantity);
-                }
+                // Jika stok dengan kombinasi yang sama ditemukan, tambahkan quantity
+                $existingStock->quantity += $quantity;
+                $existingStock->save();
+
                 // Catat pembelian ke tabel pembelian
                 $this->createPembelian($existingStock, $quantity, $purchase_price, $expiration_date, $master_pembelian);
             } else {
-                // Jika stok baru, buat entri stok baru
+                // Jika tidak ada stok dengan kombinasi yang sama, buat stok baru
+
+                // Get batch number untuk stock_id
+                $batchNumber = Stock::withTrashed()
+                    ->where('master_stock_id', $masterStockId)
+                    ->where('size', $size)
+                    ->count() + 1;
+
+                // Generate the new stock_id format
+                $stockId = IdGenerator::generateStockId($sku, $size, $expiration_date, $batchNumber);
+
+                // Buat stok baru
                 $stock = Stock::create([
                     'master_stock_id' => $masterStockId,
                     'size' => $size,
@@ -367,36 +369,59 @@ class StockController extends Controller
             'date' => date('Y-m-d'),
         ]);
 
-        // FIXED: Get the batch number for new stock including soft deleted ones
-        $batchNumber = Stock::withTrashed()
-            ->where('master_stock_id', $validated['master_stock_id'])
+        // ===== BAGIAN YANG DIPERBAIKI =====
+        // Cek apakah sudah ada stok dengan kombinasi yang sama
+        $existingStock = Stock::where('master_stock_id', $validated['master_stock_id'])
             ->where('size', $validated['size'])
-            ->count() + 1;
+            ->where('expiration_date', $validated['expiration_date'])
+            ->where('purchase_price', $validated['purchase_price'])
+            ->where('selling_price', $validated['selling_price'])
+            ->first();
 
-        // Generate stock ID
-        $stockId = IdGenerator::generateStockId(
-            $masterStock->sku,
-            $validated['size'],
-            $validated['expiration_date'],
-            $batchNumber
-        );
+        if ($existingStock) {
+            // Jika stok dengan kombinasi yang sama ditemukan, tambahkan quantity
+            $existingStock->quantity += $validated['quantity'];
+            $existingStock->save();
 
-        // Create stock
-        $stock = Stock::create([
-            'master_stock_id' => $validated['master_stock_id'],
-            'size' => $validated['size'],
-            'purchase_price' => $validated['purchase_price'],
-            'selling_price' => $validated['selling_price'],
-            'quantity' => $validated['quantity'],
-            'expiration_date' => $validated['expiration_date'],
-            'stock_id' => $stockId,
-        ]);
+            // Create pembelian record
+            $this->createPembelian($existingStock, $validated['quantity'], $validated['purchase_price'], $validated['expiration_date'], $master_pembelian);
 
-        // Create pembelian record
-        $this->createPembelian($stock, $validated['quantity'], $validated['purchase_price'], $validated['expiration_date'], $master_pembelian);
+            // Check for notifications
+            $existingStock->checkAndCreateNotifications();
+        } else {
+            // Jika tidak ada, buat stok baru
 
-        // Check for notifications
-        $stock->checkAndCreateNotifications();
+            // Get the batch number for new stock including soft deleted ones
+            $batchNumber = Stock::withTrashed()
+                ->where('master_stock_id', $validated['master_stock_id'])
+                ->where('size', $validated['size'])
+                ->count() + 1;
+
+            // Generate stock ID
+            $stockId = IdGenerator::generateStockId(
+                $masterStock->sku,
+                $validated['size'],
+                $validated['expiration_date'],
+                $batchNumber
+            );
+
+            // Create stock
+            $stock = Stock::create([
+                'master_stock_id' => $validated['master_stock_id'],
+                'size' => $validated['size'],
+                'purchase_price' => $validated['purchase_price'],
+                'selling_price' => $validated['selling_price'],
+                'quantity' => $validated['quantity'],
+                'expiration_date' => $validated['expiration_date'],
+                'stock_id' => $stockId,
+            ]);
+
+            // Create pembelian record
+            $this->createPembelian($stock, $validated['quantity'], $validated['purchase_price'], $validated['expiration_date'], $master_pembelian);
+
+            // Check for notifications
+            $stock->checkAndCreateNotifications();
+        }
 
         return redirect()->route('stocks.sizes', $validated['master_stock_id'])->with([
             'success' => 'Stok berhasil ditambahkan!',
