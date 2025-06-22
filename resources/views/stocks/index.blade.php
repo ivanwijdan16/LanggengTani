@@ -845,27 +845,77 @@
                 @php
                     $image = $stock->image ? asset('storage/' . $stock->image) : asset('images/default.png');
                     $totalQuantity = DB::table('stocks')->where('master_stock_id', $stock->id)->sum('quantity');
+
+                    // Check for low stock (when total quantity is low)
+                    $lowStock = $totalQuantity > 0 && $totalQuantity <= 5;
+
+                    // Check for out of stock
+                    $outOfStock = $totalQuantity <= 0;
+
+                    // Check for expired or almost expired items for this master stock
+                    $hasExpiredItems = DB::table('stocks')
+                        ->where('master_stock_id', $stock->id)
+                        ->where('expiration_date', '<', now())
+                        ->where('quantity', '>', 0)
+                        ->exists();
+
+                    $hasAlmostExpiredItems = DB::table('stocks')
+                        ->where('master_stock_id', $stock->id)
+                        ->where('expiration_date', '>', now())
+                        ->where('expiration_date', '<=', now()->addDays(30))
+                        ->where('quantity', '>', 0)
+                        ->exists();
                 @endphp
                 <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
                     <div class="card stock-card" data-id="{{ $stock->id }}"
                         onclick="viewStockSizes({{ $stock->id }})" style="cursor: pointer;">
                         <div class="card-img-wrapper">
                             <img src="{{ $image }}" class="card-img-top" alt="{{ $stock->name }}">
+
+                            <!-- Status Badges -->
+                            @if ($outOfStock)
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge bg-danger badge-small">
+                                        <i class="bx bx-x-circle"></i> Stok Habis
+                                    </span>
+                                </div>
+                            @elseif($lowStock)
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge bg-warning text-dark badge-small">
+                                        <i class="bx bx-error"></i> Stok Menipis
+                                    </span>
+                                </div>
+                            @endif
+
+                            @if ($hasExpiredItems)
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-danger badge-small">
+                                        <i class="bx bx-error-circle"></i> Ada Kadaluwarsa
+                                    </span>
+                                </div>
+                            @elseif($hasAlmostExpiredItems)
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-warning text-dark badge-small">
+                                        <i class="bx bx-time"></i> Ada Hampir Kadaluwarsa
+                                    </span>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="card-body">
                             <h5 class="card-title fw-bold">{{ $stock->name }}</h5>
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="card-subtitle mb-0 text-muted">{{ $stock->sku }}</h6>
-                                <span class="stock-quantity-badge">
+                                <span
+                                    class="stock-quantity-badge {{ $outOfStock ? 'bg-danger text-white' : ($lowStock ? 'bg-warning text-dark' : '') }}">
                                     <i class="bx bx-package"></i> {{ $totalQuantity }} pcs
                                 </span>
                             </div>
-                            <p class="card-text text-muted mb-1 small">{{ $stock->type }} @if ($stock->sub_type)
+                            <p class="card-text text-muted mb-1 small">{{ $stock->type }}
+                                @if ($stock->sub_type)
                                     <span class="card-text text-muted mb-0 small">{{ $stock->sub_type }}</span>
                                 @endif
                             </p>
-
 
                             <div class="card-actions">
                                 <a href="{{ route('stocks.edit.master', $stock->id) }}" class="btn action-btn btn-edit"
@@ -924,7 +974,8 @@
                         onclick="closeDeleteMasterModal()">
                         <i class="bx bx-x me-1"></i> Batal
                     </button>
-                    <button type="button" class="delete-modal-btn delete-modal-btn-delete" onclick="deleteMasterStock()">
+                    <button type="button" class="delete-modal-btn delete-modal-btn-delete"
+                        onclick="deleteMasterStock()">
                         <i class="bx bx-trash me-1"></i> Hapus Produk
                     </button>
                 </div>

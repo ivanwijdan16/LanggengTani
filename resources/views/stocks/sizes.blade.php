@@ -685,7 +685,6 @@
         </div>
 
         <!-- Size-based Stock Grid -->
-        <!-- Size-based Stock Grid -->
         <div class="row">
             @forelse ($sizeGroups as $size => $stocks)
                 @php
@@ -696,6 +695,25 @@
                             ? $sizeImages[$size]->image
                             : $masterStock->image;
                     $image = $sizeImagePath ? asset('storage/' . $sizeImagePath) : asset('images/default.png');
+
+                    // Check for low stock and out of stock
+                    $outOfStock = $totalQuantity <= 0;
+                    $lowStock = $totalQuantity > 0 && $totalQuantity <= 5;
+
+                    // Check for expired items in this size
+                    $hasExpiredItems = $stocks
+                        ->filter(function ($stock) {
+                            return \Carbon\Carbon::parse($stock->expiration_date)->isPast() && $stock->quantity > 0;
+                        })
+                        ->isNotEmpty();
+
+                    // Check for almost expired items in this size
+                    $hasAlmostExpiredItems = $stocks
+                        ->filter(function ($stock) {
+                            $expDate = \Carbon\Carbon::parse($stock->expiration_date);
+                            return !$expDate->isPast() && $expDate->diffInDays(now()) <= 30 && $stock->quantity > 0;
+                        })
+                        ->isNotEmpty();
                 @endphp
                 <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
                     <div class="card stock-card" onclick="viewStockBatches({{ $masterStock->id }}, '{{ $size }}')"
@@ -703,13 +721,43 @@
                         <div class="card-img-wrapper">
                             <img src="{{ $image }}" class="card-img-top"
                                 alt="{{ $masterStock->name }} - {{ $size }}">
+
+                            <!-- Status Badges -->
+                            @if ($outOfStock)
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge bg-danger badge-small">
+                                        <i class="bx bx-x-circle"></i> Stok Habis
+                                    </span>
+                                </div>
+                            @elseif($lowStock)
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge bg-warning text-dark badge-small">
+                                        <i class="bx bx-error"></i> Stok Menipis
+                                    </span>
+                                </div>
+                            @endif
+
+                            @if ($hasExpiredItems)
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-danger badge-small">
+                                        <i class="bx bx-error-circle"></i> Kadaluwarsa
+                                    </span>
+                                </div>
+                            @elseif($hasAlmostExpiredItems)
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-warning text-dark badge-small">
+                                        <i class="bx bx-time"></i> Hampir Kadaluwarsa
+                                    </span>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="card-body">
                             <h5 class="card-title fw-bold">{{ $masterStock->name }} - {{ $size }}</h5>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h6 class="card-subtitle mb-0">{{ $stock->stock_id }}</h6>
-                                <span class="stock-quantity-badge">
+                                <span
+                                    class="stock-quantity-badge {{ $outOfStock ? 'bg-danger text-white' : ($lowStock ? 'bg-warning text-dark' : '') }}">
                                     <i class="bx bx-package"></i> {{ $totalQuantity }} pcs
                                 </span>
                             </div>

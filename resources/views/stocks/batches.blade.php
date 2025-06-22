@@ -640,7 +640,8 @@
                     $expired = \Carbon\Carbon::parse($stock->expiration_date)->isPast();
                     $almostExpired =
                         !$expired && \Carbon\Carbon::parse($stock->expiration_date)->diffInDays(now()) < 30;
-                    $lowStock = $stock->quantity <= 3;
+                    $lowStock = $stock->quantity > 0 && $stock->quantity <= 5;
+                    $outOfStock = $stock->quantity <= 0;
                     $sizeImagePath =
                         isset($sizeImage) && $sizeImage && $sizeImage->image ? $sizeImage->image : $masterStock->image;
                     $image = $sizeImagePath ? asset('storage/' . $sizeImagePath) : asset('images/default.png');
@@ -651,20 +652,33 @@
                             <img src="{{ $image }}" class="card-img-top"
                                 alt="{{ $masterStock->name }} - {{ $size }}">
 
-                            @if ($lowStock)
-                                <span class="status-badge stock-minimal">
-                                    <i class="bx bx-package"></i> Stok Menipis
-                                </span>
+                            <!-- Status Badges -->
+                            @if ($outOfStock)
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge bg-danger badge-small">
+                                        <i class="bx bx-x-circle"></i> Stok Habis
+                                    </span>
+                                </div>
+                            @elseif($lowStock)
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge bg-warning text-dark badge-small">
+                                        <i class="bx bx-error"></i> Stok Menipis
+                                    </span>
+                                </div>
                             @endif
 
                             @if ($expired)
-                                <span class="status-badge expired">
-                                    <i class="bx bx-x-circle"></i> Kadaluwarsa
-                                </span>
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-danger badge-small">
+                                        <i class="bx bx-x-circle"></i> Kadaluwarsa
+                                    </span>
+                                </div>
                             @elseif($almostExpired)
-                                <span class="status-badge nearly-expired">
-                                    <i class="bx bx-time"></i> Hampir Kadaluwarsa
-                                </span>
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-warning text-dark badge-small">
+                                        <i class="bx bx-time"></i> Hampir Kadaluwarsa
+                                    </span>
+                                </div>
                             @endif
                         </div>
 
@@ -673,7 +687,8 @@
 
                             <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
                                 <h6 class="card-subtitle mb-0">{{ $stock->stock_id }}</h6>
-                                <span class="stock-quantity-badge">
+                                <span
+                                    class="stock-quantity-badge {{ $outOfStock ? 'bg-danger text-white' : ($lowStock ? 'bg-warning text-dark' : '') }}">
                                     <i class="bx bx-package"></i> {{ $stock->quantity }} pcs
                                 </span>
                             </div>
